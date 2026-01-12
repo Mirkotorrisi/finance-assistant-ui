@@ -18,22 +18,19 @@ interface NetWorthSectionProps {
   accountBreakdown: AccountBreakdown;
 }
 
-interface ChartDataPoint extends MonthlyData {
-  monthlyData: MonthlyData[];
-}
-
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{
-    payload: ChartDataPoint;
+    payload: MonthlyData;
   }>;
+  monthlyData: MonthlyData[];
 }
 
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+const CustomTooltip = ({ active, payload, monthlyData }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    const index = data.monthlyData?.findIndex((d: MonthlyData) => d.month === data.month) ?? -1;
-    const prevValue = index > 0 ? data.monthlyData[index - 1].netWorth : null;
+    const index = monthlyData.findIndex((d) => d.month === data.month);
+    const prevValue = index > 0 ? monthlyData[index - 1].netWorth : null;
     const diff = prevValue ? data.netWorth - prevValue : null;
 
     return (
@@ -64,9 +61,6 @@ export function NetWorthSection({
 }: NetWorthSectionProps) {
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false);
 
-  // Add monthlyData to each data point for tooltip
-  const chartData = monthlyData.map((d) => ({ ...d, monthlyData }));
-
   return (
     <div className="px-4 py-6">
       {/* Section Title */}
@@ -79,7 +73,7 @@ export function NetWorthSection({
       <div className="w-full h-64 mb-6">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={chartData}
+            data={monthlyData}
             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
           >
             <defs>
@@ -109,7 +103,7 @@ export function NetWorthSection({
               tickLine={false}
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip monthlyData={monthlyData} />} />
             <Area
               type="monotone"
               dataKey="netWorth"
