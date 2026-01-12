@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { DashboardHeader } from './DashboardHeader';
 import { NetWorthSection } from './NetWorthSection';
 import { ExpensesIncomeSection } from './ExpensesIncomeSection';
@@ -9,11 +8,8 @@ interface DashboardProps {
 }
 
 export function Dashboard({ data }: DashboardProps) {
-  const [selectedYear] = useState(data.year);
-
   const handleYearChange = () => {
-    // In a real app, this would open a year selector dialog
-    console.log('Year selector clicked');
+    // TODO: Implement year selector dialog
   };
 
   return (
@@ -21,7 +17,7 @@ export function Dashboard({ data }: DashboardProps) {
       <div className="max-w-2xl mx-auto">
         {/* Header Section */}
         <DashboardHeader
-          year={selectedYear}
+          year={data.year}
           currentNetWorth={data.currentNetWorth}
           netSavings={data.netSavings}
           onYearChange={handleYearChange}

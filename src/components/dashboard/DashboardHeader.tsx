@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/format';
 
 interface DashboardHeaderProps {
   year: number;
@@ -7,15 +8,6 @@ interface DashboardHeaderProps {
   netSavings: number;
   onYearChange: () => void;
 }
-
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-};
 
 export function DashboardHeader({
   year,

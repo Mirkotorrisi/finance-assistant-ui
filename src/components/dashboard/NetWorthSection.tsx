@@ -11,34 +11,29 @@ import {
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { MonthlyData, AccountBreakdown } from '@/types/finance';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/format';
 
 interface NetWorthSectionProps {
   monthlyData: MonthlyData[];
   accountBreakdown: AccountBreakdown;
 }
 
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-};
+interface ChartDataPoint extends MonthlyData {
+  monthlyData: MonthlyData[];
+}
 
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{
-    payload: MonthlyData & { monthlyData: MonthlyData[] };
+    payload: ChartDataPoint;
   }>;
 }
 
 const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
-    const data = payload[0].payload as MonthlyData;
-    const monthlyData = payload[0].payload.monthlyData as MonthlyData[];
-    const index = monthlyData?.findIndex((d: MonthlyData) => d.month === data.month) ?? -1;
-    const prevValue = index > 0 ? monthlyData[index - 1].netWorth : null;
+    const data = payload[0].payload;
+    const index = data.monthlyData?.findIndex((d: MonthlyData) => d.month === data.month) ?? -1;
+    const prevValue = index > 0 ? data.monthlyData[index - 1].netWorth : null;
     const diff = prevValue ? data.netWorth - prevValue : null;
 
     return (

@@ -10,19 +10,11 @@ import {
 } from 'recharts';
 import type { MonthlyData, FlowMode } from '@/types/finance';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/format';
 
 interface ExpensesIncomeSectionProps {
   monthlyData: MonthlyData[];
 }
-
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-};
 
 interface CustomTooltipProps {
   active?: boolean;
