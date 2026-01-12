@@ -93,7 +93,7 @@ export function ExpensesIncomeSectionDesktop({
       </div>
 
       {/* Two-Column Layout */}
-      <div className="grid grid-cols-[1fr_400px] gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(350px,400px)] gap-8">
         {/* Left Column: Chart */}
         <div>
           {/* Mode Toggle */}

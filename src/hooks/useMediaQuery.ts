@@ -10,6 +10,9 @@ export function useMediaQuery(query: string): boolean {
   });
 
   useEffect(() => {
+    // Guard against SSR
+    if (typeof window === 'undefined') return;
+
     const media = window.matchMedia(query);
 
     // Create event listener
