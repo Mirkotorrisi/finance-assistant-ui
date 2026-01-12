@@ -1,6 +1,10 @@
 import { DashboardHeader } from './DashboardHeader';
+import { DashboardHeaderDesktop } from './DashboardHeaderDesktop';
 import { NetWorthSection } from './NetWorthSection';
+import { NetWorthSectionDesktop } from './NetWorthSectionDesktop';
 import { ExpensesIncomeSection } from './ExpensesIncomeSection';
+import { ExpensesIncomeSectionDesktop } from './ExpensesIncomeSectionDesktop';
+import { useIsDesktop } from '@/hooks/useMediaQuery';
 import type { FinancialData } from '@/types/finance';
 
 interface DashboardProps {
@@ -8,10 +12,49 @@ interface DashboardProps {
 }
 
 export function Dashboard({ data }: DashboardProps) {
+  const isDesktop = useIsDesktop();
+
   const handleYearChange = () => {
     // TODO: Implement year selector dialog
   };
 
+  // Desktop Layout
+  if (isDesktop) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Desktop: Constrained max width for readability */}
+        <div className="max-w-[1400px] mx-auto">
+          {/* Header Section - Desktop */}
+          <DashboardHeaderDesktop
+            year={data.year}
+            currentNetWorth={data.currentNetWorth}
+            netSavings={data.netSavings}
+            onYearChange={handleYearChange}
+          />
+
+          {/* Divider */}
+          <div className="border-t border-border" />
+
+          {/* Net Worth Section - Desktop */}
+          <NetWorthSectionDesktop
+            monthlyData={data.monthlyData}
+            accountBreakdown={data.accountBreakdown}
+          />
+
+          {/* Divider */}
+          <div className="border-t border-border" />
+
+          {/* Expenses & Income Section - Desktop */}
+          <ExpensesIncomeSectionDesktop monthlyData={data.monthlyData} />
+
+          {/* Bottom Spacing */}
+          <div className="h-12" />
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile Layout (Original)
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto">
