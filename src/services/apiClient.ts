@@ -90,7 +90,7 @@ class ApiClient {
   /**
    * Generic DELETE request
    */
-  async delete<T>(endpoint: string): Promise<T> {
+  async delete<T = void>(endpoint: string): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     
     try {
@@ -103,6 +103,11 @@ class ApiClient {
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Handle empty responses (204 No Content)
+      if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return undefined as T;
       }
 
       return await response.json();
