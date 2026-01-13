@@ -1,5 +1,77 @@
 # React + TypeScript + Vite
 
+This is a finance assistant UI application built with React, TypeScript, and Vite.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Configure environment variables:
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set your backend API URL:
+```
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+### Development
+
+Run the development server:
+```bash
+npm run dev
+```
+
+### Build
+
+Build for production:
+```bash
+npm run build
+```
+
+### Lint
+
+Run ESLint:
+```bash
+npm run lint
+```
+
+## Backend Integration
+
+This application uses a service layer to fetch data from a backend API. The base URL is configured via the `VITE_API_BASE_URL` environment variable.
+
+### Service Layer
+
+The service layer is located in `src/services/` and includes:
+
+- **apiClient**: Generic HTTP client for making API requests
+- **financialDataService**: Service for fetching financial data
+
+See `src/services/README.md` for detailed documentation.
+
+### Error Handling
+
+The application includes:
+- Loading states while fetching data
+- Error handling with fallback to mock data
+- User-visible error notifications
+
+---
+
+# React + TypeScript + Vite
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
