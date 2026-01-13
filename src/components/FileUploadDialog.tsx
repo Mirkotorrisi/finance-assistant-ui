@@ -54,7 +54,7 @@ export function FileUploadDialog({ open, onOpenChange }: FileUploadDialogProps) 
     return null;
   };
 
-  const handleFile = (file: File) => {
+  const handleFile = useCallback((file: File) => {
     setError(null);
     const validationError = validateFile(file);
 
@@ -65,7 +65,7 @@ export function FileUploadDialog({ open, onOpenChange }: FileUploadDialogProps) 
     }
 
     setSelectedFile(file);
-  };
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -86,19 +86,9 @@ export function FileUploadDialog({ open, onOpenChange }: FileUploadDialogProps) 
 
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      const file = files[0];
-      setError(null);
-      const validationError = validateFile(file);
-
-      if (validationError) {
-        setError(validationError);
-        setSelectedFile(null);
-        return;
-      }
-
-      setSelectedFile(file);
+      handleFile(files[0]);
     }
-  }, []);
+  }, [handleFile]);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

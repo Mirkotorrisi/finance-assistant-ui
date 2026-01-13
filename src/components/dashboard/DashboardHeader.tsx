@@ -29,7 +29,7 @@ export function DashboardHeader({
           <span>{year}</span>
           <ChevronDown className="h-4 w-4" />
         </Button>
-        <Button onClick={onUploadClick} size="sm">
+        <Button onClick={onUploadClick} size="sm" className="gap-2">
           <Upload className="h-4 w-4" />
           <span>Upload</span>
         </Button>

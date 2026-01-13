@@ -30,7 +30,7 @@ export function DashboardHeaderDesktop({
             <span>{year}</span>
             <ChevronDown className="h-4 w-4" />
           </Button>
-          <Button onClick={onUploadClick}>
+          <Button onClick={onUploadClick} className="gap-2">
             <Upload className="h-4 w-4" />
             <span>Upload Data</span>
           </Button>
