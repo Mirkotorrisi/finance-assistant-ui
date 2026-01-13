@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardHeaderDesktop } from './DashboardHeaderDesktop';
 import { NetWorthSection } from './NetWorthSection';
 import { NetWorthSectionDesktop } from './NetWorthSectionDesktop';
 import { ExpensesIncomeSection } from './ExpensesIncomeSection';
 import { ExpensesIncomeSectionDesktop } from './ExpensesIncomeSectionDesktop';
+import { FileUploadDialog } from '@/components/FileUploadDialog';
 import { useIsDesktop } from '@/hooks/useMediaQuery';
 import type { FinancialData } from '@/types/finance';
 
@@ -13,9 +15,14 @@ interface DashboardProps {
 
 export function Dashboard({ data }: DashboardProps) {
   const isDesktop = useIsDesktop();
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const handleYearChange = () => {
     // TODO: Implement year selector dialog
+  };
+
+  const handleUploadClick = () => {
+    setIsUploadDialogOpen(true);
   };
 
   // Desktop Layout
@@ -30,6 +37,7 @@ export function Dashboard({ data }: DashboardProps) {
             currentNetWorth={data.currentNetWorth}
             netSavings={data.netSavings}
             onYearChange={handleYearChange}
+            onUploadClick={handleUploadClick}
           />
 
           {/* Divider */}
@@ -50,6 +58,12 @@ export function Dashboard({ data }: DashboardProps) {
           {/* Bottom Spacing */}
           <div className="h-12" />
         </div>
+
+        {/* File Upload Dialog */}
+        <FileUploadDialog
+          open={isUploadDialogOpen}
+          onOpenChange={setIsUploadDialogOpen}
+        />
       </div>
     );
   }
@@ -64,6 +78,7 @@ export function Dashboard({ data }: DashboardProps) {
           currentNetWorth={data.currentNetWorth}
           netSavings={data.netSavings}
           onYearChange={handleYearChange}
+          onUploadClick={handleUploadClick}
         />
 
         {/* Divider */}
@@ -84,6 +99,12 @@ export function Dashboard({ data }: DashboardProps) {
         {/* Bottom Spacing */}
         <div className="h-8" />
       </div>
+
+      {/* File Upload Dialog */}
+      <FileUploadDialog
+        open={isUploadDialogOpen}
+        onOpenChange={setIsUploadDialogOpen}
+      />
     </div>
   );
 }
