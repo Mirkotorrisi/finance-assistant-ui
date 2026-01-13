@@ -5,6 +5,7 @@ import { NetWorthSection } from './NetWorthSection';
 import { NetWorthSectionDesktop } from './NetWorthSectionDesktop';
 import { ExpensesIncomeSection } from './ExpensesIncomeSection';
 import { ExpensesIncomeSectionDesktop } from './ExpensesIncomeSectionDesktop';
+import { MonthlySummarySection } from './MonthlySummarySection';
 import { FileUploadDialog } from '@/components/FileUploadDialog';
 import { useIsDesktop } from '@/hooks/useMediaQuery';
 import type { FinancialData } from '@/types/finance';
@@ -55,6 +56,12 @@ export function Dashboard({ data }: DashboardProps) {
           {/* Expenses & Income Section - Desktop */}
           <ExpensesIncomeSectionDesktop monthlyData={data.monthlyData} />
 
+          {/* Divider */}
+          <div className="border-t border-border" />
+
+          {/* Monthly Summary Section - Desktop */}
+          <MonthlySummarySection monthlyData={data.monthlyData} />
+
           {/* Bottom Spacing */}
           <div className="h-12" />
         </div>
@@ -95,6 +102,12 @@ export function Dashboard({ data }: DashboardProps) {
 
         {/* Expenses & Income Section */}
         <ExpensesIncomeSection monthlyData={data.monthlyData} />
+
+        {/* Divider */}
+        <div className="border-t border-border" />
+
+        {/* Monthly Summary Section - Mobile */}
+        <MonthlySummarySection monthlyData={data.monthlyData} />
 
         {/* Bottom Spacing */}
         <div className="h-8" />
