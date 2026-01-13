@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/format';
 
@@ -7,6 +7,7 @@ interface DashboardHeaderProps {
   currentNetWorth: number;
   netSavings: number;
   onYearChange: () => void;
+  onUploadClick: () => void;
 }
 
 export function DashboardHeader({
@@ -14,11 +15,12 @@ export function DashboardHeader({
   currentNetWorth,
   netSavings,
   onYearChange,
+  onUploadClick,
 }: DashboardHeaderProps) {
   return (
     <div className="px-4 py-6 bg-background">
-      {/* Year Selector */}
-      <div className="mb-6">
+      {/* Year Selector and Upload Button */}
+      <div className="mb-6 flex items-center justify-between">
         <Button
           variant="ghost"
           onClick={onYearChange}
@@ -26,6 +28,10 @@ export function DashboardHeader({
         >
           <span>{year}</span>
           <ChevronDown className="h-4 w-4" />
+        </Button>
+        <Button onClick={onUploadClick} size="sm" className="gap-2">
+          <Upload className="h-4 w-4" />
+          <span>Upload</span>
         </Button>
       </div>
 
