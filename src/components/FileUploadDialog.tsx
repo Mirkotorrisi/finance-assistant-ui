@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Upload, FileText, X, AlertCircle } from 'lucide-react';
+import { Upload, FileText, X, AlertCircle, CheckCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -8,10 +8,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { uploadService, type UploadStatementResponse } from '@/services';
 
 interface FileUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUploadSuccess?: (result: UploadStatementResponse) => void;
 }
 
 const ACCEPTED_FILE_TYPES = [
@@ -24,11 +26,12 @@ const ACCEPTED_FILE_TYPES = [
 const ACCEPTED_EXTENSIONS = ['.csv', '.pdf', '.xls', '.xlsx'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function FileUploadDialog({ open, onOpenChange }: FileUploadDialogProps) {
+export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUploadDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<UploadStatementResponse | null>(null);
 
   const validateFile = (file: File): string | null => {
     // Check file extension
@@ -56,6 +59,7 @@ export function FileUploadDialog({ open, onOpenChange }: FileUploadDialogProps) 
 
   const handleFile = useCallback((file: File) => {
     setError(null);
+    setUploadResult(null);
     const validationError = validateFile(file);
 
     if (validationError) {
@@ -104,19 +108,20 @@ export function FileUploadDialog({ open, onOpenChange }: FileUploadDialogProps) 
     setError(null);
 
     try {
-      // TODO: Implement backend API call here
-      // For now, we'll just simulate an upload
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Simulate success
-      console.log('File would be uploaded:', selectedFile.name);
+      const result = await uploadService.uploadStatement(selectedFile);
       
-      // Close dialog and reset state
+      setUploadResult(result);
+      
+      // Call the onUploadSuccess callback if provided
+      if (onUploadSuccess) {
+        onUploadSuccess(result);
+      }
+      
+      // Clear the selected file after successful upload
       setSelectedFile(null);
-      setError(null);
-      onOpenChange(false);
-    } catch {
-      setError('Failed to upload file. Please try again.');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to upload file. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsUploading(false);
     }
@@ -125,12 +130,14 @@ export function FileUploadDialog({ open, onOpenChange }: FileUploadDialogProps) 
   const handleRemoveFile = () => {
     setSelectedFile(null);
     setError(null);
+    setUploadResult(null);
   };
 
   const handleClose = () => {
     if (!isUploading) {
       setSelectedFile(null);
       setError(null);
+      setUploadResult(null);
       onOpenChange(false);
     }
   };
@@ -232,6 +239,21 @@ export function FileUploadDialog({ open, onOpenChange }: FileUploadDialogProps) 
             <div className="flex items-start space-x-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3">
               <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
               <p className="text-sm text-destructive">{error}</p>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {uploadResult && (
+            <div className="flex items-start space-x-2 rounded-lg border border-green-500/50 bg-green-500/10 p-3">
+              <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-green-600">{uploadResult.message}</p>
+                <p className="text-green-600/80 mt-1">
+                  Processed: {uploadResult.transactions_processed} | 
+                  Added: {uploadResult.transactions_added} | 
+                  Skipped: {uploadResult.transactions_skipped}
+                </p>
+              </div>
             </div>
           )}
 
