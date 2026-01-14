@@ -52,7 +52,7 @@ export const uploadService = {
       if (!response.ok) {
         // Handle validation errors (422)
         if (response.status === 422) {
-          const errorData = await response.json() as UploadValidationError;
+          const errorData = (await response.json()) as UploadValidationError;
           const errorMessages = errorData.detail
             .map((err) => err.msg)
             .join(', ');
@@ -63,7 +63,7 @@ export const uploadService = {
         throw new Error(`Upload failed with status: ${response.status}`);
       }
 
-      return await response.json();
+      return (await response.json()) as UploadStatementResponse;
     } catch (error) {
       console.error(`Error uploading file to ${url}:`, error);
       throw error;

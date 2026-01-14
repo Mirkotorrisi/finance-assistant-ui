@@ -249,8 +249,8 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
               <div className="text-sm">
                 <p className="font-medium text-green-600">{uploadResult.message}</p>
                 <p className="text-green-600/80 mt-1">
-                  Processed: {uploadResult.transactions_processed} | 
-                  Added: {uploadResult.transactions_added} | 
+                  Processed: {uploadResult.transactions_processed} |{' '}
+                  Added: {uploadResult.transactions_added} |{' '}
                   Skipped: {uploadResult.transactions_skipped}
                 </p>
               </div>
