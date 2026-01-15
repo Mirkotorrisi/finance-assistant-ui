@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { uploadService, type UploadStatementResponse } from '@/services';
+import { uploadService, type UploadStatementResponse, type GenerateNarrativesResponse } from '@/services';
 
 interface FileUploadDialogProps {
   open: boolean;
@@ -32,6 +32,8 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadStatementResponse | null>(null);
+  const [isGeneratingNarratives, setIsGeneratingNarratives] = useState(false);
+  const [narrativeResult, setNarrativeResult] = useState<GenerateNarrativesResponse | null>(null);
 
   const validateFile = (file: File): string | null => {
     // Check file extension
@@ -112,6 +114,27 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
       
       setUploadResult(result);
       
+      // After successful upload, generate narratives for the current year
+      if (result.success && result.transactions_added > 0) {
+        setIsGeneratingNarratives(true);
+        setNarrativeResult(null); // Reset narrative result before new generation
+        try {
+          // Use current year for narrative generation
+          // TODO: Consider making this configurable based on user's fiscal year preference
+          // for international users or those with non-calendar fiscal years
+          const currentYear = new Date().getFullYear();
+          const narratives = await uploadService.generateNarratives(currentYear);
+          setNarrativeResult(narratives);
+        } catch (narrativeError) {
+          // Non-critical error - log but don't fail the upload
+          // The upload was successful, but financial summaries for chat won't be updated
+          // Chat responses about recent transactions may be limited until summaries are manually regenerated
+          console.warn('Failed to generate financial summaries for chat functionality. Chat responses about recent transactions may be limited:', narrativeError);
+        } finally {
+          setIsGeneratingNarratives(false);
+        }
+      }
+      
       // Call the onUploadSuccess callback if provided
       if (onUploadSuccess) {
         onUploadSuccess(result);
@@ -131,13 +154,15 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
     setSelectedFile(null);
     setError(null);
     setUploadResult(null);
+    setNarrativeResult(null);
   };
 
   const handleClose = () => {
-    if (!isUploading) {
+    if (!isUploading && !isGeneratingNarratives) {
       setSelectedFile(null);
       setError(null);
       setUploadResult(null);
+      setNarrativeResult(null);
       onOpenChange(false);
     }
   };
@@ -148,6 +173,12 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  const getUploadButtonText = (): string => {
+    if (isUploading) return 'Uploading...';
+    if (isGeneratingNarratives) return 'Generating summaries...';
+    return 'Upload';
   };
 
   return (
@@ -253,6 +284,16 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
                   Added: {uploadResult.transactions_added} |{' '}
                   Skipped: {uploadResult.transactions_skipped}
                 </p>
+                {isGeneratingNarratives && (
+                  <p className="text-green-600/80 mt-1">
+                    Generating financial summaries...
+                  </p>
+                )}
+                {narrativeResult && (
+                  <p className="text-green-600/80 mt-1">
+                    ✓ Generated {narrativeResult.documents_generated} financial summaries
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -262,15 +303,15 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
             <Button
               variant="outline"
               onClick={handleClose}
-              disabled={isUploading}
+              disabled={isUploading || isGeneratingNarratives}
             >
               Cancel
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={!selectedFile || isUploading}
+              disabled={!selectedFile || isUploading || isGeneratingNarratives}
             >
-              {isUploading ? 'Uploading...' : 'Upload'}
+              {getUploadButtonText()}
             </Button>
           </div>
         </div>
