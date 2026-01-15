@@ -117,6 +117,7 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
       // After successful upload, generate narratives for the current year
       if (result.success && result.transactions_added > 0) {
         setIsGeneratingNarratives(true);
+        setNarrativeResult(null); // Reset narrative result before new generation
         try {
           const currentYear = new Date().getFullYear();
           const narratives = await uploadService.generateNarratives(currentYear);
@@ -167,6 +168,12 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  const getUploadButtonText = (): string => {
+    if (isUploading) return 'Uploading...';
+    if (isGeneratingNarratives) return 'Generating summaries...';
+    return 'Upload';
   };
 
   return (
@@ -299,7 +306,7 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
               onClick={handleUpload}
               disabled={!selectedFile || isUploading || isGeneratingNarratives}
             >
-              {isUploading ? 'Uploading...' : isGeneratingNarratives ? 'Generating summaries...' : 'Upload'}
+              {getUploadButtonText()}
             </Button>
           </div>
         </div>
