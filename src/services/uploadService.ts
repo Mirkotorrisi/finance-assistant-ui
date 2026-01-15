@@ -29,6 +29,15 @@ export interface UploadValidationError {
 }
 
 /**
+ * Response interface for narrative generation
+ */
+export interface GenerateNarrativesResponse {
+  year: number;
+  documents_generated: number;
+  documents_embedded: number;
+}
+
+/**
  * Service for file upload operations
  */
 export const uploadService = {
@@ -66,6 +75,34 @@ export const uploadService = {
       return (await response.json()) as UploadStatementResponse;
     } catch (error) {
       console.error(`Error uploading file to ${url}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Generate narrative documents for RAG after file upload
+   * @param year - The year to generate narratives for
+   * @returns Generation result with document counts
+   */
+  async generateNarratives(year: number): Promise<GenerateNarrativesResponse> {
+    const url = `${config.apiBaseUrl}/api/v2/narratives/generate`;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ year }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Narrative generation failed with status: ${response.status}`);
+      }
+
+      return (await response.json()) as GenerateNarrativesResponse;
+    } catch (error) {
+      console.error(`Error generating narratives:`, error);
       throw error;
     }
   },
