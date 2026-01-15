@@ -119,12 +119,16 @@ export function FileUploadDialog({ open, onOpenChange, onUploadSuccess }: FileUp
         setIsGeneratingNarratives(true);
         setNarrativeResult(null); // Reset narrative result before new generation
         try {
+          // Use current year for narrative generation
+          // Note: This uses the system's current year. For international users,
+          // consider making this configurable based on user's fiscal year preference
           const currentYear = new Date().getFullYear();
           const narratives = await uploadService.generateNarratives(currentYear);
           setNarrativeResult(narratives);
         } catch (narrativeError) {
           // Non-critical error - log but don't fail the upload
-          console.warn('Failed to generate narratives:', narrativeError);
+          // The upload was successful, but financial summaries for chat won't be updated
+          console.warn('Failed to generate financial summaries for chat functionality:', narrativeError);
         } finally {
           setIsGeneratingNarratives(false);
         }
