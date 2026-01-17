@@ -60,8 +60,10 @@ export function AddTransactionModal({
 
     try {
       setIsSubmitting(true);
-      // Convert to negative for expenses
-      const finalAmount = transactionType === 'expense' ? -Math.abs(formData.amount) : Math.abs(formData.amount);
+      // Convert to negative for expenses, ensure positive for income
+      const finalAmount = transactionType === 'expense' 
+        ? -Math.abs(formData.amount) 
+        : Math.abs(formData.amount);
       await onSubmit({ ...formData, amount: finalAmount });
       
       // Reset form

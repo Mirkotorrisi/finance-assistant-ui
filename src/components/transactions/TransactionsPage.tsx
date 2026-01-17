@@ -129,7 +129,8 @@ export function TransactionsPage() {
   // Handlers
   const handleAddTransaction = async (data: TransactionCreate) => {
     const newTransaction = await transactionService.createTransaction(data);
-    setTransactions([...transactions, newTransaction]);
+    // Add new transaction and maintain chronological order (most recent first)
+    setTransactions([newTransaction, ...transactions]);
   };
 
   const handleTransactionClick = (transaction: Transaction) => {

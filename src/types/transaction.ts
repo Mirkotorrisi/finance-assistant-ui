@@ -1,7 +1,7 @@
 // Transaction types
 export interface Transaction {
   id: number;
-  date: string; // ISO format: "2026-01-15"
+  date: string; // ISO 8601 date string (YYYY-MM-DD)
   amount: number; // Positive = income, negative = expense
   category: string;
   description: string;

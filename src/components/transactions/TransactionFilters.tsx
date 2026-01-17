@@ -114,6 +114,7 @@ export function TransactionFilters({
                   <label key={account.id} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
+                      id={`mobile-account-${account.id}`}
                       checked={filters.accounts.includes(account.id)}
                       onChange={() => handleAccountToggle(account.id)}
                       className="rounded border-gray-300"
@@ -134,6 +135,7 @@ export function TransactionFilters({
                   <label key={category.id} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
+                      id={`mobile-category-${category.id}`}
                       checked={filters.categories.includes(category.name)}
                       onChange={() => handleCategoryToggle(category.name)}
                       className="rounded border-gray-300"

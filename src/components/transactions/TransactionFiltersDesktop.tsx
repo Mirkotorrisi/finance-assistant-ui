@@ -91,6 +91,7 @@ export function TransactionFiltersDesktop({
             <label key={account.id} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
+                id={`account-${account.id}`}
                 checked={filters.accounts.includes(account.id)}
                 onChange={() => handleAccountToggle(account.id)}
                 className="rounded border-gray-300"
@@ -112,6 +113,7 @@ export function TransactionFiltersDesktop({
             <label key={category.id} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
+                id={`category-${category.id}`}
                 checked={filters.categories.includes(category.name)}
                 onChange={() => handleCategoryToggle(category.name)}
                 className="rounded border-gray-300"
