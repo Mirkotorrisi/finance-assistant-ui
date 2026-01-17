@@ -20,7 +20,7 @@ export interface AccountCreate {
   name: string;
   account_type: AccountType;
   currency?: string;
-  initial_balance: number;
+  current_balance: number;
 }
 
 export interface AccountUpdate {

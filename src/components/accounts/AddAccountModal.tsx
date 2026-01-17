@@ -48,7 +48,7 @@ export function AddAccountModal({
     name: "",
     account_type: "checking",
     currency: "USD",
-    initial_balance: 0,
+    current_balance: 0,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -60,14 +60,14 @@ export function AddAccountModal({
         name: account.name,
         account_type: account.type,
         currency: account.currency,
-        initial_balance: account.current_balance,
+        current_balance: account.current_balance,
       });
     } else {
       setFormData({
         name: "",
         account_type: "checking",
         currency: "USD",
-        initial_balance: 0,
+        current_balance: 0,
       });
     }
     setErrors({});
@@ -84,8 +84,8 @@ export function AddAccountModal({
     if (!formData.account_type) {
       newErrors.account_type = "Account type is required";
     }
-    if (!isEditing && isNaN(formData.initial_balance)) {
-      newErrors.initial_balance = "Balance must be a valid number";
+    if (!isEditing && isNaN(formData.current_balance)) {
+      newErrors.current_balance = "Balance must be a valid number";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -115,7 +115,7 @@ export function AddAccountModal({
         name: "",
         account_type: "checking",
         currency: "USD",
-        initial_balance: 0,
+        current_balance: 0,
       });
       setErrors({});
       onOpenChange(false);
@@ -212,11 +212,11 @@ export function AddAccountModal({
               id="balance"
               type="number"
               step="0.01"
-              value={formData.initial_balance || ""}
+              value={formData.current_balance || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  initial_balance: parseFloat(e.target.value) || 0,
+                  current_balance: parseFloat(e.target.value) || 0,
                 })
               }
               placeholder="0.00"
@@ -229,8 +229,8 @@ export function AddAccountModal({
                 directly
               </p>
             )}
-            {errors.initial_balance && (
-              <p className="text-sm text-red-600">{errors.initial_balance}</p>
+            {errors.current_balance && (
+              <p className="text-sm text-red-600">{errors.current_balance}</p>
             )}
           </div>
 
