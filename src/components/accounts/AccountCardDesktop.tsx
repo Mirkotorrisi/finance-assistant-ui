@@ -1,10 +1,10 @@
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { formatCurrency } from '@/lib/format';
-import type { Account } from '@/types/account';
-import { useState, useRef, useEffect } from 'react';
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/format";
+import type { Account } from "@/types/account";
+import { useState, useRef, useEffect } from "react";
 
 interface AccountCardDesktopProps {
   account: Account;
@@ -13,15 +13,16 @@ interface AccountCardDesktopProps {
   onClick?: () => void;
 }
 
-export function AccountCardDesktop({ 
-  account, 
-  onEdit, 
+export function AccountCardDesktop({
+  account,
+  onEdit,
   onDelete,
-  onClick 
+  onClick,
 }: AccountCardDesktopProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const accountTypeLabel = account.type.charAt(0).toUpperCase() + account.type.slice(1);
+  const accountTypeLabel =
+    account.type.charAt(0).toUpperCase() + account.type.slice(1);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -32,16 +33,16 @@ export function AccountCardDesktop({
     };
 
     if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMenuOpen]);
 
   return (
-    <Card 
+    <Card
       className="p-6 cursor-pointer hover:shadow-md transition-all relative group"
       onClick={onClick}
     >
@@ -55,14 +56,14 @@ export function AccountCardDesktop({
           <h3 className="text-lg font-semibold mb-1">{account.name}</h3>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold">
-              {formatCurrency(account.currentBalance)}
+              {formatCurrency(account.current_balance)}
             </span>
             <span className="text-sm text-muted-foreground">
               {account.currency}
             </span>
           </div>
         </div>
-        
+
         <div className="relative" ref={menuRef}>
           <Button
             variant="ghost"
@@ -75,9 +76,9 @@ export function AccountCardDesktop({
           >
             <MoreHorizontal className="h-5 w-5" />
           </Button>
-          
+
           {isMenuOpen && (
-            <div 
+            <div
               className="absolute right-0 top-10 w-48 bg-background border border-border rounded-md shadow-lg p-1 z-50"
               onClick={(e) => e.stopPropagation()}
             >

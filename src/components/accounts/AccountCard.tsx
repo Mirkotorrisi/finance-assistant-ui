@@ -1,8 +1,8 @@
-import { MoreVertical } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { formatCurrency } from '@/lib/format';
-import type { Account } from '@/types/account';
+import { MoreVertical } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/format";
+import type { Account } from "@/types/account";
 
 interface AccountCardProps {
   account: Account;
@@ -10,11 +10,16 @@ interface AccountCardProps {
   onClick?: () => void;
 }
 
-export function AccountCard({ account, onLongPress, onClick }: AccountCardProps) {
-  const accountTypeLabel = account.type.charAt(0).toUpperCase() + account.type.slice(1);
+export function AccountCard({
+  account,
+  onLongPress,
+  onClick,
+}: AccountCardProps) {
+  const accountTypeLabel =
+    account.type.charAt(0).toUpperCase() + account.type.slice(1);
 
   return (
-    <Card 
+    <Card
       className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
       onClick={onClick}
       onContextMenu={(e) => {
@@ -27,11 +32,11 @@ export function AccountCard({ account, onLongPress, onClick }: AccountCardProps)
         }, 500);
         const cancel = () => {
           clearTimeout(timer);
-          e.currentTarget.removeEventListener('touchend', cancel);
-          e.currentTarget.removeEventListener('touchmove', cancel);
+          e.currentTarget.removeEventListener("touchend", cancel);
+          e.currentTarget.removeEventListener("touchmove", cancel);
         };
-        e.currentTarget.addEventListener('touchend', cancel);
-        e.currentTarget.addEventListener('touchmove', cancel);
+        e.currentTarget.addEventListener("touchend", cancel);
+        e.currentTarget.addEventListener("touchmove", cancel);
       }}
     >
       <div className="flex items-start justify-between">
@@ -44,7 +49,7 @@ export function AccountCard({ account, onLongPress, onClick }: AccountCardProps)
           <h3 className="text-lg font-semibold mb-1">{account.name}</h3>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold">
-              {formatCurrency(account.currentBalance)}
+              {formatCurrency(account.current_balance)}
             </span>
             <span className="text-sm text-muted-foreground">
               {account.currency}

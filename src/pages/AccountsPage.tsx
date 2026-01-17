@@ -1,34 +1,30 @@
-import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
-import { useIsDesktop } from '@/hooks/useMediaQuery';
-import { accountService } from '@/services/accountService';
-import type { 
-  Account, 
-  AccountCreate,
-  AccountUpdate
-} from '@/types/account';
+import { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
+import { useIsDesktop } from "@/hooks/useMediaQuery";
+import { accountService } from "@/services/accountService";
+import type { Account, AccountCreate, AccountUpdate } from "@/types/account";
 
 // Components
-import { AccountsHeader } from '@/components/accounts/AccountsHeader';
-import { AccountsHeaderDesktop } from '@/components/accounts/AccountsHeaderDesktop';
-import { AccountsOverview } from '@/components/accounts/AccountsOverview';
-import { AccountsOverviewDesktop } from '@/components/accounts/AccountsOverviewDesktop';
-import { AccountsList } from '@/components/accounts/AccountsList';
-import { AccountsGrid } from '@/components/accounts/AccountsGrid';
-import { EmptyState } from '@/components/accounts/EmptyState';
-import { AddAccountModal } from '@/components/accounts/AddAccountModal';
-import { DeleteAccountDialog } from '@/components/accounts/DeleteAccountDialog';
-import { AccountContextMenu } from '@/components/accounts/AccountContextMenu';
-import { Button } from '@/components/ui/button';
+import { AccountsHeader } from "@/components/accounts/AccountsHeader";
+import { AccountsHeaderDesktop } from "@/components/accounts/AccountsHeaderDesktop";
+import { AccountsOverview } from "@/components/accounts/AccountsOverview";
+import { AccountsOverviewDesktop } from "@/components/accounts/AccountsOverviewDesktop";
+import { AccountsList } from "@/components/accounts/AccountsList";
+import { AccountsGrid } from "@/components/accounts/AccountsGrid";
+import { EmptyState } from "@/components/accounts/EmptyState";
+import { AddAccountModal } from "@/components/accounts/AddAccountModal";
+import { DeleteAccountDialog } from "@/components/accounts/DeleteAccountDialog";
+import { AccountContextMenu } from "@/components/accounts/AccountContextMenu";
+import { Button } from "@/components/ui/button";
 
 export function AccountsPage() {
   const isDesktop = useIsDesktop();
-  
+
   // State
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -48,24 +44,32 @@ export function AccountsPage() {
       const accs = await accountService.listAccounts();
       setAccounts(accs);
     } catch (err) {
-      console.error('Failed to load accounts:', err);
-      setError('Failed to load accounts. Please try again.');
+      console.error("Failed to load accounts:", err);
+      setError("Failed to load accounts. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   // Calculate total balance
-  const totalBalance = accounts.reduce((sum, account) => sum + account.currentBalance, 0);
+  const totalBalance = accounts.reduce(
+    (sum, account) => sum + account.current_balance,
+    0,
+  );
 
   // Handlers
   const handleAddOrUpdateAccount = async (
-    data: AccountCreate | { id: number; data: AccountUpdate }
+    data: AccountCreate | { id: number; data: AccountUpdate },
   ) => {
-    if ('id' in data) {
+    if ("id" in data) {
       // Update
-      const updatedAccount = await accountService.updateAccount(data.id, data.data);
-      setAccounts(accounts.map(acc => acc.id === data.id ? updatedAccount : acc));
+      const updatedAccount = await accountService.updateAccount(
+        data.id,
+        data.data,
+      );
+      setAccounts(
+        accounts.map((acc) => (acc.id === data.id ? updatedAccount : acc)),
+      );
       setIsEditModalOpen(false);
       setSelectedAccount(null);
     } else {
@@ -78,7 +82,7 @@ export function AccountsPage() {
 
   const handleAccountClick = (account: Account) => {
     // Future: navigate to account details
-    console.log('Account clicked:', account);
+    console.log("Account clicked:", account);
   };
 
   const handleAccountLongPress = (account: Account) => {
@@ -93,14 +97,14 @@ export function AccountsPage() {
 
   const handleDeleteAccount = async () => {
     if (!selectedAccount) return;
-    
+
     try {
       await accountService.deleteAccount(selectedAccount.id);
-      setAccounts(accounts.filter(acc => acc.id !== selectedAccount.id));
+      setAccounts(accounts.filter((acc) => acc.id !== selectedAccount.id));
       setIsDeleteDialogOpen(false);
       setSelectedAccount(null);
     } catch (error) {
-      console.error('Failed to delete account:', error);
+      console.error("Failed to delete account:", error);
       throw error;
     }
   };

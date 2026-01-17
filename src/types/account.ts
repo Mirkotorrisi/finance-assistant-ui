@@ -3,18 +3,18 @@ export interface Account {
   name: string;
   type: AccountType;
   currency: string;
-  currentBalance: number;
+  current_balance: number;
   is_active: boolean;
   lastUpdated?: string;
 }
 
-export type AccountType = 
-  | 'checking' 
-  | 'savings' 
-  | 'cash' 
-  | 'credit' 
-  | 'investment' 
-  | 'other';
+export type AccountType =
+  | "checking"
+  | "savings"
+  | "cash"
+  | "credit"
+  | "investment"
+  | "other";
 
 export interface AccountCreate {
   name: string;

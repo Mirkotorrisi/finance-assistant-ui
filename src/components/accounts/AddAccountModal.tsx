@@ -1,32 +1,39 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import type { AccountCreate, AccountUpdate, Account, AccountType } from '@/types/account';
-import { ApiClientError } from '@/services/apiClient';
+} from "@/components/ui/dialog";
+import type {
+  AccountCreate,
+  AccountUpdate,
+  Account,
+  AccountType,
+} from "@/types/account";
+import { ApiClientError } from "@/services/apiClient";
 
 interface AddAccountModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   account?: Account | null; // If provided, we're editing
-  onSubmit: (data: AccountCreate | { id: number; data: AccountUpdate }) => Promise<void>;
+  onSubmit: (
+    data: AccountCreate | { id: number; data: AccountUpdate },
+  ) => Promise<void>;
 }
 
 const accountTypes: { value: AccountType; label: string }[] = [
-  { value: 'checking', label: 'Checking' },
-  { value: 'savings', label: 'Savings' },
-  { value: 'cash', label: 'Cash' },
-  { value: 'credit', label: 'Credit' },
-  { value: 'investment', label: 'Investment' },
-  { value: 'other', label: 'Other' },
+  { value: "checking", label: "Checking" },
+  { value: "savings", label: "Savings" },
+  { value: "cash", label: "Cash" },
+  { value: "credit", label: "Credit" },
+  { value: "investment", label: "Investment" },
+  { value: "other", label: "Other" },
 ];
 
 export function AddAccountModal({
@@ -38,9 +45,9 @@ export function AddAccountModal({
   const isEditing = !!account;
 
   const [formData, setFormData] = useState<AccountCreate>({
-    name: '',
-    account_type: 'checking',
-    currency: 'USD',
+    name: "",
+    account_type: "checking",
+    currency: "USD",
     initial_balance: 0,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,13 +60,13 @@ export function AddAccountModal({
         name: account.name,
         account_type: account.type,
         currency: account.currency,
-        initial_balance: account.currentBalance,
+        initial_balance: account.current_balance,
       });
     } else {
       setFormData({
-        name: '',
-        account_type: 'checking',
-        currency: 'USD',
+        name: "",
+        account_type: "checking",
+        currency: "USD",
         initial_balance: 0,
       });
     }
@@ -68,17 +75,17 @@ export function AddAccountModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) {
-      newErrors.name = 'Account name is required';
+      newErrors.name = "Account name is required";
     }
     if (!formData.account_type) {
-      newErrors.account_type = 'Account type is required';
+      newErrors.account_type = "Account type is required";
     }
     if (!isEditing && isNaN(formData.initial_balance)) {
-      newErrors.initial_balance = 'Balance must be a valid number';
+      newErrors.initial_balance = "Balance must be a valid number";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -88,7 +95,7 @@ export function AddAccountModal({
 
     try {
       setIsSubmitting(true);
-      
+
       if (isEditing) {
         // For editing, only send name and type
         await onSubmit({
@@ -102,24 +109,29 @@ export function AddAccountModal({
         // For creating, send all fields
         await onSubmit(formData);
       }
-      
+
       // Reset form
       setFormData({
-        name: '',
-        account_type: 'checking',
-        currency: 'USD',
+        name: "",
+        account_type: "checking",
+        currency: "USD",
         initial_balance: 0,
       });
       setErrors({});
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to save account:', error);
-      
+      console.error("Failed to save account:", error);
+
       // Handle API errors with field-level details
-      if (error instanceof ApiClientError && Object.keys(error.fieldErrors).length > 0) {
+      if (
+        error instanceof ApiClientError &&
+        Object.keys(error.fieldErrors).length > 0
+      ) {
         setErrors(error.fieldErrors);
       } else {
-        setErrors({ submit: `Failed to ${isEditing ? 'update' : 'create'} account. Please try again.` });
+        setErrors({
+          submit: `Failed to ${isEditing ? "update" : "create"} account. Please try again.`,
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -130,7 +142,9 @@ export function AddAccountModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Account' : 'Add Account'}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit Account" : "Add Account"}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
@@ -140,7 +154,9 @@ export function AddAccountModal({
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="e.g., Main Checking"
             />
             {errors.name && (
@@ -154,7 +170,12 @@ export function AddAccountModal({
             <Select
               id="type"
               value={formData.account_type}
-              onChange={(e) => setFormData({ ...formData, account_type: e.target.value as AccountType })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  account_type: e.target.value as AccountType,
+                })
+              }
             >
               {accountTypes.map((type) => (
                 <option key={type.value} value={type.value}>
@@ -174,7 +195,9 @@ export function AddAccountModal({
               <Input
                 id="currency"
                 value={formData.currency}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, currency: e.target.value })
+                }
                 placeholder="USD"
               />
             </div>
@@ -183,21 +206,27 @@ export function AddAccountModal({
           {/* Initial Balance */}
           <div className="space-y-2">
             <Label htmlFor="balance">
-              {isEditing ? 'Current Balance (read-only)' : 'Initial Balance *'}
+              {isEditing ? "Current Balance (read-only)" : "Initial Balance *"}
             </Label>
             <Input
               id="balance"
               type="number"
               step="0.01"
-              value={formData.initial_balance || ''}
-              onChange={(e) => setFormData({ ...formData, initial_balance: parseFloat(e.target.value) || 0 })}
+              value={formData.initial_balance || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  initial_balance: parseFloat(e.target.value) || 0,
+                })
+              }
               placeholder="0.00"
               disabled={isEditing}
-              className={isEditing ? 'bg-muted cursor-not-allowed' : ''}
+              className={isEditing ? "bg-muted cursor-not-allowed" : ""}
             />
             {isEditing && (
               <p className="text-xs text-muted-foreground">
-                Balance is calculated from snapshots and cannot be edited directly
+                Balance is calculated from snapshots and cannot be edited
+                directly
               </p>
             )}
             {errors.initial_balance && (
@@ -220,7 +249,11 @@ export function AddAccountModal({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Account'}
+              {isSubmitting
+                ? "Saving..."
+                : isEditing
+                  ? "Save Changes"
+                  : "Add Account"}
             </Button>
           </DialogFooter>
         </form>
