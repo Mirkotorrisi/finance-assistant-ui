@@ -8,7 +8,8 @@ import type {
   TransactionFilters as TransactionFiltersType, 
   Account, 
   Category,
-  TransactionCreate 
+  TransactionCreate,
+  TransactionUpdate
 } from '@/types/transaction';
 
 // Components
@@ -20,6 +21,9 @@ import { FilterChips } from './FilterChips';
 import { TransactionList } from './TransactionList';
 import { EmptyState } from './EmptyState';
 import { AddTransactionModal } from './AddTransactionModal';
+import { EditTransactionModal } from './EditTransactionModal';
+import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { TransactionContextMenu } from './TransactionContextMenu';
 import { Button } from '@/components/ui/button';
 
 export function TransactionsPage() {
@@ -43,6 +47,10 @@ export function TransactionsPage() {
   // Modal state
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // Load data
   useEffect(() => {
@@ -134,8 +142,50 @@ export function TransactionsPage() {
   };
 
   const handleTransactionClick = (transaction: Transaction) => {
-    // TODO: Implement transaction detail/edit modal
+    // On mobile, clicking does nothing - use long press instead
+    // On desktop, this could open a detail view in the future
     console.log('Transaction clicked:', transaction);
+  };
+
+  const handleTransactionLongPress = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsContextMenuOpen(true);
+  };
+
+  const handleEditTransaction = async (id: number, data: TransactionUpdate) => {
+    try {
+      const updatedTransaction = await transactionService.updateTransaction(id, data);
+      setTransactions(transactions.map(txn => txn.id === id ? updatedTransaction : txn));
+      setIsEditModalOpen(false);
+      setSelectedTransaction(null);
+    } catch (error) {
+      console.error('Failed to update transaction:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteTransaction = async () => {
+    if (!selectedTransaction) return;
+    
+    try {
+      await transactionService.deleteTransaction(selectedTransaction.id);
+      setTransactions(transactions.filter(txn => txn.id !== selectedTransaction.id));
+      setIsDeleteDialogOpen(false);
+      setSelectedTransaction(null);
+    } catch (error) {
+      console.error('Failed to delete transaction:', error);
+      throw error;
+    }
+  };
+
+  const handleContextMenuEdit = () => {
+    setIsContextMenuOpen(false);
+    setIsEditModalOpen(true);
+  };
+
+  const handleContextMenuDelete = () => {
+    setIsContextMenuOpen(false);
+    setIsDeleteDialogOpen(true);
   };
 
   const handleRemoveAccountFilter = (accountId: number) => {
@@ -274,6 +324,7 @@ export function TransactionsPage() {
           <TransactionList
             groups={groupedTransactions}
             onTransactionClick={handleTransactionClick}
+            onTransactionLongPress={handleTransactionLongPress}
           />
         )}
       </div>
@@ -303,6 +354,29 @@ export function TransactionsPage() {
         accounts={accounts}
         categories={categories}
         onSubmit={handleAddTransaction}
+      />
+
+      <EditTransactionModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        transaction={selectedTransaction}
+        accounts={accounts}
+        categories={categories}
+        onSubmit={handleEditTransaction}
+      />
+
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteTransaction}
+        transactionDescription={selectedTransaction?.description}
+      />
+
+      <TransactionContextMenu
+        open={isContextMenuOpen}
+        onClose={() => setIsContextMenuOpen(false)}
+        onEdit={handleContextMenuEdit}
+        onDelete={handleContextMenuDelete}
       />
     </div>
   );
