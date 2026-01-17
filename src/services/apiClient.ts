@@ -1,6 +1,37 @@
 import { config } from '@/config/env';
 
 /**
+ * API Error structure from backend
+ */
+export interface ApiError {
+  detail?: string | { loc: string[]; msg: string; type: string }[];
+  message?: string;
+}
+
+/**
+ * Custom error class for API errors
+ */
+export class ApiClientError extends Error {
+  public status: number;
+  public fieldErrors: Record<string, string> = {};
+  
+  constructor(status: number, message: string, apiError?: ApiError) {
+    super(message);
+    this.name = 'ApiClientError';
+    this.status = status;
+    
+    // Parse field-level errors from backend
+    if (apiError?.detail && Array.isArray(apiError.detail)) {
+      apiError.detail.forEach(err => {
+        // Extract field name from location (e.g., ['body', 'account_type'] -> 'account_type')
+        const fieldName = err.loc[err.loc.length - 1];
+        this.fieldErrors[fieldName] = err.msg;
+      });
+    }
+  }
+}
+
+/**
  * Base API client for making HTTP requests to the backend
  */
 class ApiClient {
@@ -8,6 +39,22 @@ class ApiClient {
 
   constructor() {
     this.baseUrl = config.apiBaseUrl;
+  }
+  
+  /**
+   * Handle error responses from the backend
+   */
+  private async handleErrorResponse(response: Response): Promise<never> {
+    let apiError: ApiError | undefined;
+    
+    try {
+      apiError = await response.json();
+    } catch {
+      // If response is not JSON, use status text
+    }
+    
+    const message = apiError?.message || `HTTP error! status: ${response.status}`;
+    throw new ApiClientError(response.status, message, apiError);
   }
 
   /**
@@ -25,7 +72,7 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        return this.handleErrorResponse(response);
       }
 
       return await response.json();
@@ -51,7 +98,7 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        return this.handleErrorResponse(response);
       }
 
       return await response.json();
@@ -77,7 +124,7 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        return this.handleErrorResponse(response);
       }
 
       return await response.json();
@@ -102,7 +149,7 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        return this.handleErrorResponse(response);
       }
 
       // Handle empty responses (204 No Content)

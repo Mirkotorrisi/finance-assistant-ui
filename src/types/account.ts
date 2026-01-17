@@ -18,9 +18,9 @@ export type AccountType =
 
 export interface AccountCreate {
   name: string;
-  type: AccountType;
+  account_type: AccountType;
   currency?: string;
-  initialBalance: number;
+  initial_balance: number;
 }
 
 export interface AccountUpdate {
