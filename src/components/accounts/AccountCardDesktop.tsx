@@ -2,14 +2,9 @@ import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import { formatCurrency } from '@/lib/format';
 import type { Account } from '@/types/account';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface AccountCardDesktopProps {
   account: Account;
@@ -25,7 +20,25 @@ export function AccountCardDesktop({
   onClick 
 }: AccountCardDesktopProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const accountTypeLabel = account.type.charAt(0).toUpperCase() + account.type.slice(1);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   return (
     <Card 
@@ -50,28 +63,27 @@ export function AccountCardDesktop({
           </div>
         </div>
         
-        <Dialog open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsMenuOpen(true);
-              }}
-            >
-              <MoreHorizontal className="h-5 w-5" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent 
-            className="w-48 p-2"
-            onClick={(e) => e.stopPropagation()}
+        <div className="relative" ref={menuRef}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMenuOpen(!isMenuOpen);
+            }}
           >
-            <div className="flex flex-col gap-1">
+            <MoreHorizontal className="h-5 w-5" />
+          </Button>
+          
+          {isMenuOpen && (
+            <div 
+              className="absolute right-0 top-10 w-48 bg-background border border-border rounded-md shadow-lg p-1 z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Button
                 variant="ghost"
-                className="justify-start"
+                className="w-full justify-start"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsMenuOpen(false);
@@ -83,7 +95,7 @@ export function AccountCardDesktop({
               </Button>
               <Button
                 variant="ghost"
-                className="justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsMenuOpen(false);
@@ -94,8 +106,8 @@ export function AccountCardDesktop({
                 Delete
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
+          )}
+        </div>
       </div>
     </Card>
   );
