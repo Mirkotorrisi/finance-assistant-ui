@@ -24,8 +24,10 @@ export class ApiClientError extends Error {
     if (apiError?.detail && Array.isArray(apiError.detail)) {
       apiError.detail.forEach(err => {
         // Extract field name from location (e.g., ['body', 'account_type'] -> 'account_type')
-        const fieldName = err.loc[err.loc.length - 1];
-        this.fieldErrors[fieldName] = err.msg;
+        if (err.loc && err.loc.length > 0) {
+          const fieldName = err.loc[err.loc.length - 1];
+          this.fieldErrors[fieldName] = err.msg;
+        }
       });
     }
   }
@@ -53,7 +55,9 @@ class ApiClient {
       // If response is not JSON, use status text
     }
     
-    const message = apiError?.message || `HTTP error! status: ${response.status}`;
+    const message = apiError?.message 
+      || (typeof apiError?.detail === 'string' ? apiError.detail : undefined)
+      || `HTTP error! status: ${response.status}`;
     throw new ApiClientError(response.status, message, apiError);
   }
 
