@@ -17,12 +17,14 @@ export function TransactionContextMenu({
 }: TransactionContextMenuProps) {
   if (!open) return null;
 
-  const handleEdit = () => {
+  const handleEdit = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
     onEdit();
     onClose();
   };
 
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
     onDelete();
     onClose();
   };
@@ -33,7 +35,6 @@ export function TransactionContextMenu({
       <div
         className="fixed inset-0 z-40 bg-black/20"
         onClick={onClose}
-        onTouchEnd={onClose}
       />
 
       {/* Menu */}
@@ -42,10 +43,6 @@ export function TransactionContextMenu({
           <button
             className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-accent/50 active:bg-accent transition-colors"
             onClick={handleEdit}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              handleEdit();
-            }}
           >
             <Edit2 className="h-5 w-5 text-blue-600" />
             <span className="text-base font-medium">Edit Transaction</span>
@@ -56,10 +53,6 @@ export function TransactionContextMenu({
           <button
             className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-accent/50 active:bg-accent transition-colors"
             onClick={handleDelete}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              handleDelete();
-            }}
           >
             <Trash2 className="h-5 w-5 text-red-600" />
             <span className="text-base font-medium text-red-600">Delete Transaction</span>
@@ -70,10 +63,6 @@ export function TransactionContextMenu({
         <button
           className="w-full mt-2 bg-background border border-border rounded-lg px-4 py-3 text-base font-medium hover:bg-accent/50 active:bg-accent transition-colors"
           onClick={onClose}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            onClose();
-          }}
         >
           Cancel
         </button>
