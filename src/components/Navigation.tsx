@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt } from 'lucide-react';
+import { LayoutDashboard, Wallet, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Navigation() {
@@ -7,6 +7,7 @@ export function Navigation() {
 
   const links = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/accounts', label: 'Accounts', icon: Wallet },
     { to: '/transactions', label: 'Transactions', icon: Receipt },
   ];
 

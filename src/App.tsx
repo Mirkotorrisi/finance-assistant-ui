@@ -4,6 +4,7 @@ import "./App.css";
 import { Navigation } from "@/components/Navigation";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { TransactionsPage } from "@/components/transactions/TransactionsPage";
+import { AccountsPage } from "@/pages/AccountsPage";
 import { mockFinancialData } from "@/data/mockData";
 import { financialDataService } from "@/services";
 import type { FinancialData } from "@/types/finance";
@@ -64,6 +65,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/accounts" element={<AccountsPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
         </Routes>
       </div>
