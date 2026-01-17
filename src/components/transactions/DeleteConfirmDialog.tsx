@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,9 +22,21 @@ export function DeleteConfirmDialog({
   onConfirm,
   transactionDescription,
 }: DeleteConfirmDialogProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleConfirm = async () => {
-    await onConfirm();
-    onOpenChange(false);
+    try {
+      setIsDeleting(true);
+      setError(null);
+      await onConfirm();
+      onOpenChange(false);
+    } catch (err) {
+      console.error('Failed to delete transaction:', err);
+      setError('Failed to delete transaction. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -44,11 +57,16 @@ export function DeleteConfirmDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {error && (
+          <p className="text-sm text-red-600">{error}</p>
+        )}
+
         <DialogFooter className="flex gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
+            disabled={isDeleting}
             className="flex-1"
           >
             Cancel
@@ -57,9 +75,10 @@ export function DeleteConfirmDialog({
             type="button"
             variant="destructive"
             onClick={handleConfirm}
+            disabled={isDeleting}
             className="flex-1 bg-red-600 hover:bg-red-700"
           >
-            Delete
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -41,7 +41,7 @@ export function useLongPress({
         isLongPressRef.current = true;
         setIsPressed(false);
         onLongPress();
-      }, delay) as unknown as number;
+      }, delay);
     },
     [delay, onLongPress, clearTimer]
   );

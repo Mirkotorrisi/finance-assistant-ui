@@ -10,6 +10,8 @@ export default defineConfig({
     },
   },
   // SPA fallback configuration for client-side routing
+  // Vite's dev server enables HTML5 history API fallback by default,
+  // which ensures all routes are served with index.html
   preview: {
     port: 4173,
     strictPort: false,
@@ -18,7 +20,5 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
-    // Enable HTML5 history API fallback for SPA routing
-    // This ensures all routes are served with index.html
   },
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -99,9 +99,16 @@ export function EditTransactionModal({
     }
   };
 
-  const filteredCategories = categories.filter(
-    cat => cat.type === transactionType
+  const filteredCategories = useMemo(
+    () => categories.filter(cat => cat.type === transactionType),
+    [categories, transactionType]
   );
+
+  const accountName = useMemo(() => {
+    if (!transaction?.account_id) return '';
+    const account = accounts.find(acc => acc.id === transaction.account_id);
+    return account?.name || '';
+  }, [transaction, accounts]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -186,24 +193,15 @@ export function EditTransactionModal({
           </div>
 
           {/* Account */}
-          {accounts.length > 0 && (
+          {accountName && (
             <div className="space-y-2">
-              <Label htmlFor="account">Account</Label>
-              <Select
+              <Label htmlFor="account">Account (cannot be changed)</Label>
+              <Input
                 id="account"
-                value={transaction?.account_id?.toString() || ''}
-                onChange={() => {
-                  // Account cannot be changed when editing
-                }}
+                value={accountName}
                 disabled
-              >
-                <option value="">Select an account</option>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.name}
-                  </option>
-                ))}
-              </Select>
+                className="bg-muted"
+              />
             </div>
           )}
 
