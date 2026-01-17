@@ -1,20 +1,38 @@
 import { formatCurrency } from '@/lib/format';
 import type { Transaction } from '@/types/transaction';
 import { Card } from '@/components/ui/card';
+import { useLongPress } from '@/hooks/useLongPress';
 
 interface TransactionCardProps {
   transaction: Transaction;
   onClick?: (transaction: Transaction) => void;
+  onLongPress?: (transaction: Transaction) => void;
 }
 
-export function TransactionCard({ transaction, onClick }: TransactionCardProps) {
+export function TransactionCard({ transaction, onClick, onLongPress }: TransactionCardProps) {
   const isExpense = transaction.amount < 0;
   const displayAmount = Math.abs(transaction.amount);
   
+  const longPress = useLongPress({
+    onLongPress: () => {
+      if (onLongPress) {
+        onLongPress(transaction);
+      }
+    },
+    onClick: () => {
+      if (onClick) {
+        onClick(transaction);
+      }
+    },
+    delay: 500,
+  });
+  
   return (
     <Card 
-      className="p-4 hover:bg-accent/50 cursor-pointer transition-colors"
-      onClick={() => onClick?.(transaction)}
+      className={`p-4 hover:bg-accent/50 cursor-pointer transition-all select-none ${
+        longPress.isPressed ? 'scale-[0.98] opacity-70' : ''
+      }`}
+      {...longPress.handlers}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1 min-w-0">

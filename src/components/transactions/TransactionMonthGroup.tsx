@@ -5,9 +5,10 @@ import { TransactionCard } from './TransactionCard';
 interface TransactionMonthGroupProps {
   group: MonthGroup;
   onTransactionClick?: (transaction: Transaction) => void;
+  onTransactionLongPress?: (transaction: Transaction) => void;
 }
 
-export function TransactionMonthGroup({ group, onTransactionClick }: TransactionMonthGroupProps) {
+export function TransactionMonthGroup({ group, onTransactionClick, onTransactionLongPress }: TransactionMonthGroupProps) {
   return (
     <div className="mb-8">
       {/* Month Header */}
@@ -27,6 +28,7 @@ export function TransactionMonthGroup({ group, onTransactionClick }: Transaction
             key={transaction.id} 
             transaction={transaction}
             onClick={onTransactionClick}
+            onLongPress={onTransactionLongPress}
           />
         ))}
       </div>
