@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
+import { Navigation } from "@/components/Navigation";
 import { Dashboard } from "@/components/dashboard/Dashboard";
+import { TransactionsPage } from "@/components/transactions/TransactionsPage";
 import { mockFinancialData } from "@/data/mockData";
 import { financialDataService } from "@/services";
 import type { FinancialData } from "@/types/finance";
 
-function App() {
+function DashboardPage() {
   const [data, setData] = useState<FinancialData>(mockFinancialData);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +53,21 @@ function App() {
       )}
       <Dashboard data={data} />
     </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
