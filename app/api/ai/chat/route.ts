@@ -15,9 +15,27 @@ export async function POST(req: Request) {
       )
     }
 
+    // Convert UI messages to the format expected by streamText
+    const formattedMessages = messages.map((msg) => {
+      // Extract text content from parts if present
+      if (msg.parts && Array.isArray(msg.parts)) {
+        const textParts = msg.parts.filter((part: { type: string }) => part.type === 'text')
+        const content = textParts.map((part: { text: string }) => part.text).join('')
+        return {
+          role: msg.role,
+          content,
+        }
+      }
+      // Otherwise use content directly if available
+      return {
+        role: msg.role,
+        content: msg.content || '',
+      }
+    })
+
     const result = await streamText({
       model: openai('gpt-4-turbo'),
-      messages,
+      messages: formattedMessages,
       system: 'You are a helpful financial assistant. You help users understand their finances, analyze transactions, and provide financial insights.',
     })
 
