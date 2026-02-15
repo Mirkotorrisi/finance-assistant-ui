@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react"
 import { TextStreamChatTransport } from "ai"
 import { ChatContainer } from "@/components/chat/ChatContainer"
-import { ChatMessage } from "@/lib/types/chat"
+import { ChatMessage, TextPart } from "@/lib/types/chat"
 import { useMemo } from "react"
 
 export default function ChatPage() {
@@ -23,8 +23,8 @@ export default function ChatPage() {
   // Convert useChat messages to our ChatMessage type
   const chatMessages: ChatMessage[] = messages.map((msg) => {
     // Extract text content from parts
-    const textParts = msg.parts.filter(part => part.type === 'text')
-    const content = textParts.map(part => (part as { type: 'text'; text: string }).text).join('')
+    const textParts = msg.parts.filter((part): part is TextPart => part.type === 'text')
+    const content = textParts.map(part => part.text).join('')
     
     return {
       id: msg.id,

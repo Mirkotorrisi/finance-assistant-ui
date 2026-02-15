@@ -10,3 +10,14 @@ export interface ChatState {
   isLoading: boolean
   error: Error | null
 }
+
+// UI Message part types for extracting content
+export interface TextPart {
+  type: 'text'
+  text: string
+}
+
+export interface MessagePart {
+  type: string
+  [key: string]: unknown
+}
