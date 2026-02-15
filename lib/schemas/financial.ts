@@ -46,3 +46,33 @@ export const marketDataSchema = z.object({
 })
 
 export type MarketData = z.infer<typeof marketDataSchema>
+
+// Stock History Schema
+export const stockHistorySchema = z.object({
+  symbol: z.string(),
+  period: z.string(),
+  data: z.array(z.object({
+    timestamp: z.string().datetime(),
+    price: z.number().positive(),
+    volume: z.number().int().positive(),
+    open: z.number().positive().optional(),
+    high: z.number().positive().optional(),
+    low: z.number().positive().optional(),
+    close: z.number().positive().optional()
+  }))
+})
+
+export type StockHistory = z.infer<typeof stockHistorySchema>
+
+// Portfolio Allocation Schema
+export const portfolioAllocationSchema = z.object({
+  data: z.array(z.object({
+    symbol: z.string(),
+    value: z.number(),
+    percentage: z.number(),
+    shares: z.number()
+  })),
+  totalValue: z.number()
+})
+
+export type PortfolioAllocation = z.infer<typeof portfolioAllocationSchema>
