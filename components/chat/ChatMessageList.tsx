@@ -3,10 +3,10 @@
 import { useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatMessage } from "./ChatMessage"
-import { ChatMessage as ChatMessageType } from "@/lib/types/chat"
+import { Message } from "@/lib/types/chat"
 
 interface ChatMessageListProps {
-  messages: ChatMessageType[]
+  messages: Message[]
   isLoading?: boolean
 }
 

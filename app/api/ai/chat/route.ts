@@ -1,5 +1,6 @@
 import { openai } from '@ai-sdk/openai'
 import { streamText } from 'ai'
+import { tools } from '@/lib/ai/tools'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
@@ -34,9 +35,17 @@ export async function POST(req: Request) {
     })
 
     const result = await streamText({
-      model: openai('gpt-4-turbo'),
+      model: openai('gpt-4o'),
       messages: formattedMessages,
       system: 'You are a helpful financial assistant. You help users understand their finances, analyze transactions, and provide financial insights.',
+      tools,
+      onFinish: (result) => {
+        console.log('Finish event:', {
+          text: result.text,
+          toolCalls: result.toolCalls,
+          toolResults: result.toolResults,
+        })
+      }
     })
 
     return result.toTextStreamResponse()

@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react"
 import { TextStreamChatTransport } from "ai"
 import { ChatContainer } from "@/components/chat/ChatContainer"
-import { ChatMessage, TextPart } from "@/lib/types/chat"
+import { Message, MessagePart } from "@/lib/types/chat"
 import { useMemo } from "react"
 
 export default function ChatPage() {
@@ -20,16 +20,13 @@ export default function ChatPage() {
 
   const isLoading = status === 'streaming' || status === 'submitted'
 
-  // Convert useChat messages to our ChatMessage type
-  const chatMessages: ChatMessage[] = messages.map((msg) => {
-    // Extract text content from parts
-    const textParts = msg.parts.filter((part): part is TextPart => part.type === 'text')
-    const content = textParts.map(part => part.text).join('')
-    
+  // Convert useChat messages to our Message type with parts
+  const chatMessages: Message[] = messages.map((msg) => {
     return {
       id: msg.id,
       role: msg.role as 'user' | 'assistant' | 'system',
-      content,
+      // Cast parts to our MessagePart type - the AI SDK may have additional part types
+      parts: msg.parts as MessagePart[],
       createdAt: new Date(),
     }
   })
