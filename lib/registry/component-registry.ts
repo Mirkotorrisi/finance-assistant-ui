@@ -2,9 +2,9 @@ import { ComponentType } from 'react'
 
 export type ComponentKey = 'summary-table' | 'basic-chart' | 'stock-quote' | 'portfolio' | 'market-data' | 'metric-card'
 
-export interface ComponentRegistryEntry {
+export interface ComponentRegistryEntry<TProps = unknown> {
   key: ComponentKey
-  component: ComponentType<{ contract?: unknown; data?: unknown }>
+  component: ComponentType<TProps>
   description: string
   dataSchema?: {
     safeParse: (data: unknown) => { success: boolean; error?: unknown }
@@ -18,8 +18,8 @@ export class ComponentRegistry {
     this.registry = new Map()
   }
   
-  register(entry: ComponentRegistryEntry): void {
-    this.registry.set(entry.key, entry)
+  register<TProps>(entry: ComponentRegistryEntry<TProps>): void {
+    this.registry.set(entry.key, entry as ComponentRegistryEntry)
   }
   
   get(key: ComponentKey): ComponentRegistryEntry | undefined {

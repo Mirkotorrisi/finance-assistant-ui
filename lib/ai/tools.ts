@@ -3,6 +3,11 @@ import { z } from 'zod'
 import { stockQuoteSchema, portfolioSchema, marketDataSchema, StockQuote, Portfolio, MarketData } from '@/lib/schemas/financial'
 import { tableContractSchema, chartContractSchema, TableContract, ChartContract } from '@/lib/schemas/generated-ui'
 
+// Helper function to capitalize first letter of a string
+function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
 // Tool to get stock quotes
 export const getStockQuote = tool({
   description: 'Get real-time stock quote for a given symbol',
@@ -224,7 +229,7 @@ export const getFinancialSummary = tool({
         ]
       },
       metadata: {
-        title: `${category.charAt(0).toUpperCase() + category.slice(1)} Summary`,
+        title: `${capitalizeFirstLetter(category)} Summary`,
         description: `Overview of your ${category}`
       }
     }

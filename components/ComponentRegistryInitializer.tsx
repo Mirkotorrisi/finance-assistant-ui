@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { registerComponents } from '@/lib/registry/register-components'
 
-let isRegistered = false
-
 export function ComponentRegistryInitializer() {
+  const isRegisteredRef = useRef(false)
+
   useEffect(() => {
-    if (!isRegistered) {
+    if (!isRegisteredRef.current) {
       registerComponents()
-      isRegistered = true
+      isRegisteredRef.current = true
     }
   }, [])
 

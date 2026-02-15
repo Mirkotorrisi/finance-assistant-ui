@@ -42,7 +42,7 @@ export function UIRenderer({ contract }: UIRendererProps) {
       }
     }
 
-    const Component = entry.component
+    const Component = entry.component as React.ComponentType<{ contract: UIContract }>
 
     return <Component contract={contract} />
   } catch (error) {

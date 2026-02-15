@@ -62,18 +62,22 @@ export function SummaryTable({ contract }: SummaryTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.rows.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  {data.columns.map((column) => (
-                    <TableCell
-                      key={column.key}
-                      className={getAlignment(column.align)}
-                    >
-                      {formatCellValue(row[column.key])}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {data.rows.map((row, rowIndex) => {
+                // Use a unique identifier from the row if available, otherwise fall back to index
+                const rowKey = ('id' in row && typeof row.id === 'string') ? row.id : rowIndex
+                return (
+                  <TableRow key={rowKey}>
+                    {data.columns.map((column) => (
+                      <TableCell
+                        key={column.key}
+                        className={getAlignment(column.align)}
+                      >
+                        {formatCellValue(row[column.key])}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>
