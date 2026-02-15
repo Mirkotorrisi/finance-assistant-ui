@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import { ComponentRegistryInitializer } from "@/components/ComponentRegistryInitializer"
 
 // Next.js app router requires metadata export in layout files
 // eslint-disable-next-line react-refresh/only-export-components
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <ComponentRegistryInitializer />
         {children}
       </body>
     </html>
