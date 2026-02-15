@@ -1,6 +1,12 @@
 import { tool } from 'ai'
 import { z } from 'zod'
 import { stockQuoteSchema, portfolioSchema, marketDataSchema, StockQuote, Portfolio, MarketData } from '@/lib/schemas/financial'
+import { tableContractSchema, chartContractSchema, TableContract, ChartContract } from '@/lib/schemas/generated-ui'
+
+// Helper function to capitalize first letter of a string
+function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 
 // Tool to get stock quotes
 export const getStockQuote = tool({
@@ -199,9 +205,75 @@ export const getMarketData = tool({
   }
 })
 
+// Tool to get financial summary table
+export const getFinancialSummary = tool({
+  description: 'Get a summary table of financial data',
+  inputSchema: z.object({
+    category: z.enum(['income', 'expenses', 'assets', 'liabilities']).describe('Financial category to summarize')
+  }),
+  execute: async function({ category }: { category: string }): Promise<TableContract> {
+    // Mock data - replace with real API call
+    const mockData = {
+      type: 'table' as const,
+      componentKey: 'summary-table' as const,
+      data: {
+        columns: [
+          { key: 'item', header: 'Item', align: 'left' as const },
+          { key: 'amount', header: 'Amount', align: 'right' as const },
+          { key: 'change', header: 'Change (%)', align: 'right' as const }
+        ],
+        rows: [
+          { item: 'Salary', amount: 5000, change: 5.2 },
+          { item: 'Investments', amount: 1200, change: -2.1 },
+          { item: 'Other', amount: 300, change: 0 }
+        ]
+      },
+      metadata: {
+        title: `${capitalizeFirstLetter(category)} Summary`,
+        description: `Overview of your ${category}`
+      }
+    }
+
+    return tableContractSchema.parse(mockData)
+  }
+})
+
+// Tool to get performance chart
+export const getPerformanceChart = tool({
+  description: 'Get a performance chart for financial data',
+  inputSchema: z.object({
+    metric: z.enum(['net-worth', 'spending', 'income']).describe('Metric to chart'),
+    period: z.enum(['week', 'month', 'year']).describe('Time period')
+  }),
+  execute: async function({ metric, period }: { metric: string; period: string }): Promise<ChartContract> {
+    // Mock data - replace with real API call
+    const mockData = {
+      type: 'chart' as const,
+      componentKey: 'basic-chart' as const,
+      data: {
+        chartType: 'line' as const,
+        series: [
+          { name: metric, data: [1000, 1200, 1100, 1400, 1600, 1500] }
+        ],
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        xAxisLabel: 'Month',
+        yAxisLabel: 'Amount ($)'
+      },
+      metadata: {
+        title: `${metric} Trend`,
+        description: `${period} performance for ${metric}`
+      }
+    }
+
+    return chartContractSchema.parse(mockData)
+  }
+})
+
 // Export all tools
 export const tools = {
   getStockQuote,
   getPortfolio,
-  getMarketData
+  getMarketData,
+  getFinancialSummary,
+  getPerformanceChart
 }
