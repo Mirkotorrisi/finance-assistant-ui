@@ -21,6 +21,7 @@ interface ChatHistoryProps {
 export function ChatHistory({ userId, currentChatId, onSelectChat, onNewChat }: ChatHistoryProps) {
   const [chats, setChats] = useState<Chat[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchChats()
@@ -28,11 +29,14 @@ export function ChatHistory({ userId, currentChatId, onSelectChat, onNewChat }: 
 
   async function fetchChats() {
     try {
+      setError(null)
       const response = await fetch(`/api/chats?userId=${userId}`)
+      if (!response.ok) throw new Error('Failed to fetch chats')
       const data = await response.json()
       setChats(data)
     } catch (error) {
       console.error('Failed to fetch chats:', error)
+      setError('Failed to load chat history')
     } finally {
       setLoading(false)
     }
@@ -40,10 +44,12 @@ export function ChatHistory({ userId, currentChatId, onSelectChat, onNewChat }: 
 
   async function handleDelete(chatId: string) {
     try {
-      await fetch(`/api/chats/${chatId}`, { method: 'DELETE' })
+      const response = await fetch(`/api/chats/${chatId}`, { method: 'DELETE' })
+      if (!response.ok) throw new Error('Failed to delete chat')
       setChats(chats.filter(c => c.id !== chatId))
     } catch (error) {
       console.error('Failed to delete chat:', error)
+      setError('Failed to delete chat')
     }
   }
 
@@ -59,6 +65,8 @@ export function ChatHistory({ userId, currentChatId, onSelectChat, onNewChat }: 
       <ScrollArea className="flex-1">
         {loading ? (
           <div className="p-4 text-sm text-gray-500">Loading...</div>
+        ) : error ? (
+          <div className="p-4 text-sm text-red-600">{error}</div>
         ) : (
           <div className="space-y-1 p-2">
             {chats.map((chat) => (

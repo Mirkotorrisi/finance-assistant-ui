@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
           const data = `data: ${JSON.stringify(priceData)}\n\n`
           controller.enqueue(encoder.encode(data))
         } catch (error) {
+          console.error('Error fetching real-time price:', error)
           clearInterval(interval)
           controller.close()
         }
