@@ -1,9 +1,11 @@
 import { StockQuoteCard } from './generated-ui/StockQuoteCard'
 import { PortfolioCard } from './generated-ui/PortfolioCard'
 import { MarketDataCard } from './generated-ui/MarketDataCard'
-import { stockQuoteSchema, portfolioSchema, marketDataSchema } from '@/lib/schemas/financial'
+import { stockQuoteSchema, portfolioSchema, marketDataSchema, stockHistorySchema, portfolioAllocationSchema } from '@/lib/schemas/financial'
 import { UIRenderer } from '@/components/generated/UIRenderer'
 import { uiContractSchema } from '@/lib/schemas/generated-ui'
+import { StockPriceChart } from '@/components/charts/StockPriceChart'
+import { PortfolioAllocationChart } from '@/components/charts/PortfolioAllocationChart'
 
 interface ToolResultRendererProps {
   toolName: string
@@ -31,6 +33,14 @@ export function ToolResultRenderer({ toolName, result }: ToolResultRendererProps
       case 'getMarketData': {
         const data = marketDataSchema.parse(result)
         return <MarketDataCard data={data} />
+      }
+      case 'getStockHistory': {
+        const data = stockHistorySchema.parse(result)
+        return <StockPriceChart data={data.data} symbol={data.symbol} />
+      }
+      case 'getPortfolioAllocation': {
+        const data = portfolioAllocationSchema.parse(result)
+        return <PortfolioAllocationChart data={data.data} />
       }
       default:
         return (

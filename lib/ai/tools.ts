@@ -1,6 +1,6 @@
 import { tool } from 'ai'
 import { z } from 'zod'
-import { stockQuoteSchema, portfolioSchema, marketDataSchema, StockQuote, Portfolio, MarketData } from '@/lib/schemas/financial'
+import { stockQuoteSchema, portfolioSchema, marketDataSchema, stockHistorySchema, portfolioAllocationSchema, StockQuote, Portfolio, MarketData, StockHistory, PortfolioAllocation } from '@/lib/schemas/financial'
 import { tableContractSchema, chartContractSchema, TableContract, ChartContract } from '@/lib/schemas/generated-ui'
 
 // Helper function to capitalize first letter of a string
@@ -269,11 +269,126 @@ export const getPerformanceChart = tool({
   }
 })
 
+// Tool to get stock history for charts
+export const getStockHistory = tool({
+  description: 'Get historical price data for a stock to display charts',
+  inputSchema: z.object({
+    symbol: z.string().describe('Stock ticker symbol'),
+    period: z.enum(['1D', '1W', '1M', '3M', '1Y', 'ALL']).default('1M').describe('Time period for historical data')
+  }),
+  execute: async function({ symbol, period }: { symbol: string; period: string }): Promise<StockHistory> {
+    const normalizedSymbol = symbol.toUpperCase()
+    
+    // Generate mock historical data based on period
+    const dataPoints: { timestamp: string; price: number; volume: number }[] = []
+    const now = new Date()
+    let daysBack = 30 // default 1M
+    
+    switch (period) {
+      case '1D':
+        daysBack = 1
+        break
+      case '1W':
+        daysBack = 7
+        break
+      case '1M':
+        daysBack = 30
+        break
+      case '3M':
+        daysBack = 90
+        break
+      case '1Y':
+        daysBack = 365
+        break
+      case 'ALL':
+        daysBack = 365 * 3 // 3 years
+        break
+    }
+    
+    // Base price from stock quote
+    const basePrices: Record<string, number> = {
+      'AAPL': 178.25,
+      'GOOGL': 142.50,
+      'MSFT': 378.90,
+      'TSLA': 245.75,
+      'AMZN': 155.60,
+    }
+    
+    const basePrice = basePrices[normalizedSymbol] || 100
+    let currentPrice = basePrice * 0.95 // Start lower to show growth
+    
+    for (let i = daysBack; i >= 0; i--) {
+      const date = new Date(now)
+      date.setDate(date.getDate() - i)
+      
+      // Add some random walk to the price
+      const change = (Math.random() - 0.48) * (basePrice * 0.02)
+      currentPrice = Math.max(currentPrice + change, basePrice * 0.8)
+      
+      dataPoints.push({
+        timestamp: date.toISOString(),
+        price: Number(currentPrice.toFixed(2)),
+        volume: Math.floor(10000000 + Math.random() * 50000000)
+      })
+    }
+    
+    const result = {
+      symbol: normalizedSymbol,
+      period,
+      data: dataPoints
+    }
+    
+    return stockHistorySchema.parse(result)
+  }
+})
+
+// Tool to get portfolio allocation for pie chart
+export const getPortfolioAllocation = tool({
+  description: 'Get portfolio allocation data for pie chart visualization',
+  inputSchema: z.object({
+    userId: z.string().optional().describe('User ID, defaults to current user')
+  }),
+  execute: async function({ userId }: { userId?: string }): Promise<PortfolioAllocation> {
+    // Mock allocation data based on portfolio holdings
+    const mockHoldings = [
+      { symbol: 'AAPL', shares: 50, currentPrice: 178.25 },
+      { symbol: 'GOOGL', shares: 30, currentPrice: 142.50 },
+      { symbol: 'MSFT', shares: 25, currentPrice: 378.90 }
+    ]
+    
+    const totalValue = mockHoldings.reduce(
+      (sum, holding) => sum + (holding.shares * holding.currentPrice),
+      0
+    )
+    
+    const data = mockHoldings.map(holding => {
+      const value = holding.shares * holding.currentPrice
+      const percentage = (value / totalValue) * 100
+      
+      return {
+        symbol: holding.symbol,
+        value: Number(value.toFixed(2)),
+        percentage: Number(percentage.toFixed(2)),
+        shares: holding.shares
+      }
+    })
+    
+    const result = {
+      data,
+      totalValue: Number(totalValue.toFixed(2))
+    }
+    
+    return portfolioAllocationSchema.parse(result)
+  }
+})
+
 // Export all tools
 export const tools = {
   getStockQuote,
   getPortfolio,
   getMarketData,
   getFinancialSummary,
-  getPerformanceChart
+  getPerformanceChart,
+  getStockHistory,
+  getPortfolioAllocation
 }
