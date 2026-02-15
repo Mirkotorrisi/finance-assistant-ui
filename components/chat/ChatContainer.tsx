@@ -3,10 +3,10 @@
 import { Card } from "@/components/ui/card"
 import { ChatMessageList } from "./ChatMessageList"
 import { ChatInput } from "./ChatInput"
-import { ChatMessage } from "@/lib/types/chat"
+import { Message } from "@/lib/types/chat"
 
 interface ChatContainerProps {
-  messages: ChatMessage[]
+  messages: Message[]
   onSubmit: (message: string) => void
   isLoading?: boolean
 }
