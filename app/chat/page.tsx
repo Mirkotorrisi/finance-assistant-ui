@@ -21,12 +21,17 @@ export default function ChatPage() {
   const isLoading = status === 'streaming' || status === 'submitted'
 
   // Convert useChat messages to our Message type with parts
+  // Filter to only include parts we know how to handle
   const chatMessages: Message[] = messages.map((msg) => {
+    const filteredParts = msg.parts.filter((part) => {
+      // Only include parts we recognize: text, tool-call, tool-result
+      return part.type === 'text' || part.type === 'tool-call' || part.type === 'tool-result'
+    })
+    
     return {
       id: msg.id,
       role: msg.role as 'user' | 'assistant' | 'system',
-      // Cast parts to our MessagePart type - the AI SDK may have additional part types
-      parts: msg.parts as MessagePart[],
+      parts: filteredParts as MessagePart[],
       createdAt: new Date(),
     }
   })

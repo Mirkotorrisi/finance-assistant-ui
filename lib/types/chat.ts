@@ -33,6 +33,8 @@ export interface ToolResultPart {
 }
 
 // Allow any other part types that might come from the AI SDK
+// Examples: 'reasoning' parts, 'step-start' parts, or future part types
+// This ensures forward compatibility with AI SDK updates
 export interface OtherPart {
   type: string
   [key: string]: unknown

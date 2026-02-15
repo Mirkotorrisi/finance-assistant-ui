@@ -7,6 +7,27 @@ interface ChatMessageProps {
   isStreaming?: boolean
 }
 
+// Helper function to render tool result parts
+function renderToolResult(part: ToolResultPart, index: number) {
+  if (!part.isError) {
+    return (
+      <div key={index} className="my-2">
+        <ToolResultRenderer 
+          toolName={part.toolName}
+          result={part.result}
+        />
+      </div>
+    )
+  }
+  
+  return (
+    <div key={index} className="my-2 p-3 bg-red-100 text-red-800 rounded">
+      <p className="text-sm font-semibold">Tool Error:</p>
+      <p className="text-sm">{JSON.stringify(part.result)}</p>
+    </div>
+  )
+}
+
 export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) {
   const isUser = message.role === 'user'
   
@@ -42,24 +63,7 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
             }
             
             if (part.type === 'tool-result') {
-              const toolResultPart = part as ToolResultPart
-              if (!toolResultPart.isError) {
-                return (
-                  <div key={index} className="my-2">
-                    <ToolResultRenderer 
-                      toolName={toolResultPart.toolName}
-                      result={toolResultPart.result}
-                    />
-                  </div>
-                )
-              } else {
-                return (
-                  <div key={index} className="my-2 p-3 bg-red-100 text-red-800 rounded">
-                    <p className="text-sm font-semibold">Tool Error:</p>
-                    <p className="text-sm">{JSON.stringify(toolResultPart.result)}</p>
-                  </div>
-                )
-              }
+              return renderToolResult(part as ToolResultPart, index)
             }
             
             if (part.type === 'tool-call') {
