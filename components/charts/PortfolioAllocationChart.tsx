@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 
 interface AllocationData {
@@ -15,7 +16,7 @@ interface PortfolioAllocationChartProps {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
-export function PortfolioAllocationChart({ data }: PortfolioAllocationChartProps) {
+export const PortfolioAllocationChart = memo(function PortfolioAllocationChart({ data }: PortfolioAllocationChartProps) {
   return (
     <div className="w-full h-80">
       <h3 className="font-semibold mb-2">Portfolio Allocation</h3>
@@ -44,4 +45,4 @@ export function PortfolioAllocationChart({ data }: PortfolioAllocationChartProps
       </ResponsiveContainer>
     </div>
   )
-}
+})

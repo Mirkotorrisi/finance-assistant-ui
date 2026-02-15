@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { format } from 'date-fns'
 
@@ -13,7 +14,7 @@ interface StockPriceChartProps {
   symbol: string
 }
 
-export function StockPriceChart({ data, symbol }: StockPriceChartProps) {
+export const StockPriceChart = memo(function StockPriceChart({ data, symbol }: StockPriceChartProps) {
   const isPositive = data[data.length - 1].price >= data[0].price
   
   return (
@@ -42,4 +43,4 @@ export function StockPriceChart({ data, symbol }: StockPriceChartProps) {
       </ResponsiveContainer>
     </div>
   )
-}
+})

@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
 interface SparklineProps {
@@ -9,7 +10,7 @@ interface SparklineProps {
   color?: string
 }
 
-export function Sparkline({ data, width = 100, height = 30, color }: SparklineProps) {
+export const Sparkline = memo(function Sparkline({ data, width = 100, height = 30, color }: SparklineProps) {
   const chartData = data.map((value, index) => ({ value, index }))
   const isPositive = data[data.length - 1] >= data[0]
   const strokeColor = color || (isPositive ? '#10b981' : '#ef4444')
@@ -27,4 +28,4 @@ export function Sparkline({ data, width = 100, height = 30, color }: SparklinePr
       </LineChart>
     </ResponsiveContainer>
   )
-}
+})
