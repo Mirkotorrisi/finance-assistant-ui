@@ -67,8 +67,12 @@ export default function ChatPage() {
           } as MessagePart
         }
         
-        // Fallback for unknown parts
-        return part as MessagePart
+        // This should never be reached due to the filter above, but TypeScript requires a return
+        // Return as OtherPart for forward compatibility with new AI SDK part types
+        return {
+          ...part,
+          type: part.type
+        } as MessagePart
       })
     
     return {
