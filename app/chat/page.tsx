@@ -21,17 +21,48 @@ export default function ChatPage() {
   const isLoading = status === 'streaming' || status === 'submitted'
 
   // Convert useChat messages to our Message type with parts
-  // Filter to only include parts we know how to handle
+  // Map AI SDK parts to our custom MessagePart types
   const chatMessages: Message[] = messages.map((msg) => {
-    const filteredParts = msg.parts.filter((part) => {
-      // Only include parts we recognize: text, tool-call, tool-result
-      return part.type === 'text' || part.type === 'tool-call' || part.type === 'tool-result'
-    })
+    const mappedParts: MessagePart[] = msg.parts
+      .filter((part: any) => {
+        // Only include parts we recognize: text, tool-call, tool-result
+        return part.type === 'text' || part.type === 'tool-call' || part.type === 'tool-result'
+      })
+      .map((part: any) => {
+        // Map AI SDK part fields to our custom types
+        if (part.type === 'text') {
+          return {
+            type: 'text',
+            text: part.text
+          }
+        }
+        
+        if (part.type === 'tool-call') {
+          return {
+            type: 'tool-call',
+            toolCallId: part.toolCallId,
+            toolName: part.toolName,
+            args: part.input || part.args || {}
+          }
+        }
+        
+        if (part.type === 'tool-result') {
+          return {
+            type: 'tool-result',
+            toolCallId: part.toolCallId,
+            toolName: part.toolName,
+            result: part.output || part.result,
+            isError: part.isError
+          }
+        }
+        
+        return part
+      })
     
     return {
       id: msg.id,
       role: msg.role as 'user' | 'assistant' | 'system',
-      parts: filteredParts as MessagePart[],
+      parts: mappedParts,
       createdAt: new Date(),
     }
   })
