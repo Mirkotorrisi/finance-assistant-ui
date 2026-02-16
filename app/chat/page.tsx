@@ -21,17 +21,64 @@ export default function ChatPage() {
   const isLoading = status === 'streaming' || status === 'submitted'
 
   // Convert useChat messages to our Message type with parts
-  // Filter to only include parts we know how to handle
+  // Map AI SDK parts to our custom MessagePart types
   const chatMessages: Message[] = messages.map((msg) => {
-    const filteredParts = msg.parts.filter((part) => {
-      // Only include parts we recognize: text, tool-call, tool-result
-      return part.type === 'text' || part.type === 'tool-call' || part.type === 'tool-result'
-    })
+    const mappedParts: MessagePart[] = msg.parts
+      .filter((part) => {
+        // Only include parts we recognize: text, tool-call, tool-result
+        return part.type === 'text' || part.type === 'tool-call' || part.type === 'tool-result'
+      })
+      .map((part) => {
+        // Map AI SDK part fields to our custom types
+        if (part.type === 'text' && 'text' in part) {
+          return {
+            type: 'text',
+            text: part.text
+          } as MessagePart
+        }
+        
+        if (part.type === 'tool-call') {
+          // Extract fields with proper type safety
+          const toolCallId = 'toolCallId' in part ? String(part.toolCallId) : ''
+          const toolName = 'toolName' in part ? String(part.toolName) : ''
+          const input = 'input' in part ? part.input : {}
+          
+          return {
+            type: 'tool-call',
+            toolCallId,
+            toolName,
+            args: input as Record<string, unknown>
+          } as MessagePart
+        }
+        
+        if (part.type === 'tool-result') {
+          // Extract fields with proper type safety
+          const toolCallId = 'toolCallId' in part ? String(part.toolCallId) : ''
+          const toolName = 'toolName' in part ? String(part.toolName) : ''
+          const output = 'output' in part ? part.output : undefined
+          const isError = 'isError' in part ? Boolean(part.isError) : false
+          
+          return {
+            type: 'tool-result',
+            toolCallId,
+            toolName,
+            result: output,
+            isError
+          } as MessagePart
+        }
+        
+        // This should never be reached due to the filter above, but TypeScript requires a return
+        // Return as OtherPart for forward compatibility with new AI SDK part types
+        return {
+          ...part,
+          type: part.type
+        } as MessagePart
+      })
     
     return {
       id: msg.id,
       role: msg.role as 'user' | 'assistant' | 'system',
-      parts: filteredParts as MessagePart[],
+      parts: mappedParts,
       createdAt: new Date(),
     }
   })
