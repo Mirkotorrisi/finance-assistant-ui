@@ -24,39 +24,51 @@ export default function ChatPage() {
   // Map AI SDK parts to our custom MessagePart types
   const chatMessages: Message[] = messages.map((msg) => {
     const mappedParts: MessagePart[] = msg.parts
-      .filter((part: any) => {
+      .filter((part) => {
         // Only include parts we recognize: text, tool-call, tool-result
         return part.type === 'text' || part.type === 'tool-call' || part.type === 'tool-result'
       })
-      .map((part: any) => {
+      .map((part) => {
         // Map AI SDK part fields to our custom types
-        if (part.type === 'text') {
+        if (part.type === 'text' && 'text' in part) {
           return {
             type: 'text',
             text: part.text
-          }
+          } as MessagePart
         }
         
         if (part.type === 'tool-call') {
+          // Extract fields with proper type safety
+          const toolCallId = 'toolCallId' in part ? String(part.toolCallId) : ''
+          const toolName = 'toolName' in part ? String(part.toolName) : ''
+          const input = 'input' in part ? part.input : {}
+          
           return {
             type: 'tool-call',
-            toolCallId: part.toolCallId,
-            toolName: part.toolName,
-            args: part.input || part.args || {}
-          }
+            toolCallId,
+            toolName,
+            args: input as Record<string, unknown>
+          } as MessagePart
         }
         
         if (part.type === 'tool-result') {
+          // Extract fields with proper type safety
+          const toolCallId = 'toolCallId' in part ? String(part.toolCallId) : ''
+          const toolName = 'toolName' in part ? String(part.toolName) : ''
+          const output = 'output' in part ? part.output : undefined
+          const isError = 'isError' in part ? Boolean(part.isError) : false
+          
           return {
             type: 'tool-result',
-            toolCallId: part.toolCallId,
-            toolName: part.toolName,
-            result: part.output || part.result,
-            isError: part.isError
-          }
+            toolCallId,
+            toolName,
+            result: output,
+            isError
+          } as MessagePart
         }
         
-        return part
+        // Fallback for unknown parts
+        return part as MessagePart
       })
     
     return {
