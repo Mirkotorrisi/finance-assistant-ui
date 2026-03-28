@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils"
-import { Message, TextPart, ToolCallPart, ToolResultPart } from "@/lib/types/chat"
+import { Message, TextPart, ToolCallPart, ToolResultPart, UiMetadataPart } from "@/lib/types/chat"
 import { ToolResultRenderer } from "./ToolResultRenderer"
+import { UIRenderer } from "@/components/generated/UIRenderer"
+import { uiContractSchema } from "@/lib/schemas/generated-ui"
 
 interface ChatMessageProps {
   message: Message
@@ -73,6 +75,19 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
                   Calling {toolCallPart.toolName}...
                 </div>
               )
+            }
+
+            if (part.type === 'ui-metadata') {
+              const uiMetadataPart = part as UiMetadataPart
+              const validation = uiContractSchema.safeParse(uiMetadataPart.uiMetadata)
+              if (validation.success) {
+                return (
+                  <div key={index} className="my-2">
+                    <UIRenderer contract={validation.data} />
+                  </div>
+                )
+              }
+              return null
             }
             
             return null
