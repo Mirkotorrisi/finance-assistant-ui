@@ -32,6 +32,12 @@ export interface ToolResultPart {
   isError?: boolean
 }
 
+// UI metadata part emitted when a Python agent response contains ui_metadata
+export interface UiMetadataPart {
+  type: 'ui-metadata'
+  uiMetadata: unknown
+}
+
 // Allow any other part types that might come from the AI SDK
 // Examples: 'reasoning' parts, 'step-start' parts, or future part types
 // This ensures forward compatibility with AI SDK updates
@@ -40,7 +46,7 @@ export interface OtherPart {
   [key: string]: unknown
 }
 
-export type MessagePart = TextPart | ToolCallPart | ToolResultPart | OtherPart
+export type MessagePart = TextPart | ToolCallPart | ToolResultPart | UiMetadataPart | OtherPart
 
 // Extended Message interface that supports parts
 export interface Message {
