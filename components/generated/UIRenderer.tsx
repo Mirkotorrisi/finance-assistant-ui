@@ -1,60 +1,64 @@
 import { componentRegistry } from '@/lib/registry/component-registry'
-import { UIContract } from '@/lib/schemas/generated-ui'
+import { uiPlanSchema } from '@/lib/schemas/ui-plan'
+import type { UIPlan, UIPlanComponent } from '@/lib/schemas/ui-plan'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-react'
 
-interface UIRendererProps {
-  contract: UIContract
+interface UIPlanRendererProps {
+  plan: unknown
 }
 
-export function UIRenderer({ contract }: UIRendererProps) {
-  try {
-    const componentKey = contract.componentKey
+function ComponentSlot({ item }: { item: UIPlanComponent }) {
+  const entry = componentRegistry.get(item.type)
 
-    const entry = componentRegistry.get(componentKey as never)
-
-    if (!entry) {
-      return (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Unknown Component</AlertTitle>
-          <AlertDescription>
-            Component &quot;{componentKey}&quot; is not registered.
-          </AlertDescription>
-        </Alert>
-      )
-    }
-
-    // Validate data against schema if available
-    if (entry.dataSchema) {
-      const validation = entry.dataSchema.safeParse(contract)
-      if (!validation.success) {
-        console.error('Schema validation failed:', validation.error)
-        return (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Invalid Data</AlertTitle>
-            <AlertDescription>
-              The data for component &quot;{componentKey}&quot; does not match the expected schema.
-            </AlertDescription>
-          </Alert>
-        )
-      }
-    }
-
-    const Component = entry.component as React.ComponentType<{ contract: UIContract }>
-
-    return <Component contract={contract} />
-  } catch (error) {
-    console.error('Error rendering component:', error)
+  if (!entry) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Render Error</AlertTitle>
+        <AlertTitle>Unknown Component</AlertTitle>
         <AlertDescription>
-          Failed to render component. Check console for details.
+          Component &quot;{item.type}&quot; is not registered.
         </AlertDescription>
       </Alert>
     )
   }
+
+  const Component = entry.component as React.ComponentType<Record<string, unknown>>
+
+  // Spread action params as props so components can receive pre-resolved params if needed.
+  const props: Record<string, unknown> = {
+    title: item.title,
+    ...(item.action?.params ?? {}),
+  }
+
+  return <Component {...props} />
+}
+
+/** Validates and renders a UI plan returned by the chat endpoint. */
+export function UIRenderer({ plan }: UIPlanRendererProps) {
+  const result = uiPlanSchema.safeParse(plan)
+
+  if (!result.success) {
+    console.error('UI plan validation failed:', result.error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Invalid UI Plan</AlertTitle>
+        <AlertDescription>
+          The plan returned by the server failed schema validation and cannot be rendered.
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
+  const validPlan = result.data as UIPlan
+  const sorted = [...validPlan.components].sort((a, b) => a.order - b.order)
+
+  return (
+    <div className="space-y-4">
+      {sorted.map((item, idx) => (
+        <ComponentSlot key={`${item.type}-${idx}`} item={item} />
+      ))}
+    </div>
+  )
 }
