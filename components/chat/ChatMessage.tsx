@@ -1,38 +1,15 @@
 import { cn } from "@/lib/utils"
 import { Message, TextPart, ToolCallPart, ToolResultPart, UiMetadataPart } from "@/lib/types/chat"
-import { ToolResultRenderer } from "./ToolResultRenderer"
 import { UIRenderer } from "@/components/generated/UIRenderer"
-import { uiContractSchema } from "@/lib/schemas/generated-ui"
 
 interface ChatMessageProps {
   message: Message
   isStreaming?: boolean
 }
 
-// Helper function to render tool result parts
-function renderToolResult(part: ToolResultPart, index: number) {
-  if (!part.isError) {
-    return (
-      <div key={index} className="my-2">
-        <ToolResultRenderer 
-          toolName={part.toolName}
-          result={part.result}
-        />
-      </div>
-    )
-  }
-  
-  return (
-    <div key={index} className="my-2 p-3 bg-red-100 text-red-800 rounded">
-      <p className="text-sm font-semibold">Tool Error:</p>
-      <p className="text-sm">{JSON.stringify(part.result)}</p>
-    </div>
-  )
-}
-
 export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) {
   const isUser = message.role === 'user'
-  
+
   return (
     <div
       className={cn(
@@ -63,33 +40,38 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
                 </div>
               )
             }
-            
-            if (part.type === 'tool-result') {
-              return renderToolResult(part as ToolResultPart, index)
-            }
-            
+
             if (part.type === 'tool-call') {
               const toolCallPart = part as ToolCallPart
               return (
                 <div key={index} className="text-sm text-gray-500 italic">
-                  Calling {toolCallPart.toolName}...
+                  Calling {toolCallPart.toolName}…
                 </div>
               )
             }
 
-            if (part.type === 'ui-metadata') {
-              const uiMetadataPart = part as UiMetadataPart
-              const validation = uiContractSchema.safeParse(uiMetadataPart.uiMetadata)
-              if (validation.success) {
+            if (part.type === 'tool-result') {
+              const toolResultPart = part as ToolResultPart
+              if (toolResultPart.isError) {
                 return (
-                  <div key={index} className="my-2">
-                    <UIRenderer contract={validation.data} />
+                  <div key={index} className="my-2 p-3 bg-red-100 text-red-800 rounded text-sm">
+                    <p className="font-semibold">Tool Error:</p>
+                    <p>{JSON.stringify(toolResultPart.result)}</p>
                   </div>
                 )
               }
               return null
             }
-            
+
+            if (part.type === 'ui-metadata') {
+              const uiMetadataPart = part as UiMetadataPart
+              return (
+                <div key={index} className="my-2 w-full">
+                  <UIRenderer plan={uiMetadataPart.uiMetadata} />
+                </div>
+              )
+            }
+
             return null
           })}
         </div>
