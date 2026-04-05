@@ -1,93 +1,83 @@
 "use client"
 
-import { useChat } from "@ai-sdk/react"
-import { TextStreamChatTransport } from "ai"
+import { useState, useCallback } from "react"
 import { ChatContainer } from "@/components/chat/ChatContainer"
-import { Message, MessagePart } from "@/lib/types/chat"
-import { useMemo } from "react"
+import { Message, TextPart } from "@/lib/types/chat"
+
+// Must stay in sync with the marker used in components/chat/ChatContainer.tsx
+const UI_METADATA_MARKER = '__UI_METADATA__:'
+
+interface LlmResponse {
+  text?: string
+  ui?: unknown
+}
+
+interface ChatApiResponse {
+  response: LlmResponse | string
+}
 
 export default function ChatPage() {
-  const transport = useMemo(
-    () => new TextStreamChatTransport({
-      api: '/api/ai/chat',
-    }),
-    []
-  )
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
 
-  const { messages, sendMessage, status, error } = useChat({
-    transport,
-  })
+  const handleMessageSubmit = useCallback(async (userText: string) => {
+    setError(null)
 
-  const isLoading = status === 'streaming' || status === 'submitted'
-
-  // Convert useChat messages to our Message type with parts
-  // Map AI SDK parts to our custom MessagePart types
-  const chatMessages: Message[] = messages.map((msg) => {
-    const mappedParts: MessagePart[] = msg.parts
-      .filter((part) => {
-        // Only include parts we recognize: text, tool-call, tool-result
-        return part.type === 'text' || part.type === 'tool-call' || part.type === 'tool-result'
-      })
-      .map((part) => {
-        // Map AI SDK part fields to our custom types
-        if (part.type === 'text' && 'text' in part) {
-          return {
-            type: 'text',
-            text: part.text
-          } as MessagePart
-        }
-        
-        if (part.type === 'tool-call') {
-          // Extract fields with proper type safety
-          const toolCallId = 'toolCallId' in part ? String(part.toolCallId) : ''
-          const toolName = 'toolName' in part ? String(part.toolName) : ''
-          const input = 'input' in part ? part.input : {}
-          
-          return {
-            type: 'tool-call',
-            toolCallId,
-            toolName,
-            args: input as Record<string, unknown>
-          } as MessagePart
-        }
-        
-        if (part.type === 'tool-result') {
-          // Extract fields with proper type safety
-          const toolCallId = 'toolCallId' in part ? String(part.toolCallId) : ''
-          const toolName = 'toolName' in part ? String(part.toolName) : ''
-          const output = 'output' in part ? part.output : undefined
-          const isError = 'isError' in part ? Boolean(part.isError) : false
-          
-          return {
-            type: 'tool-result',
-            toolCallId,
-            toolName,
-            result: output,
-            isError
-          } as MessagePart
-        }
-        
-        // This should never be reached due to the filter above, but TypeScript requires a return
-        // Return as OtherPart for forward compatibility with new AI SDK part types
-        return {
-          ...part,
-          type: part.type
-        } as MessagePart
-      })
-    
-    return {
-      id: msg.id,
-      role: msg.role as 'user' | 'assistant' | 'system',
-      parts: mappedParts,
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      parts: [{ type: 'text', text: userText } as TextPart],
       createdAt: new Date(),
     }
-  })
+    setMessages((prev) => [...prev, userMessage])
+    setIsLoading(true)
 
-  const handleMessageSubmit = (message: string) => {
-    sendMessage({
-      text: message,
-    })
-  }
+    const llmBaseUrl = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
+
+    try {
+      const res = await fetch(`${llmBaseUrl}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText }),
+      })
+
+      if (!res.ok) {
+        throw new Error(`LLM service returned status ${res.status}`)
+      }
+
+      const data: ChatApiResponse = await res.json()
+
+      // Extract text and optional UI metadata from the backend response
+      let text = ''
+      let uiMetadata: unknown = null
+
+      if (typeof data.response === 'string') {
+        text = data.response
+      } else if (data.response && typeof data.response === 'object') {
+        text = data.response.text ?? ''
+        uiMetadata = data.response.ui ?? null
+      }
+
+      // Embed UI metadata with the marker so ChatContainer can parse it
+      let assistantText = text
+      if (uiMetadata) {
+        assistantText += `\n\n${UI_METADATA_MARKER}${JSON.stringify(uiMetadata)}`
+      }
+
+      const assistantMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        parts: [{ type: 'text', text: assistantText } as TextPart],
+        createdAt: new Date(),
+      }
+      setMessages((prev) => [...prev, assistantMessage])
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to send message'))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   return (
     <div className="container mx-auto py-8">
@@ -97,16 +87,16 @@ export default function ChatPage() {
           Ask questions about your finances, get insights, and receive personalized advice.
         </p>
       </div>
-      
+
       {error && (
         <div className="mb-4 p-4 bg-destructive/10 text-destructive rounded-lg">
           <p className="font-semibold">Error:</p>
           <p>{error.message}</p>
         </div>
       )}
-      
+
       <ChatContainer
-        messages={chatMessages}
+        messages={messages}
         onSubmit={handleMessageSubmit}
         isLoading={isLoading}
       />
