@@ -16,6 +16,8 @@ interface ChatApiResponse {
   response: LlmResponse | string
 }
 
+const LLM_API_BASE_URL = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -33,10 +35,8 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, userMessage])
     setIsLoading(true)
 
-    const llmBaseUrl = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
-
     try {
-      const res = await fetch(`${llmBaseUrl}/chat`, {
+      const res = await fetch(`${LLM_API_BASE_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userText }),
