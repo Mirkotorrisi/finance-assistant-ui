@@ -1,8 +1,8 @@
 # Finance Assistant UI 🏦💬
 
-A **Next.js** chat-first generative UI that integrates with the [Finance Assistant API](https://github.com/Mirkotorrisi/finance-assistant-api).
+A **Next.js** chat-first generative UI that integrates with the [Finance Assistant API](https://github.com/Mirkotorrisi/finance-assistant-api) and the [LLM Finance Assistant](https://github.com/Mirkotorrisi/llm-finance-assistant).
 
-The user types a natural-language request. The app generates a **strict, schema-validated UI plan** that renders only whitelisted finance components backed by real backend REST APIs.
+The user types a natural-language request. The LLM backend processes it and returns a **strict, schema-validated UI plan** that renders only whitelisted finance components backed by real backend REST APIs.
 
 ---
 
@@ -12,6 +12,7 @@ The user types a natural-language request. The app generates a **strict, schema-
 
 - Node.js 20+
 - A running instance of [finance-assistant-api](https://github.com/Mirkotorrisi/finance-assistant-api) (default: `http://localhost:8080`)
+- A running instance of [llm-finance-assistant](https://github.com/Mirkotorrisi/llm-finance-assistant) (default: `http://localhost:8000`)
 
 ### 1. Install dependencies
 
@@ -40,13 +41,9 @@ Open [http://localhost:3000](http://localhost:3000) – you will land directly o
 
 | Variable | Required | Description |
 |---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | ✅ | Base URL of the Finance Assistant API (browser-side) |
-| `API_BASE_URL` | ✅ | Same URL used in Next.js API routes (server-side) |
-| `CHAT_PLAN_URL` | ☑️ | Full URL of a backend chat/plan endpoint. When set, all chat requests are forwarded here. The endpoint must accept `POST { messages }` and return `{ text, plan? }`. |
-| `USE_MOCK_PLAN` | ☑️ | Set to `true` to enable the built-in keyword-based mock plan generator (no API key needed – great for local dev). |
-| `OPENAI_API_KEY` | ☑️ | OpenAI key used when neither `CHAT_PLAN_URL` nor `USE_MOCK_PLAN` is set. |
-
-> **Tip for local dev:** Set `USE_MOCK_PLAN=true` in `.env.local` to try the generative UI without any OpenAI key.
+| `NEXT_PUBLIC_API_BASE_URL` | ✅ | Base URL of the Finance Assistant API (browser-side). |
+| `API_BASE_URL` | ✅ | Same URL used in server-side contexts. |
+| `NEXT_PUBLIC_LLM_API_BASE_URL` | ✅ | Base URL of the LLM Finance Assistant backend. The UI calls `POST {NEXT_PUBLIC_LLM_API_BASE_URL}/chat` directly from the browser. Default: `http://localhost:8000`. |
 
 ---
 
@@ -58,14 +55,13 @@ Open [http://localhost:3000](http://localhost:3000) – you will land directly o
 User message
     │
     ▼
-/api/ai/chat  (Next.js route)
-    │
-    ├─ CHAT_PLAN_URL set?   → forward to backend chat endpoint → UI Plan JSON
-    ├─ USE_MOCK_PLAN=true?  → keyword-match mock plan generator → UI Plan JSON
-    └─ Otherwise            → OpenAI generateText with finance tools → UI Plan JSON
+POST {NEXT_PUBLIC_LLM_API_BASE_URL}/chat  (direct browser call to LLM backend)
     │
     ▼
-ChatContainer parses the UI_METADATA_MARKER
+LLM backend returns { response: { text, ui? }, action, parameters, ... }
+    │
+    ▼
+ChatContainer embeds ui_metadata with the UI_METADATA_MARKER
     │
     ▼
 UIRenderer validates the plan with Zod
@@ -140,7 +136,7 @@ docker build -t finance-assistant-ui .
 docker run -p 3000:3000 \
   -e NEXT_PUBLIC_API_BASE_URL=http://api:8080 \
   -e API_BASE_URL=http://api:8080 \
-  -e USE_MOCK_PLAN=true \
+  -e NEXT_PUBLIC_LLM_API_BASE_URL=http://llm:8000 \
   finance-assistant-ui
 ```
 
@@ -153,5 +149,4 @@ docker run -p 3000:3000 \
 | Framework | Next.js 16 (App Router) |
 | UI | React 19, Tailwind CSS 4, shadcn/ui |
 | Charts | Recharts |
-| AI / Tools | Vercel AI SDK + OpenAI |
 | Validation | Zod |
