@@ -18,7 +18,7 @@ interface SpendingPieProps {
 }
 
 export function SpendingPie({ title = 'Spending Distribution', params }: SpendingPieProps) {
-  const [data, setData] = useState<{ label: string; total: number; percentage: number }[]>([])
+  const [data, setData] = useState<{ name: string; amount: number; percent: number }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,7 +35,7 @@ export function SpendingPie({ title = 'Spending Distribution', params }: Spendin
 
     financialSummaryService
       .getSpendingDistribution(resolvedParams)
-      .then((res) => setData(res.items))
+      .then((res) => setData(res.distribution))
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load spending data'))
       .finally(() => setLoading(false))
   }, [params])
@@ -57,13 +57,13 @@ export function SpendingPie({ title = 'Spending Distribution', params }: Spendin
             <PieChart>
               <Pie
                 data={data}
-                dataKey="total"
-                nameKey="label"
+                dataKey="amount"
+                nameKey="name"
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={({ name, payload }: { name?: string; value?: number; payload?: { percentage?: number } }) =>
-                  `${name ?? ''} (${Math.abs(payload?.percentage ?? 0).toFixed(1)}%)`
+                label={({ name, payload }: { name?: string; value?: number; payload?: { percent?: number } }) =>
+                  `${name ?? ''} (${Math.abs(payload?.percent ?? 0).toFixed(1)}%)`
                 }
               >
                 {data.map((_, index) => (

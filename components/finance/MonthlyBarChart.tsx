@@ -32,7 +32,7 @@ export function MonthlyBarChart({
   useEffect(() => {
     financialDataService
       .getByYear(year)
-      .then((res) => setData(res.monthly_data))
+      .then((res) => setData(res.monthlyData))
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load financial data'))
       .finally(() => setLoading(false))
   }, [year])

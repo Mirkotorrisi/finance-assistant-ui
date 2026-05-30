@@ -1,7 +1,7 @@
 export interface TopCategory {
   category: string
-  total: number
-  percentage: number
+  amount: number
+  count: number
 }
 
 export interface MonthlySummary {
@@ -13,28 +13,38 @@ export interface MonthlySummary {
 }
 
 export interface DistributionItem {
-  label: string
-  total: number
-  percentage: number
+  name: string
+  amount: number
+  percent: number
+  count: number
 }
 
 export interface SpendingDistribution {
   start_date: string
   end_date: string
   group_by: string
-  items: DistributionItem[]
+  total_amount: number
+  distribution: DistributionItem[]
+}
+
+export interface TypeBreakdownItem {
+  amount: number
+  percent: number
 }
 
 export interface AccountBreakdownItem {
   account_id: number
-  account_name: string
-  account_type: string
+  name: string
+  type: string
+  category: string
   balance: number
+  percent: number
   currency: string
 }
 
 export interface AccountBreakdown {
   total_balance: number
+  by_type: Record<string, TypeBreakdownItem>
   accounts: AccountBreakdownItem[]
 }
 
