@@ -25,10 +25,9 @@ function ComponentSlot({ item }: { item: UIPlanComponent }) {
 
   const Component = entry.component as React.ComponentType<Record<string, unknown>>
 
-  // Spread action params as props so components can receive pre-resolved params if needed.
   const props: Record<string, unknown> = {
     title: item.title,
-    ...(item.action?.params ?? {}),
+    params: item.action?.params,
   }
 
   return <Component {...props} />

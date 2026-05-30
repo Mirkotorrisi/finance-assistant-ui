@@ -14,6 +14,7 @@ interface LlmResponse {
 
 interface ChatApiResponse {
   response: LlmResponse | string
+  history?: string[]
 }
 
 const LLM_API_BASE_URL = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
@@ -22,6 +23,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+  const [history, setHistory] = useState<string[]>([])
 
   const handleMessageSubmit = useCallback(async (userText: string) => {
     setError(null)
@@ -39,7 +41,7 @@ export default function ChatPage() {
       const res = await fetch(`${LLM_API_BASE_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText }),
+        body: JSON.stringify({ message: userText, history }),
       })
 
       if (!res.ok) {
@@ -47,6 +49,11 @@ export default function ChatPage() {
       }
 
       const data: ChatApiResponse = await res.json()
+
+      // Update conversation history for the next request
+      if (data.history) {
+        setHistory(data.history)
+      }
 
       // Extract text and optional UI metadata from the backend response
       let text = ''
@@ -77,7 +84,7 @@ export default function ChatPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [history])
 
   return (
     <div className="container mx-auto py-8">
