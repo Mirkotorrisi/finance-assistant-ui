@@ -13,11 +13,15 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV BUILD_STANDALONE true
+# NEXT_PUBLIC_* vars are baked into the JS bundle at build time, not runtime.
+# They must be declared as ARGs and injected here before `npm run build`.
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8081
+ARG NEXT_PUBLIC_LLM_API_BASE_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_LLM_API_BASE_URL=$NEXT_PUBLIC_LLM_API_BASE_URL
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV BUILD_STANDALONE=true
 
 RUN npm run build
 
