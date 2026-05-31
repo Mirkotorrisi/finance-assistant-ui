@@ -82,10 +82,7 @@ export function StatementUpload() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button
-          size="sm"
-          className="fixed bottom-6 right-6 z-50 shadow-lg gap-2 rounded-full px-5"
-        >
+        <Button size="sm" className="gap-2">
           <Upload className="h-4 w-4" />
           Upload Statement
         </Button>

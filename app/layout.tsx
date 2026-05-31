@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { ComponentRegistryInitializer } from "@/components/ComponentRegistryInitializer"
-import { StatementUpload } from "@/components/finance/StatementUpload"
+import { Navbar } from "@/components/layout/Navbar"
 
 export const metadata: Metadata = {
   title: "Finance Assistant",
@@ -17,8 +17,8 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <ComponentRegistryInitializer />
-        {children}
-        <StatementUpload />
+        <Navbar />
+        <main>{children}</main>
       </body>
     </html>
   )
