@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { ChatContainer } from "@/components/chat/ChatContainer"
 import { Message, TextPart } from "@/lib/types/chat"
+import { AlertCircle } from "lucide-react"
 
-// Must stay in sync with the marker used in components/chat/ChatContainer.tsx
 const UI_METADATA_MARKER = '__UI_METADATA__:'
 
 interface LlmResponse {
@@ -50,12 +50,10 @@ export default function ChatPage() {
 
       const data: ChatApiResponse = await res.json()
 
-      // Update conversation history for the next request
       if (data.history) {
         setHistory(data.history)
       }
 
-      // Extract text and optional UI metadata from the backend response
       let text = ''
       let uiMetadata: unknown = null
 
@@ -66,7 +64,6 @@ export default function ChatPage() {
         uiMetadata = data.response.ui ?? null
       }
 
-      // Embed UI metadata with the marker so ChatContainer can parse it
       let assistantText = text
       if (uiMetadata) {
         assistantText += `\n\n${UI_METADATA_MARKER}${JSON.stringify(uiMetadata)}`
@@ -87,26 +84,22 @@ export default function ChatPage() {
   }, [history])
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">AI Financial Assistant</h1>
-        <p className="text-muted-foreground mt-2">
-          Ask questions about your finances, get insights, and receive personalized advice.
-        </p>
-      </div>
-
+    <div className="h-[calc(100vh-4rem)] flex flex-col">
       {error && (
-        <div className="mb-4 p-4 bg-destructive/10 text-destructive rounded-lg">
-          <p className="font-semibold">Error:</p>
-          <p>{error.message}</p>
+        <div className="mx-auto w-full max-w-3xl px-4 pt-3">
+          <div className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-2.5 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {error.message}
+          </div>
         </div>
       )}
-
-      <ChatContainer
-        messages={messages}
-        onSubmit={handleMessageSubmit}
-        isLoading={isLoading}
-      />
+      <div className="flex-1 overflow-hidden">
+        <ChatContainer
+          messages={messages}
+          onSubmit={handleMessageSubmit}
+          isLoading={isLoading}
+        />
+      </div>
     </div>
   )
 }

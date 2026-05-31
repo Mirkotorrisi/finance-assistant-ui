@@ -4,6 +4,14 @@ import { useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatMessage } from "./ChatMessage"
 import { Message } from "@/lib/types/chat"
+import { Bot, Sparkles } from "lucide-react"
+
+const SUGGESTED_PROMPTS = [
+  "What were my biggest expenses last month?",
+  "Show me my spending by category",
+  "How is my savings trend looking?",
+  "Summarize my recent transactions",
+]
 
 interface ChatMessageListProps {
   messages: Message[]
@@ -11,22 +19,38 @@ interface ChatMessageListProps {
 }
 
 export function ChatMessageList({ messages, isLoading = false }: ChatMessageListProps) {
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   return (
     <ScrollArea className="flex-1 h-full">
-      <div ref={scrollRef} className="px-4 py-6 space-y-4">
+      <div className="px-4 py-6 space-y-6">
         {messages.length === 0 && !isLoading && (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            <p className="text-center">
-              Start a conversation by typing a message below.
-            </p>
+          <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
+              <Bot className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight mb-1">AI Financial Assistant</h2>
+              <p className="text-sm text-muted-foreground max-w-xs">
+                Ask anything about your finances. I can analyze transactions, summarize spending, and more.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
+              {SUGGESTED_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-left text-sm text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-foreground transition-all duration-150"
+                  disabled
+                >
+                  <Sparkles className="h-3.5 w-3.5 shrink-0 text-primary/50" />
+                  {prompt}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         {messages.map((message) => (
@@ -36,6 +60,21 @@ export function ChatMessageList({ messages, isLoading = false }: ChatMessageList
             isStreaming={isLoading && message.id === messages[messages.length - 1]?.id}
           />
         ))}
+        {isLoading && messages.length > 0 && (
+          <div className="flex gap-3">
+            <div className="flex h-8 w-8 shrink-0 rounded-full items-center justify-center bg-muted border border-border text-muted-foreground">
+              <Bot className="h-4 w-4" />
+            </div>
+            <div className="rounded-2xl rounded-tl-sm bg-card border border-border px-4 py-3 shadow-xs">
+              <div className="flex gap-1 items-center h-4">
+                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:0ms]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:150ms]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:300ms]" />
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
       </div>
     </ScrollArea>
   )
