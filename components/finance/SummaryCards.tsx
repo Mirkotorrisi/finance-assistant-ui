@@ -9,6 +9,10 @@ import { formatCurrency } from '@/lib/format'
 import { TrendingUp, TrendingDown, Wallet, CreditCard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+// OKLCH values matching chart-2 (green) and chart-5 (red) tokens
+const GREEN = 'oklch(0.62 0.19 162)'
+const RED   = 'oklch(0.64 0.25 16)'
+
 interface SummaryData {
   totalBalance: number
   monthlyIncome: number
@@ -22,6 +26,7 @@ interface SummaryCardsProps {
 
 export function SummaryCards({ title }: SummaryCardsProps) {
   const [data, setData] = useState<SummaryData | null>(null)
+  const [monthLabel, setMonthLabel] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -30,6 +35,8 @@ export function SummaryCards({ title }: SummaryCardsProps) {
       try {
         const now = new Date()
         const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
+        setMonthLabel(now.toLocaleString('en-US', { month: 'long', year: 'numeric' }))
 
         const [balanceRes, monthlySummary, accounts] = await Promise.all([
           transactionsService.getBalance(),
@@ -84,39 +91,54 @@ export function SummaryCards({ title }: SummaryCardsProps) {
   const cards = [
     {
       label: 'Total Balance',
+      subtitle: null,
       value: formatCurrency(data.totalBalance),
       icon: Wallet,
-      cardClass: 'bg-gradient-to-br from-primary/8 to-primary/4 border-primary/20',
-      iconClass: 'text-primary bg-primary/10',
-      valueClass: 'text-primary',
+      cardStyle: {
+        background: 'color-mix(in oklch, var(--primary) 6%, var(--background))',
+        borderColor: 'color-mix(in oklch, var(--primary) 20%, transparent)',
+      },
+      iconStyle: { color: 'var(--primary)', background: 'color-mix(in oklch, var(--primary) 12%, transparent)' },
+      valueStyle: { color: 'var(--primary)' },
     },
     {
       label: 'Monthly Income',
+      subtitle: monthLabel,
       value: formatCurrency(data.monthlyIncome),
       icon: TrendingUp,
-      cardClass: 'bg-gradient-to-br from-emerald-50 to-emerald-100/40 border-emerald-200/50',
-      iconClass: 'text-emerald-600 bg-emerald-100/80',
-      valueClass: 'text-emerald-700',
+      cardStyle: {
+        background: `color-mix(in oklch, ${GREEN} 6%, var(--background))`,
+        borderColor: `color-mix(in oklch, ${GREEN} 20%, transparent)`,
+      },
+      iconStyle: { color: GREEN, background: `color-mix(in oklch, ${GREEN} 12%, transparent)` },
+      valueStyle: { color: GREEN },
     },
     {
       label: 'Monthly Expenses',
+      subtitle: monthLabel,
       value: formatCurrency(data.monthlyExpenses),
       icon: CreditCard,
-      cardClass: 'bg-gradient-to-br from-rose-50 to-rose-100/40 border-rose-200/50',
-      iconClass: 'text-rose-600 bg-rose-100/80',
-      valueClass: 'text-rose-700',
+      cardStyle: {
+        background: `color-mix(in oklch, ${RED} 6%, var(--background))`,
+        borderColor: `color-mix(in oklch, ${RED} 20%, transparent)`,
+      },
+      iconStyle: { color: RED, background: `color-mix(in oklch, ${RED} 12%, transparent)` },
+      valueStyle: { color: RED },
     },
     {
       label: 'Monthly Net',
+      subtitle: monthLabel,
       value: formatCurrency(data.monthlyNet),
       icon: isNetPositive ? TrendingUp : TrendingDown,
-      cardClass: isNetPositive
-        ? 'bg-gradient-to-br from-emerald-50 to-emerald-100/40 border-emerald-200/50'
-        : 'bg-gradient-to-br from-rose-50 to-rose-100/40 border-rose-200/50',
-      iconClass: isNetPositive
-        ? 'text-emerald-600 bg-emerald-100/80'
-        : 'text-rose-600 bg-rose-100/80',
-      valueClass: isNetPositive ? 'text-emerald-700' : 'text-rose-700',
+      cardStyle: {
+        background: `color-mix(in oklch, ${isNetPositive ? GREEN : RED} 6%, var(--background))`,
+        borderColor: `color-mix(in oklch, ${isNetPositive ? GREEN : RED} 20%, transparent)`,
+      },
+      iconStyle: {
+        color: isNetPositive ? GREEN : RED,
+        background: `color-mix(in oklch, ${isNetPositive ? GREEN : RED} 12%, transparent)`,
+      },
+      valueStyle: { color: isNetPositive ? GREEN : RED },
     },
   ]
 
@@ -127,19 +149,25 @@ export function SummaryCards({ title }: SummaryCardsProps) {
         {cards.map((card) => {
           const Icon = card.icon
           return (
-            <Card key={card.label} className={cn("border", card.cardClass)}>
+            <Card key={card.label} className="border" style={card.cardStyle}>
               <CardHeader className="pb-2 pt-5 px-5">
                 <CardTitle className="text-xs font-medium text-muted-foreground flex items-center gap-2">
-                  <span className={cn("flex h-7 w-7 items-center justify-center rounded-lg", card.iconClass)}>
+                  <span
+                    className="flex h-7 w-7 items-center justify-center rounded-lg shrink-0"
+                    style={card.iconStyle}
+                  >
                     <Icon className="h-3.5 w-3.5" />
                   </span>
                   {card.label}
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-5 pb-5">
-                <p className={cn("text-2xl font-bold tracking-tight", card.valueClass)}>
+                <p className="text-2xl font-bold tracking-tight" style={card.valueStyle}>
                   {card.value}
                 </p>
+                {card.subtitle && (
+                  <p className="text-xs text-muted-foreground mt-0.5">{card.subtitle}</p>
+                )}
               </CardContent>
             </Card>
           )

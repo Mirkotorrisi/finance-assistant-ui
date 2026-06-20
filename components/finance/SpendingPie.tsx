@@ -5,12 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { financialSummaryService } from '@/lib/services/financial-summary.service'
 import { formatCurrency } from '@/lib/format'
+import { CHART_PALETTE } from '@/lib/chart-colors'
 import type { SpendingDistributionParams } from '@/lib/types/financial-summary'
-
-const COLORS = [
-  '#2563eb', '#16a34a', '#dc2626', '#d97706', '#7c3aed',
-  '#0891b2', '#be185d', '#65a30d', '#ea580c', '#0284c7',
-]
 
 interface SpendingPieProps {
   title?: string
@@ -47,7 +43,7 @@ export function SpendingPie({ title = 'Spending Distribution', params }: Spendin
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="h-64 bg-gray-100 rounded animate-pulse" />
+          <div className="h-64 bg-muted rounded animate-pulse" />
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
         ) : data.length === 0 ? (
@@ -67,7 +63,7 @@ export function SpendingPie({ title = 'Spending Distribution', params }: Spendin
                 }
               >
                 {data.map((_, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  <Cell key={index} fill={CHART_PALETTE[index % CHART_PALETTE.length]} />
                 ))}
               </Pie>
               <Tooltip

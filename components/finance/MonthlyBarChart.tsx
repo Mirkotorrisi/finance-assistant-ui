@@ -44,7 +44,7 @@ export function MonthlyBarChart({
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="h-64 bg-gray-100 rounded animate-pulse" />
+          <div className="h-64 bg-muted rounded animate-pulse" />
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
         ) : data.length === 0 ? (
@@ -57,9 +57,9 @@ export function MonthlyBarChart({
               <YAxis tickFormatter={(v: number) => formatCurrency(v, undefined, true)} />
               <Tooltip formatter={(value: number | string | undefined) => formatCurrency(Number(value ?? 0))} />
               <Legend />
-              <Bar dataKey="income" name="Income" fill="#16a34a" />
-              <Bar dataKey="expenses" name="Expenses" fill="#dc2626" />
-              <Bar dataKey="net" name="Net" fill="#2563eb" />
+              <Bar dataKey="income" name="Income" fill="oklch(0.62 0.19 162)" />
+              <Bar dataKey="expenses" name="Expenses" fill="oklch(0.64 0.25 16)" />
+              <Bar dataKey="net" name="Net" fill="oklch(0.546 0.241 264)" />
             </BarChart>
           </ResponsiveContainer>
         )}

@@ -8,26 +8,14 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { financialSummaryService } from '@/lib/services/financial-summary.service'
 import { formatCurrency } from '@/lib/format'
+import { paletteColor } from '@/lib/chart-colors'
 import type { SpendingDistributionParams, DistributionItem } from '@/lib/types/financial-summary'
-
-const COLORS = [
-  '#3b5bdb', '#1971c2', '#0c8599', '#2f9e44', '#e67700',
-  '#c2255c', '#6741d9', '#ae3ec9', '#d9480f', '#1864ab',
-]
-
-function categoryColor(name: string): string {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return COLORS[Math.abs(hash) % COLORS.length]
-}
 
 const PRESETS = [
   { label: '1M', months: 1 },
   { label: '3M', months: 3 },
   { label: '6M', months: 6 },
-  { label: '1A', months: 12 },
+  { label: '1Y', months: 12 },
 ]
 
 interface SpendingBubbleProps {
@@ -139,7 +127,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
             </div>
             <div className="flex items-end gap-2">
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Da</Label>
+                <Label className="text-xs text-muted-foreground">From</Label>
                 <Input
                   type="date"
                   value={startDate}
@@ -148,7 +136,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">A</Label>
+                <Label className="text-xs text-muted-foreground">To</Label>
                 <Input
                   type="date"
                   value={endDate}
@@ -166,13 +154,13 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
           ) : error ? (
             <p className="text-sm text-destructive">{error}</p>
           ) : data.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nessun dato per il periodo selezionato.</p>
+            <p className="text-sm text-muted-foreground">No data for the selected period.</p>
           ) : (
             <>
               <svg width={width} height={height}>
                 {packedLeaves.map((node: HierarchyCircularNode<RootDatum>) => {
                   const item = node.data as DistributionItem
-                  const color = categoryColor(item.name)
+                  const color = paletteColor(item.name)
                   const r = node.r
                   const nameFontSize = Math.max(9, Math.min(14, r / 3.5))
                   const amountFontSize = nameFontSize * 0.82
@@ -183,7 +171,16 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
                       key={item.name}
                       transform={`translate(${node.x},${node.y})`}
                       style={{ cursor: onCategoryClick ? 'pointer' : 'default' }}
+                      role={onCategoryClick ? 'button' : undefined}
+                      tabIndex={onCategoryClick ? 0 : undefined}
+                      aria-label={`${item.name}: ${formatCurrency(Math.abs(item.amount))}`}
                       onClick={() => onCategoryClick?.(item.name, startDate, endDate)}
+                      onKeyDown={(e) => {
+                        if (onCategoryClick && (e.key === 'Enter' || e.key === ' ')) {
+                          e.preventDefault()
+                          onCategoryClick(item.name, startDate, endDate)
+                        }
+                      }}
                     >
                       <circle r={r} fill={color} fillOpacity={0.88} />
                       {showText && (
@@ -229,7 +226,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
                     >
                       <span
                         className="shrink-0 inline-block w-3 h-3 rounded-full"
-                        style={{ backgroundColor: categoryColor(item.name) }}
+                        style={{ backgroundColor: paletteColor(item.name) }}
                       />
                       <span className="truncate text-xs text-muted-foreground" title={item.name}>
                         {item.name}

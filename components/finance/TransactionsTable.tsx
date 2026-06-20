@@ -42,7 +42,7 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
         {loading ? (
           <div className="space-y-2">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+              <div key={i} className="h-10 bg-muted rounded animate-pulse" />
             ))}
           </div>
         ) : error ? (
@@ -69,11 +69,10 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
                       <Badge variant="outline">{tx.category}</Badge>
                     </TableCell>
                     <TableCell
-                      className={`text-right font-medium ${
-                        tx.amount >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
+                      className="text-right font-medium"
+                      style={{ color: tx.amount >= 0 ? 'oklch(0.62 0.19 162)' : 'oklch(0.64 0.25 16)' }}
                     >
-                      {formatCurrency(tx.amount, tx.currency)}
+                      {tx.amount >= 0 ? '+' : ''}{formatCurrency(tx.amount, tx.currency)}
                     </TableCell>
                   </TableRow>
                 ))}
