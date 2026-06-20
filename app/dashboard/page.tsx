@@ -6,11 +6,12 @@ import { TransactionsTable } from "@/components/finance/TransactionsTable";
 import { SpendingBubble } from "@/components/finance/SpendingBubble";
 import { SpendingPie } from "@/components/finance/SpendingPie";
 import { MonthlyBarChart } from "@/components/finance/MonthlyBarChart";
+import { ChatOverlay } from "@/components/chat/ChatOverlay";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SlidersHorizontal, X } from "lucide-react";
+import { MessageSquare, X } from "lucide-react";
 import type { TransactionFilters } from "@/lib/types/transaction";
 
 const EMPTY_FILTERS: TransactionFilters = {
@@ -23,6 +24,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("transactions");
   const [draft, setDraft] = useState<TransactionFilters>(EMPTY_FILTERS);
   const [applied, setApplied] = useState<TransactionFilters>(EMPTY_FILTERS);
+  const [chatOpen, setChatOpen] = useState(false);
 
   function handleApply(e: React.FormEvent) {
     e.preventDefault();
@@ -57,7 +59,7 @@ export default function DashboardPage() {
     applied.category || applied.start_date || applied.end_date;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)]">
+    <div className="min-h-[calc(100vh-4rem)] relative">
       {/* Page header */}
       <div className="border-b border-border/50 bg-card/50">
         <div className="container mx-auto px-4 py-6">
@@ -174,6 +176,22 @@ export default function DashboardPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Floating chat trigger */}
+      <button
+        onClick={() => setChatOpen((o) => !o)}
+        aria-label={chatOpen ? "Close AI chat" : "Open AI chat"}
+        aria-expanded={chatOpen}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-all duration-200 hover:brightness-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        {chatOpen
+          ? <X className="h-4 w-4 shrink-0" />
+          : <MessageSquare className="h-4 w-4 shrink-0" />
+        }
+        <span>{chatOpen ? "Close" : "Ask AI"}</span>
+      </button>
+
+      <ChatOverlay open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }

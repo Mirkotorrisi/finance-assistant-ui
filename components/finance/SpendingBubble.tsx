@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { financialSummaryService } from '@/lib/services/financial-summary.service'
 import { formatCurrency } from '@/lib/format'
-import { paletteColor } from '@/lib/chart-colors'
+import { categoryColor } from '@/lib/chart-colors'
 import type { SpendingDistributionParams, DistributionItem } from '@/lib/types/financial-summary'
 
 const PRESETS = [
@@ -160,7 +160,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
               <svg width={width} height={height}>
                 {packedLeaves.map((node: HierarchyCircularNode<RootDatum>) => {
                   const item = node.data as DistributionItem
-                  const color = paletteColor(item.name)
+                  const color = categoryColor(item.name)
                   const r = node.r
                   const nameFontSize = Math.max(9, Math.min(14, r / 3.5))
                   const amountFontSize = nameFontSize * 0.82
@@ -226,7 +226,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
                     >
                       <span
                         className="shrink-0 inline-block w-3 h-3 rounded-full"
-                        style={{ backgroundColor: paletteColor(item.name) }}
+                        style={{ backgroundColor: categoryColor(item.name) }}
                       />
                       <span className="truncate text-xs text-muted-foreground" title={item.name}>
                         {item.name}

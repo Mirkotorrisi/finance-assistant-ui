@@ -13,6 +13,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { transactionsService } from '@/lib/services/transactions.service'
 import { formatCurrency, formatDate } from '@/lib/format'
+import { categoryColor } from '@/lib/chart-colors'
 import type { Transaction, TransactionFilters } from '@/lib/types/transaction'
 
 interface TransactionsTableProps {
@@ -66,7 +67,16 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
                     <TableCell className="whitespace-nowrap">{formatDate(tx.date)}</TableCell>
                     <TableCell>{tx.description}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{tx.category}</Badge>
+                      <Badge
+                        variant="outline"
+                        style={{
+                          color: categoryColor(tx.category),
+                          borderColor: `color-mix(in oklch, ${categoryColor(tx.category)} 35%, transparent)`,
+                          background: `color-mix(in oklch, ${categoryColor(tx.category)} 10%, var(--background))`,
+                        }}
+                      >
+                        {tx.category}
+                      </Badge>
                     </TableCell>
                     <TableCell
                       className="text-right font-medium"
