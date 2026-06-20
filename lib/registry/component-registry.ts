@@ -5,6 +5,7 @@ export type ComponentKey =
   | 'TransactionsTable'
   | 'AccountsList'
   | 'SpendingPie'
+  | 'SpendingBubble'
   | 'MonthlyBarChart'
   | 'FormTransaction'
   | 'FormAccount'
