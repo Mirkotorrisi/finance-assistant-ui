@@ -6,6 +6,7 @@ export const whitelistedComponentTypes = [
   'TransactionsTable',
   'AccountsList',
   'SpendingPie',
+  'SpendingBubble',
   'MonthlyBarChart',
   'FormTransaction',
   'FormAccount',

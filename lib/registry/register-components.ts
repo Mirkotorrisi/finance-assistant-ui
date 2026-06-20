@@ -3,6 +3,7 @@ import { SummaryCards } from '@/components/finance/SummaryCards'
 import { TransactionsTable } from '@/components/finance/TransactionsTable'
 import { AccountsList } from '@/components/finance/AccountsList'
 import { SpendingPie } from '@/components/finance/SpendingPie'
+import { SpendingBubble } from '@/components/finance/SpendingBubble'
 import { MonthlyBarChart } from '@/components/finance/MonthlyBarChart'
 import { FormTransaction } from '@/components/finance/FormTransaction'
 import { FormAccount } from '@/components/finance/FormAccount'
@@ -31,6 +32,12 @@ export function registerComponents() {
     key: 'SpendingPie',
     component: SpendingPie as React.ComponentType<unknown>,
     description: 'Pie chart of spending distribution by category or account',
+  })
+
+  componentRegistry.register({
+    key: 'SpendingBubble',
+    component: SpendingBubble as React.ComponentType<unknown>,
+    description: 'Bubble chart of spending by category — bubble size reflects transaction count',
   })
 
   componentRegistry.register({
