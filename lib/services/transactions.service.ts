@@ -41,4 +41,9 @@ export const transactionsService = {
   getBalance(): Promise<BalanceResponse> {
     return get<BalanceResponse>('/api/transactions/balance')
   },
+
+  /** GET /api/transactions/categories */
+  getCategories(): Promise<string[]> {
+    return get<string[]>('/api/transactions/categories')
+  },
 }
