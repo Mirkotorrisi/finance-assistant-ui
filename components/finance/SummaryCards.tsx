@@ -29,6 +29,13 @@ export function SummaryCards({ title }: SummaryCardsProps) {
   const [monthLabel, setMonthLabel] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    const refresh = () => setRefreshKey((k) => k + 1)
+    window.addEventListener('transactions-updated', refresh)
+    return () => window.removeEventListener('transactions-updated', refresh)
+  }, [])
 
   useEffect(() => {
     async function fetchData() {
@@ -59,7 +66,7 @@ export function SummaryCards({ title }: SummaryCardsProps) {
       }
     }
     fetchData()
-  }, [])
+  }, [refreshKey])
 
   if (loading) {
     return (

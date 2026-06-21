@@ -17,6 +17,13 @@ export function SpendingPie({ title = 'Spending Distribution', params }: Spendin
   const [data, setData] = useState<{ name: string; amount: number; percent: number }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    const refresh = () => setRefreshKey((k) => k + 1)
+    window.addEventListener('transactions-updated', refresh)
+    return () => window.removeEventListener('transactions-updated', refresh)
+  }, [])
 
   useEffect(() => {
     const now = new Date()
@@ -34,7 +41,7 @@ export function SpendingPie({ title = 'Spending Distribution', params }: Spendin
       .then((res) => setData(res.distribution))
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load spending data'))
       .finally(() => setLoading(false))
-  }, [params])
+  }, [params, refreshKey])
 
   return (
     <Card>

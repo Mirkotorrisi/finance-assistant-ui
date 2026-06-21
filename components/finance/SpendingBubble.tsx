@@ -65,6 +65,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
   })
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(600)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -73,6 +74,12 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
     })
     ro.observe(containerRef.current)
     return () => ro.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const refresh = () => setRefreshKey((k) => k + 1)
+    window.addEventListener('transactions-updated', refresh)
+    return () => window.removeEventListener('transactions-updated', refresh)
   }, [])
 
   useEffect(() => {
@@ -86,7 +93,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
       .getSpendingDistribution(resolvedParams)
       .then((res) => dispatch({ type: 'SUCCESS', data: res.distribution }))
       .catch((err) => dispatch({ type: 'ERROR', error: err instanceof Error ? err.message : 'Failed to load data' }))
-  }, [startDate, endDate, params])
+  }, [startDate, endDate, params, refreshKey])
 
   function handlePreset(months: number) {
     setActivePreset(months)

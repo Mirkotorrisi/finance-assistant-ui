@@ -25,14 +25,23 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
+    const refresh = () => setRefreshKey((k) => k + 1)
+    window.addEventListener('transactions-updated', refresh)
+    return () => window.removeEventListener('transactions-updated', refresh)
+  }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    setError(null)
     transactionsService
       .list(params)
       .then(setTransactions)
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load transactions'))
       .finally(() => setLoading(false))
-  }, [params])
+  }, [params, refreshKey])
 
   return (
     <Card>

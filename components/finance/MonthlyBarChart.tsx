@@ -28,6 +28,13 @@ export function MonthlyBarChart({
   const [data, setData] = useState<MonthlyDataPoint[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    const refresh = () => setRefreshKey((k) => k + 1)
+    window.addEventListener('transactions-updated', refresh)
+    return () => window.removeEventListener('transactions-updated', refresh)
+  }, [])
 
   useEffect(() => {
     financialDataService
@@ -35,7 +42,7 @@ export function MonthlyBarChart({
       .then((res) => setData(res.monthlyData))
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load financial data'))
       .finally(() => setLoading(false))
-  }, [year])
+  }, [year, refreshKey])
 
   return (
     <Card>

@@ -60,6 +60,7 @@ export function StatementUpload() {
       const data: UploadResult = await res.json()
       setResult(data)
       setState('success')
+      window.dispatchEvent(new Event('transactions-updated'))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
       setState('error')
