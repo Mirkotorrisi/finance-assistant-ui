@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -11,13 +11,29 @@ import {
 import { Button } from '@/components/ui/button'
 import { AlertCircle, CheckCircle, FileText, Upload } from 'lucide-react'
 
-type UploadState = 'idle' | 'uploading' | 'success' | 'error'
+type UploadState = 'idle' | 'uploading' | 'processing' | 'success' | 'error'
+
+interface JobStatus {
+  status: 'processing' | 'complete' | 'error'
+  step?: 'queued' | 'extracting' | 'parsing' | 'saving'
+  completed_chunks?: number
+  total_chunks?: number
+  result?: UploadResult
+  error?: string
+}
 
 interface UploadResult {
   transactions_processed: number
   transactions_added: number
   transactions_skipped: number
   message: string
+}
+
+const STEP_LABELS: Record<string, string> = {
+  queued: 'In coda…',
+  extracting: 'Estrazione testo…',
+  parsing: 'Analisi transazioni…',
+  saving: 'Salvataggio…',
 }
 
 const LLM_API_BASE_URL = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
@@ -28,7 +44,15 @@ export function StatementUpload() {
   const [file, setFile] = useState<File | null>(null)
   const [result, setResult] = useState<UploadResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [jobStatus, setJobStatus] = useState<JobStatus | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current)
+    }
+  }, [])
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0] ?? null
@@ -36,12 +60,45 @@ export function StatementUpload() {
     setState('idle')
     setResult(null)
     setError(null)
+    setJobStatus(null)
+  }
+
+  function stopPolling() {
+    if (pollRef.current) {
+      clearInterval(pollRef.current)
+      pollRef.current = null
+    }
+  }
+
+  function startPolling(jobId: string) {
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`${LLM_API_BASE_URL}/statements/jobs/${jobId}`)
+        if (!res.ok) return
+        const job: JobStatus = await res.json()
+        setJobStatus(job)
+
+        if (job.status === 'complete') {
+          stopPolling()
+          setResult(job.result ?? null)
+          setState('success')
+          window.dispatchEvent(new Event('transactions-updated'))
+        } else if (job.status === 'error') {
+          stopPolling()
+          setError(job.error ?? 'Processing failed')
+          setState('error')
+        }
+      } catch {
+        // network hiccup — keep polling
+      }
+    }, 1500)
   }
 
   async function handleUpload() {
     if (!file) return
     setState('uploading')
     setError(null)
+    setJobStatus(null)
 
     const formData = new FormData()
     formData.append('file', file)
@@ -57,10 +114,9 @@ export function StatementUpload() {
         throw new Error(body?.detail ?? `Upload failed (HTTP ${res.status})`)
       }
 
-      const data: UploadResult = await res.json()
-      setResult(data)
-      setState('success')
-      window.dispatchEvent(new Event('transactions-updated'))
+      const { job_id } = await res.json()
+      setState('processing')
+      startPolling(job_id)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
       setState('error')
@@ -68,10 +124,12 @@ export function StatementUpload() {
   }
 
   function handleReset() {
+    stopPolling()
     setFile(null)
     setState('idle')
     setResult(null)
     setError(null)
+    setJobStatus(null)
     if (inputRef.current) inputRef.current.value = ''
   }
 
@@ -79,6 +137,23 @@ export function StatementUpload() {
     setOpen(next)
     if (!next) handleReset()
   }
+
+  const progressPercent = (() => {
+    if (!jobStatus) return 0
+    const { step, completed_chunks = 0, total_chunks = 0 } = jobStatus
+    if (step === 'queued') return 5
+    if (step === 'extracting') return 15
+    if (step === 'parsing') {
+      if (total_chunks === 0) return 20
+      return 20 + Math.round((completed_chunks / total_chunks) * 65)
+    }
+    if (step === 'saving') return 90
+    return 0
+  })()
+
+  const stepLabel = jobStatus?.step ? STEP_LABELS[jobStatus.step] ?? 'Elaborazione…' : 'Caricamento…'
+
+  const isProcessing = state === 'uploading' || state === 'processing'
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -105,7 +180,7 @@ export function StatementUpload() {
             type="button"
             className="w-full border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={() => inputRef.current?.click()}
-            disabled={state === 'uploading'}
+            disabled={isProcessing}
           >
             <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
             {file ? (
@@ -126,6 +201,24 @@ export function StatementUpload() {
               onChange={handleFileChange}
             />
           </button>
+
+          {/* Progress bar */}
+          {isProcessing && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{stepLabel}</span>
+                {state === 'processing' && jobStatus?.step === 'parsing' && jobStatus.total_chunks > 0 && (
+                  <span>{jobStatus.completed_chunks}/{jobStatus.total_chunks} chunk</span>
+                )}
+              </div>
+              <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-500"
+                  style={{ width: state === 'uploading' ? '8%' : `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Success */}
           {state === 'success' && result && (
@@ -169,16 +262,16 @@ export function StatementUpload() {
                   variant="outline"
                   className="flex-1"
                   onClick={() => setOpen(false)}
-                  disabled={state === 'uploading'}
+                  disabled={isProcessing}
                 >
                   Cancel
                 </Button>
                 <Button
                   className="flex-1"
                   onClick={handleUpload}
-                  disabled={!file || state === 'uploading'}
+                  disabled={!file || isProcessing}
                 >
-                  {state === 'uploading' ? 'Processing…' : 'Upload'}
+                  {isProcessing ? 'Processing…' : 'Upload'}
                 </Button>
               </>
             )}
