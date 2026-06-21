@@ -13,6 +13,7 @@ import {
 import { transactionsService } from '@/lib/services/transactions.service'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { CategoryEditor } from '@/components/finance/CategoryEditor'
+import { TransactionSearch } from '@/components/finance/TransactionSearch'
 import type { Transaction, TransactionFilters } from '@/lib/types/transaction'
 
 interface TransactionsTableProps {
@@ -67,6 +68,7 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
                   <TableHead>Description</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="w-0" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -89,6 +91,9 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
                       style={{ color: tx.amount >= 0 ? 'oklch(0.62 0.19 162)' : 'oklch(0.64 0.25 16)' }}
                     >
                       {tx.amount >= 0 ? '+' : ''}{formatCurrency(tx.amount, tx.currency)}
+                    </TableCell>
+                    <TableCell className="pl-2">
+                      <TransactionSearch description={tx.description} />
                     </TableCell>
                   </TableRow>
                 ))}
