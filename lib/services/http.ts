@@ -30,9 +30,12 @@ async function handleResponse<T>(response: Response): Promise<T> {
     } catch {
       body = undefined
     }
+    const detail = (body as Record<string, unknown>)?.detail
     const message =
       typeof body === 'object' && body !== null && 'detail' in body
-        ? String((body as { detail: unknown }).detail)
+        ? Array.isArray(detail)
+          ? (detail as Array<{ msg?: string }>).map((d) => d.msg ?? JSON.stringify(d)).join('; ')
+          : String(detail)
         : `HTTP ${response.status}: ${response.statusText}`
     throw new ApiError(response.status, message, body)
   }

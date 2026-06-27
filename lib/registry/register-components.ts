@@ -7,6 +7,7 @@ import { SpendingBubble } from '@/components/finance/SpendingBubble'
 import { MonthlyBarChart } from '@/components/finance/MonthlyBarChart'
 import { FormTransaction } from '@/components/finance/FormTransaction'
 import { FormAccount } from '@/components/finance/FormAccount'
+import { RecategorizationReview } from '@/components/finance/RecategorizationReview'
 
 /** Register all whitelisted finance UI components. */
 export function registerComponents() {
@@ -56,5 +57,11 @@ export function registerComponents() {
     key: 'FormAccount',
     component: FormAccount as React.ComponentType<unknown>,
     description: 'Form for creating a new financial account',
+  })
+
+  componentRegistry.register({
+    key: 'RecategorizationReview',
+    component: RecategorizationReview as React.ComponentType<unknown>,
+    description: 'Interactive review for splitting a category into sub-categories with human-in-the-loop classification',
   })
 }

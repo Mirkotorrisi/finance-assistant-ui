@@ -9,6 +9,7 @@ export type ComponentKey =
   | 'MonthlyBarChart'
   | 'FormTransaction'
   | 'FormAccount'
+  | 'RecategorizationReview'
 
 export interface ComponentRegistryEntry<TProps = unknown> {
   key: ComponentKey

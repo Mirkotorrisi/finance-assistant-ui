@@ -10,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { categoryColor } from '@/lib/chart-colors'
 import { transactionsService } from '@/lib/services/transactions.service'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { CategoryEditor } from '@/components/finance/CategoryEditor'
@@ -23,6 +25,8 @@ interface TransactionsTableProps {
 
 export function TransactionsTable({ title = 'Transactions', params }: TransactionsTableProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [categories, setCategories] = useState<string[]>([])
+  const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
@@ -34,6 +38,10 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
   }, [])
 
   useEffect(() => {
+    transactionsService.getCategories().then(setCategories).catch(() => {})
+  }, [refreshKey])
+
+  useEffect(() => {
     setLoading(true)
     setError(null)
     transactionsService
@@ -43,12 +51,48 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
       .finally(() => setLoading(false))
   }, [params, refreshKey])
 
+  const toggleCategory = (category: string) => {
+    setHiddenCategories((prev) => {
+      const next = new Set(prev)
+      if (next.has(category)) next.delete(category)
+      else next.add(category)
+      return next
+    })
+  }
+
+  const visibleTransactions = transactions.filter((tx) => !hiddenCategories.has(tx.category))
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
+        {categories.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {categories.map((cat) => {
+              const active = !hiddenCategories.has(cat)
+              const color = categoryColor(cat)
+              return (
+                <Badge
+                  key={cat}
+                  variant="outline"
+                  className="cursor-pointer select-none transition-opacity"
+                  style={active ? {
+                    color,
+                    borderColor: `color-mix(in oklch, ${color} 35%, transparent)`,
+                    background: `color-mix(in oklch, ${color} 10%, var(--background))`,
+                  } : {
+                    opacity: 0.35,
+                  }}
+                  onClick={() => toggleCategory(cat)}
+                >
+                  {cat}
+                </Badge>
+              )
+            })}
+          </div>
+        )}
         {loading ? (
           <div className="space-y-2">
             {[...Array(5)].map((_, i) => (
@@ -57,7 +101,7 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
           </div>
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
-        ) : transactions.length === 0 ? (
+        ) : visibleTransactions.length === 0 ? (
           <p className="text-sm text-muted-foreground">No transactions found.</p>
         ) : (
           <div className="overflow-x-auto">
@@ -72,7 +116,7 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map((tx) => (
+                {visibleTransactions.map((tx) => (
                   <TableRow key={tx.id}>
                     <TableCell className="whitespace-nowrap">{formatDate(tx.date)}</TableCell>
                     <TableCell>{tx.description}</TableCell>

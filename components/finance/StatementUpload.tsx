@@ -207,7 +207,7 @@ export function StatementUpload() {
             <div className="space-y-2">
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{stepLabel}</span>
-                {state === 'processing' && jobStatus?.step === 'parsing' && jobStatus.total_chunks > 0 && (
+                {state === 'processing' && jobStatus?.step === 'parsing' && (jobStatus.total_chunks ?? 0) > 0 && (
                   <span>{jobStatus.completed_chunks}/{jobStatus.total_chunks} chunk</span>
                 )}
               </div>

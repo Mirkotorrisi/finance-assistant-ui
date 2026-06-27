@@ -46,4 +46,9 @@ export const transactionsService = {
   getCategories(): Promise<string[]> {
     return get<string[]>('/api/transactions/categories')
   },
+
+  /** PUT /api/transactions/bulk-category */
+  bulkUpdateCategories(updates: { transaction_id: number; category: string }[]): Promise<Transaction[]> {
+    return put<Transaction[]>('/api/transactions/bulk-category', { updates })
+  },
 }
