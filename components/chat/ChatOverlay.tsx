@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { MessageSquare, X, AlertCircle } from 'lucide-react'
 import { Message, TextPart } from '@/lib/types/chat'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/lib/i18n'
 
 const UI_METADATA_MARKER = '__UI_METADATA__:'
 const LLM_API_BASE_URL = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
@@ -16,6 +17,7 @@ interface ChatOverlayProps {
 }
 
 export function ChatOverlay({ open, onClose }: ChatOverlayProps) {
+  const { t } = useTranslation()
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -107,7 +109,7 @@ export function ChatOverlay({ open, onClose }: ChatOverlayProps) {
         ref={panelRef}
         tabIndex={-1}
         role="complementary"
-        aria-label="AI chat"
+        aria-label={t('chat.overlay.ariaLabel')}
         className={cn(
           'fixed right-0 top-16 bottom-0 z-50 flex flex-col',
           'w-full sm:w-[380px]',
@@ -120,14 +122,14 @@ export function ChatOverlay({ open, onClose }: ChatOverlayProps) {
         <div className="flex items-center justify-between border-b border-border/50 px-4 h-12 shrink-0">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-3.5 w-3.5 text-primary" />
-            <span className="text-sm font-semibold tracking-tight">Ask AI</span>
+            <span className="text-sm font-semibold tracking-tight">{t('chat.overlay.title')}</span>
           </div>
           <Button
             variant="ghost"
             size="icon"
             className="h-7 w-7 rounded-lg"
             onClick={onClose}
-            aria-label="Close chat"
+            aria-label={t('chat.overlay.closeLabel')}
           >
             <X className="h-3.5 w-3.5" />
           </Button>

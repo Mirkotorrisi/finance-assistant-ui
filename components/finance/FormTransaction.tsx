@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { transactionsService } from '@/lib/services/transactions.service'
 import type { TransactionCreate } from '@/lib/types/transaction'
+import { useTranslation } from '@/lib/i18n'
 
 interface FormTransactionProps {
   title?: string
@@ -22,7 +23,8 @@ const DEFAULT_FORM: TransactionCreate = {
   account_id: undefined,
 }
 
-export function FormTransaction({ title = 'Add Transaction', onSuccess }: FormTransactionProps) {
+export function FormTransaction({ title, onSuccess }: FormTransactionProps) {
+  const { t } = useTranslation()
   const [form, setForm] = useState<TransactionCreate>(DEFAULT_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -43,7 +45,7 @@ export function FormTransaction({ title = 'Add Transaction', onSuccess }: FormTr
       setForm(DEFAULT_FORM)
       onSuccess?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create transaction')
+      setError(err instanceof Error ? err.message : t('formTransaction.error'))
     } finally {
       setSubmitting(false)
     }
@@ -52,13 +54,13 @@ export function FormTransaction({ title = 'Add Transaction', onSuccess }: FormTr
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{title ?? t('formTransaction.defaultTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="amount">Amount (negative = expense)</Label>
+              <Label htmlFor="amount">{t('formTransaction.amount')}</Label>
               <Input
                 id="amount"
                 type="number"
@@ -69,29 +71,29 @@ export function FormTransaction({ title = 'Add Transaction', onSuccess }: FormTr
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">{t('common.category')}</Label>
               <Input
                 id="category"
                 value={form.category}
                 onChange={(e) => handleChange('category', e.target.value)}
-                placeholder="e.g. groceries"
+                placeholder={t('formTransaction.categoryPlaceholder')}
                 required
               />
             </div>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('common.description')}</Label>
             <Input
               id="description"
               value={form.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="e.g. Weekly supermarket"
+              placeholder={t('formTransaction.descriptionPlaceholder')}
               required
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">{t('common.date')}</Label>
               <Input
                 id="date"
                 type="date"
@@ -100,7 +102,7 @@ export function FormTransaction({ title = 'Add Transaction', onSuccess }: FormTr
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="currency">Currency</Label>
+              <Label htmlFor="currency">{t('common.currency')}</Label>
               <Input
                 id="currency"
                 value={form.currency}
@@ -112,10 +114,10 @@ export function FormTransaction({ title = 'Add Transaction', onSuccess }: FormTr
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           {success && (
-            <p className="text-sm text-green-600">Transaction created successfully!</p>
+            <p className="text-sm text-green-600">{t('formTransaction.success')}</p>
           )}
           <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Saving…' : 'Save Transaction'}
+            {submitting ? t('common.saving') : t('formTransaction.save')}
           </Button>
         </form>
       </CardContent>

@@ -7,13 +7,15 @@ import { financialSummaryService } from '@/lib/services/financial-summary.servic
 import { formatCurrency } from '@/lib/format'
 import { CHART_PALETTE } from '@/lib/chart-colors'
 import type { SpendingDistributionParams } from '@/lib/types/financial-summary'
+import { useTranslation } from '@/lib/i18n'
 
 interface SpendingPieProps {
   title?: string
   params?: SpendingDistributionParams
 }
 
-export function SpendingPie({ title = 'Spending Distribution', params }: SpendingPieProps) {
+export function SpendingPie({ title, params }: SpendingPieProps) {
+  const { t } = useTranslation()
   const [data, setData] = useState<{ name: string; amount: number; percent: number }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -39,14 +41,14 @@ export function SpendingPie({ title = 'Spending Distribution', params }: Spendin
     financialSummaryService
       .getSpendingDistribution(resolvedParams)
       .then((res) => setData(res.distribution))
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load spending data'))
+      .catch((err) => setError(err instanceof Error ? err.message : t('charts.spendingError')))
       .finally(() => setLoading(false))
-  }, [params, refreshKey])
+  }, [params, refreshKey, t])
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{title ?? t('charts.spendingDistribution')}</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -54,7 +56,7 @@ export function SpendingPie({ title = 'Spending Distribution', params }: Spendin
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
         ) : data.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No spending data available.</p>
+          <p className="text-sm text-muted-foreground">{t('charts.noSpendingData')}</p>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>

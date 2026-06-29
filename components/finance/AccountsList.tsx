@@ -6,13 +6,15 @@ import { Badge } from '@/components/ui/badge'
 import { accountsService } from '@/lib/services/accounts.service'
 import { formatCurrency } from '@/lib/format'
 import type { Account } from '@/lib/types/account'
+import { useTranslation } from '@/lib/i18n'
 
 interface AccountsListProps {
   title?: string
   activeOnly?: boolean
 }
 
-export function AccountsList({ title = 'Accounts', activeOnly = true }: AccountsListProps) {
+export function AccountsList({ title, activeOnly = true }: AccountsListProps) {
+  const { t } = useTranslation()
   const [accounts, setAccounts] = useState<Account[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -21,14 +23,14 @@ export function AccountsList({ title = 'Accounts', activeOnly = true }: Accounts
     accountsService
       .list(activeOnly)
       .then(setAccounts)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load accounts'))
+      .catch((err) => setError(err instanceof Error ? err.message : t('accounts.error')))
       .finally(() => setLoading(false))
-  }, [activeOnly])
+  }, [activeOnly, t])
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{title ?? t('accounts.defaultTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -40,7 +42,7 @@ export function AccountsList({ title = 'Accounts', activeOnly = true }: Accounts
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
         ) : accounts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No accounts found.</p>
+          <p className="text-sm text-muted-foreground">{t('accounts.noData')}</p>
         ) : (
           <div className="space-y-3">
             {accounts.map((account) => (

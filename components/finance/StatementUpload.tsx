@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, CheckCircle, FileText, Upload } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n'
 
 type UploadState = 'idle' | 'uploading' | 'processing' | 'success' | 'error'
 
@@ -29,16 +30,10 @@ interface UploadResult {
   message: string
 }
 
-const STEP_LABELS: Record<string, string> = {
-  queued: 'In coda…',
-  extracting: 'Estrazione testo…',
-  parsing: 'Analisi transazioni…',
-  saving: 'Salvataggio…',
-}
-
 const LLM_API_BASE_URL = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
 
 export function StatementUpload() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [state, setState] = useState<UploadState>('idle')
   const [file, setFile] = useState<File | null>(null)
@@ -85,7 +80,7 @@ export function StatementUpload() {
           window.dispatchEvent(new Event('transactions-updated'))
         } else if (job.status === 'error') {
           stopPolling()
-          setError(job.error ?? 'Processing failed')
+          setError(job.error ?? t('upload.processingFailed'))
           setState('error')
         }
       } catch {
@@ -118,7 +113,7 @@ export function StatementUpload() {
       setState('processing')
       startPolling(job_id)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed')
+      setError(err instanceof Error ? err.message : t('upload.uploadFailed'))
       setState('error')
     }
   }
@@ -151,7 +146,9 @@ export function StatementUpload() {
     return 0
   })()
 
-  const stepLabel = jobStatus?.step ? STEP_LABELS[jobStatus.step] ?? 'Elaborazione…' : 'Caricamento…'
+  const stepLabel = jobStatus?.step
+    ? (t(`upload.steps.${jobStatus.step}`) || t('upload.processing'))
+    : t('upload.uploading')
 
   const isProcessing = state === 'uploading' || state === 'processing'
 
@@ -160,19 +157,18 @@ export function StatementUpload() {
       <DialogTrigger asChild>
         <Button size="sm" className="gap-2">
           <Upload className="h-4 w-4" />
-          Upload Statement
+          {t('upload.button')}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Upload Bank Statement</DialogTitle>
+          <DialogTitle>{t('upload.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Supported formats: PDF, CSV, XLS, XLSX (max 10 MB). Transactions are
-            automatically categorised and deduplicated before being saved.
+            {t('upload.description')}
           </p>
 
           {/* Drop zone / file picker */}
@@ -187,11 +183,11 @@ export function StatementUpload() {
               <>
                 <p className="text-sm font-medium">{file.name}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {(file.size / 1024).toFixed(0)} KB — click to change
+                  {(file.size / 1024).toFixed(0)} {t('upload.clickToChange')}
                 </p>
               </>
             ) : (
-              <p className="text-sm text-muted-foreground">Click to select a file</p>
+              <p className="text-sm text-muted-foreground">{t('upload.selectFile')}</p>
             )}
             <input
               ref={inputRef}
@@ -208,7 +204,7 @@ export function StatementUpload() {
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{stepLabel}</span>
                 {state === 'processing' && jobStatus?.step === 'parsing' && (jobStatus.total_chunks ?? 0) > 0 && (
-                  <span>{jobStatus.completed_chunks}/{jobStatus.total_chunks} chunk</span>
+                  <span>{jobStatus.completed_chunks}/{jobStatus.total_chunks} {t('upload.chunk')}</span>
                 )}
               </div>
               <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
@@ -225,13 +221,13 @@ export function StatementUpload() {
             <div className="rounded-lg bg-green-50 border border-green-200 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />
-                <span className="font-medium text-green-700">Import successful</span>
+                <span className="font-medium text-green-700">{t('upload.importSuccess')}</span>
               </div>
               <ul className="text-sm text-green-700 space-y-0.5 ml-6 list-disc">
-                <li>{result.transactions_processed} transactions found in file</li>
-                <li>{result.transactions_added} transactions added to your account</li>
+                <li>{t('upload.transactionsFound', { n: result.transactions_processed })}</li>
+                <li>{t('upload.transactionsAdded', { n: result.transactions_added })}</li>
                 {result.transactions_skipped > 0 && (
-                  <li>{result.transactions_skipped} duplicates skipped</li>
+                  <li>{t('upload.duplicatesSkipped', { n: result.transactions_skipped })}</li>
                 )}
               </ul>
             </div>
@@ -250,10 +246,10 @@ export function StatementUpload() {
             {state === 'success' ? (
               <>
                 <Button variant="outline" className="flex-1" onClick={handleReset}>
-                  Upload Another
+                  {t('upload.uploadAnother')}
                 </Button>
                 <Button className="flex-1" onClick={() => setOpen(false)}>
-                  Done
+                  {t('common.done')}
                 </Button>
               </>
             ) : (
@@ -264,14 +260,14 @@ export function StatementUpload() {
                   onClick={() => setOpen(false)}
                   disabled={isProcessing}
                 >
-                  Cancel
+                  {t('upload.cancel')}
                 </Button>
                 <Button
                   className="flex-1"
                   onClick={handleUpload}
                   disabled={!file || isProcessing}
                 >
-                  {isProcessing ? 'Processing…' : 'Upload'}
+                  {isProcessing ? t('upload.processing') : t('upload.upload')}
                 </Button>
               </>
             )}

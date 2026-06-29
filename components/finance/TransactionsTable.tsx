@@ -17,13 +17,15 @@ import { formatCurrency, formatDate } from '@/lib/format'
 import { CategoryEditor } from '@/components/finance/CategoryEditor'
 import { TransactionSearch } from '@/components/finance/TransactionSearch'
 import type { Transaction, TransactionFilters } from '@/lib/types/transaction'
+import { useTranslation } from '@/lib/i18n'
 
 interface TransactionsTableProps {
   title?: string
   params?: TransactionFilters
 }
 
-export function TransactionsTable({ title = 'Transactions', params }: TransactionsTableProps) {
+export function TransactionsTable({ title, params }: TransactionsTableProps) {
+  const { t } = useTranslation()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set())
@@ -47,9 +49,9 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
     transactionsService
       .list(params)
       .then(setTransactions)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load transactions'))
+      .catch((err) => setError(err instanceof Error ? err.message : t('transactions.error')))
       .finally(() => setLoading(false))
-  }, [params, refreshKey])
+  }, [params, refreshKey, t])
 
   const toggleCategory = (category: string) => {
     setHiddenCategories((prev) => {
@@ -65,7 +67,7 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{title ?? t('transactions.defaultTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         {categories.length > 0 && (
@@ -102,16 +104,16 @@ export function TransactionsTable({ title = 'Transactions', params }: Transactio
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
         ) : visibleTransactions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No transactions found.</p>
+          <p className="text-sm text-muted-foreground">{t('transactions.noData')}</p>
         ) : (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>{t('transactions.headers.date')}</TableHead>
+                  <TableHead>{t('transactions.headers.description')}</TableHead>
+                  <TableHead>{t('transactions.headers.category')}</TableHead>
+                  <TableHead className="text-right">{t('transactions.headers.amount')}</TableHead>
                   <TableHead className="w-0" />
                 </TableRow>
               </TableHeader>

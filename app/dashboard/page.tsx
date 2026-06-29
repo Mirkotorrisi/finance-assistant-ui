@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, X } from "lucide-react";
 import type { TransactionFilters } from "@/lib/types/transaction";
+import { useTranslation } from "@/lib/i18n";
 
 const EMPTY_FILTERS: TransactionFilters = {
   category: undefined,
@@ -21,6 +22,7 @@ const EMPTY_FILTERS: TransactionFilters = {
 };
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("transactions");
   const [draft, setDraft] = useState<TransactionFilters>(EMPTY_FILTERS);
   const [applied, setApplied] = useState<TransactionFilters>(EMPTY_FILTERS);
@@ -63,9 +65,9 @@ export default function DashboardPage() {
       {/* Page header */}
       <div className="border-b border-border/50 bg-card/50">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Overview of your financial activity
+            {t('dashboard.subtitle')}
           </p>
         </div>
       </div>
@@ -77,8 +79,8 @@ export default function DashboardPage() {
         {/* Tabbed content */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="charts">Charts</TabsTrigger>
+            <TabsTrigger value="transactions">{t('dashboard.tabs.transactions')}</TabsTrigger>
+            <TabsTrigger value="charts">{t('dashboard.tabs.charts')}</TabsTrigger>
           </TabsList>
 
           {/* Transactions tab */}
@@ -92,11 +94,11 @@ export default function DashboardPage() {
                   htmlFor="category"
                   className="text-xs text-muted-foreground"
                 >
-                  Category
+                  {t('common.category')}
                 </Label>
                 <Input
                   id="category"
-                  placeholder="e.g. groceries"
+                  placeholder={t('dashboard.filters.categoryPlaceholder')}
                   value={draft.category ?? ""}
                   onChange={(e) =>
                     setDraft((prev) => ({ ...prev, category: e.target.value }))
@@ -110,7 +112,7 @@ export default function DashboardPage() {
                   htmlFor="start_date"
                   className="text-xs text-muted-foreground"
                 >
-                  From
+                  {t('common.from')}
                 </Label>
                 <Input
                   id="start_date"
@@ -131,7 +133,7 @@ export default function DashboardPage() {
                   htmlFor="end_date"
                   className="text-xs text-muted-foreground"
                 >
-                  To
+                  {t('common.to')}
                 </Label>
                 <Input
                   id="end_date"
@@ -146,7 +148,7 @@ export default function DashboardPage() {
 
               <div className="flex gap-2 pb-0.5">
                 <Button type="submit" size="sm" className="rounded-lg">
-                  Apply
+                  {t('common.apply')}
                 </Button>
                 {hasActiveFilters && (
                   <Button
@@ -157,7 +159,7 @@ export default function DashboardPage() {
                     onClick={handleReset}
                   >
                     <X className="h-3.5 w-3.5" />
-                    Reset
+                    {t('common.reset')}
                   </Button>
                 )}
               </div>
@@ -180,7 +182,7 @@ export default function DashboardPage() {
       {/* Floating chat trigger */}
       <button
         onClick={() => setChatOpen((o) => !o)}
-        aria-label={chatOpen ? "Close AI chat" : "Open AI chat"}
+        aria-label={chatOpen ? t('dashboard.chat.closeLabel') : t('dashboard.chat.openLabel')}
         aria-expanded={chatOpen}
         className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-all duration-200 hover:brightness-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
@@ -188,7 +190,7 @@ export default function DashboardPage() {
           ? <X className="h-4 w-4 shrink-0" />
           : <MessageSquare className="h-4 w-4 shrink-0" />
         }
-        <span>{chatOpen ? "Close" : "Ask AI"}</span>
+        <span>{chatOpen ? t('dashboard.chat.close') : t('dashboard.chat.open')}</span>
       </button>
 
       <ChatOverlay open={chatOpen} onClose={() => setChatOpen(false)} />

@@ -1,7 +1,10 @@
+'use client'
+
 import { cn } from "@/lib/utils"
 import { Message, TextPart, ToolCallPart, ToolResultPart, UiMetadataPart } from "@/lib/types/chat"
 import { UIRenderer } from "@/components/generated/UIRenderer"
 import { Bot, User } from "lucide-react"
+import { useTranslation } from "@/lib/i18n"
 
 interface ChatMessageProps {
   message: Message
@@ -9,6 +12,7 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) {
+  const { t } = useTranslation()
   const isUser = message.role === 'user'
 
   return (
@@ -57,7 +61,7 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
             return (
               <div key={index} className="flex items-center gap-1.5 text-xs text-muted-foreground italic px-1">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary/50 animate-pulse" />
-                Calling {toolCallPart.toolName}…
+                {t('chat.calling', { toolName: toolCallPart.toolName })}
               </div>
             )
           }
@@ -67,7 +71,7 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
             if (toolResultPart.isError) {
               return (
                 <div key={index} className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm">
-                  <p className="font-semibold text-destructive mb-1">Tool Error</p>
+                  <p className="font-semibold text-destructive mb-1">{t('chat.toolError')}</p>
                   <p className="text-destructive/80">{JSON.stringify(toolResultPart.result)}</p>
                 </div>
               )

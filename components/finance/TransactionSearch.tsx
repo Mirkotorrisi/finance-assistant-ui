@@ -11,12 +11,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { llmService } from '@/lib/services/llm.service'
+import { useTranslation } from '@/lib/i18n'
 
 interface TransactionSearchProps {
   description: string
 }
 
 export function TransactionSearch({ description }: TransactionSearchProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<string | null>(null)
@@ -31,7 +33,7 @@ export function TransactionSearch({ description }: TransactionSearchProps) {
       const text = await llmService.searchTransaction(description)
       setResult(text)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Search failed')
+      setError(e instanceof Error ? e.message : t('transactionSearch.error'))
     } finally {
       setLoading(false)
     }
@@ -48,7 +50,7 @@ export function TransactionSearch({ description }: TransactionSearchProps) {
         size="icon"
         className="h-7 w-7 text-muted-foreground hover:text-foreground"
         onClick={handleOpen}
-        title="Search web for this transaction"
+        title={t('transactionSearch.tooltip')}
       >
         <Search className="h-3.5 w-3.5" />
       </Button>
@@ -56,7 +58,7 @@ export function TransactionSearch({ description }: TransactionSearchProps) {
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base">What is this?</DialogTitle>
+            <DialogTitle className="text-base">{t('transactionSearch.title')}</DialogTitle>
             <DialogDescription className="truncate">{description}</DialogDescription>
           </DialogHeader>
 

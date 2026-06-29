@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { accountsService } from '@/lib/services/accounts.service'
 import type { AccountCreate } from '@/lib/types/account'
+import { useTranslation } from '@/lib/i18n'
 
 interface FormAccountProps {
   title?: string
@@ -21,7 +22,8 @@ const DEFAULT_FORM: AccountCreate = {
   current_balance: 0,
 }
 
-export function FormAccount({ title = 'Add Account', onSuccess }: FormAccountProps) {
+export function FormAccount({ title, onSuccess }: FormAccountProps) {
+  const { t } = useTranslation()
   const [form, setForm] = useState<AccountCreate>(DEFAULT_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -42,7 +44,7 @@ export function FormAccount({ title = 'Add Account', onSuccess }: FormAccountPro
       setForm(DEFAULT_FORM)
       onSuccess?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create account')
+      setError(err instanceof Error ? err.message : t('formAccount.error'))
     } finally {
       setSubmitting(false)
     }
@@ -51,33 +53,33 @@ export function FormAccount({ title = 'Add Account', onSuccess }: FormAccountPro
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{title ?? t('formAccount.defaultTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <Label htmlFor="name">Account Name</Label>
+            <Label htmlFor="name">{t('formAccount.name')}</Label>
             <Input
               id="name"
               value={form.name}
               onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="e.g. Main Checking"
+              placeholder={t('formAccount.namePlaceholder')}
               required
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="account_type">Account Type</Label>
+              <Label htmlFor="account_type">{t('formAccount.type')}</Label>
               <Input
                 id="account_type"
                 value={form.account_type}
                 onChange={(e) => handleChange('account_type', e.target.value)}
-                placeholder="checking / savings / investment"
+                placeholder={t('formAccount.typePlaceholder')}
                 required
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="currency">Currency</Label>
+              <Label htmlFor="currency">{t('common.currency')}</Label>
               <Input
                 id="currency"
                 value={form.currency}
@@ -88,7 +90,7 @@ export function FormAccount({ title = 'Add Account', onSuccess }: FormAccountPro
             </div>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="current_balance">Initial Balance</Label>
+            <Label htmlFor="current_balance">{t('formAccount.initialBalance')}</Label>
             <Input
               id="current_balance"
               type="number"
@@ -98,9 +100,9 @@ export function FormAccount({ title = 'Add Account', onSuccess }: FormAccountPro
             />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
-          {success && <p className="text-sm text-green-600">Account created successfully!</p>}
+          {success && <p className="text-sm text-green-600">{t('formAccount.success')}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Saving…' : 'Save Account'}
+            {submitting ? t('common.saving') : t('formAccount.save')}
           </Button>
         </form>
       </CardContent>

@@ -10,6 +10,7 @@ import { financialSummaryService } from '@/lib/services/financial-summary.servic
 import { formatCurrency } from '@/lib/format'
 import { categoryColor } from '@/lib/chart-colors'
 import type { SpendingDistributionParams, DistributionItem } from '@/lib/types/financial-summary'
+import { useTranslation } from '@/lib/i18n'
 
 const PRESETS = [
   { label: '1M', months: 1 },
@@ -54,7 +55,8 @@ function monthsAgo(n: number) {
   return isoDate(d)
 }
 
-export function SpendingBubble({ title = 'Spending by Category', params, onCategoryClick }: SpendingBubbleProps) {
+export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbleProps) {
+  const { t } = useTranslation()
   const [startDate, setStartDate] = useState(monthsAgo(6))
   const [endDate, setEndDate] = useState(isoDate(new Date()))
   const [activePreset, setActivePreset] = useState<number | null>(6)
@@ -92,8 +94,8 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
     financialSummaryService
       .getSpendingDistribution(resolvedParams)
       .then((res) => dispatch({ type: 'SUCCESS', data: res.distribution }))
-      .catch((err) => dispatch({ type: 'ERROR', error: err instanceof Error ? err.message : 'Failed to load data' }))
-  }, [startDate, endDate, params, refreshKey])
+      .catch((err) => dispatch({ type: 'ERROR', error: err instanceof Error ? err.message : t('charts.bubbleError') }))
+  }, [startDate, endDate, params, refreshKey, t])
 
   function handlePreset(months: number) {
     setActivePreset(months)
@@ -114,7 +116,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{title ?? t('charts.spendingByCategory')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {!params && (
@@ -134,7 +136,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
             </div>
             <div className="flex items-end gap-2">
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">From</Label>
+                <Label className="text-xs text-muted-foreground">{t('common.from')}</Label>
                 <Input
                   type="date"
                   value={startDate}
@@ -143,7 +145,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">To</Label>
+                <Label className="text-xs text-muted-foreground">{t('common.to')}</Label>
                 <Input
                   type="date"
                   value={endDate}
@@ -161,7 +163,7 @@ export function SpendingBubble({ title = 'Spending by Category', params, onCateg
           ) : error ? (
             <p className="text-sm text-destructive">{error}</p>
           ) : data.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No data for the selected period.</p>
+            <p className="text-sm text-muted-foreground">{t('charts.noPeriodData')}</p>
           ) : (
             <>
               <svg width={width} height={height}>

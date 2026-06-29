@@ -8,6 +8,7 @@ import { financialSummaryService } from '@/lib/services/financial-summary.servic
 import { formatCurrency } from '@/lib/format'
 import { TrendingUp, TrendingDown, Wallet, CreditCard } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/lib/i18n'
 
 // OKLCH values matching chart-2 (green) and chart-5 (red) tokens
 const GREEN = 'oklch(0.62 0.19 162)'
@@ -25,6 +26,7 @@ interface SummaryCardsProps {
 }
 
 export function SummaryCards({ title }: SummaryCardsProps) {
+  const { t } = useTranslation()
   const [data, setData] = useState<SummaryData | null>(null)
   const [monthLabel, setMonthLabel] = useState<string>('')
   const [loading, setLoading] = useState(true)
@@ -43,7 +45,7 @@ export function SummaryCards({ title }: SummaryCardsProps) {
         const now = new Date()
         const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
-        setMonthLabel(now.toLocaleString('en-US', { month: 'long', year: 'numeric' }))
+        setMonthLabel(now.toLocaleString(t('summary.localeCode'), { month: 'long', year: 'numeric' }))
 
         const [balanceRes, monthlySummary, accounts] = await Promise.all([
           transactionsService.getBalance(),
@@ -60,13 +62,13 @@ export function SummaryCards({ title }: SummaryCardsProps) {
           monthlyNet: monthlySummary.net,
         })
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load summary data')
+        setError(err instanceof Error ? err.message : t('summary.error'))
       } finally {
         setLoading(false)
       }
     }
     fetchData()
-  }, [refreshKey])
+  }, [refreshKey, t])
 
   if (loading) {
     return (
@@ -97,7 +99,7 @@ export function SummaryCards({ title }: SummaryCardsProps) {
 
   const cards = [
     {
-      label: 'Total Balance',
+      label: t('summary.totalBalance'),
       subtitle: null,
       value: formatCurrency(data.totalBalance),
       icon: Wallet,
@@ -109,7 +111,7 @@ export function SummaryCards({ title }: SummaryCardsProps) {
       valueStyle: { color: 'var(--primary)' },
     },
     {
-      label: 'Monthly Income',
+      label: t('summary.monthlyIncome'),
       subtitle: monthLabel,
       value: formatCurrency(data.monthlyIncome),
       icon: TrendingUp,
@@ -121,7 +123,7 @@ export function SummaryCards({ title }: SummaryCardsProps) {
       valueStyle: { color: GREEN },
     },
     {
-      label: 'Monthly Expenses',
+      label: t('summary.monthlyExpenses'),
       subtitle: monthLabel,
       value: formatCurrency(data.monthlyExpenses),
       icon: CreditCard,
@@ -133,7 +135,7 @@ export function SummaryCards({ title }: SummaryCardsProps) {
       valueStyle: { color: RED },
     },
     {
-      label: 'Monthly Net',
+      label: t('summary.monthlyNet'),
       subtitle: monthLabel,
       value: formatCurrency(data.monthlyNet),
       icon: isNetPositive ? TrendingUp : TrendingDown,

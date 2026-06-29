@@ -5,13 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatMessage } from "./ChatMessage"
 import { Message } from "@/lib/types/chat"
 import { Bot, Sparkles } from "lucide-react"
-
-const SUGGESTED_PROMPTS = [
-  "What were my biggest expenses last month?",
-  "Show me my spending by category",
-  "How is my savings trend looking?",
-  "Summarize my recent transactions",
-]
+import { useTranslation } from "@/lib/i18n"
 
 interface ChatMessageListProps {
   messages: Message[]
@@ -19,6 +13,7 @@ interface ChatMessageListProps {
 }
 
 export function ChatMessageList({ messages, isLoading = false }: ChatMessageListProps) {
+  const { t, tr } = useTranslation()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -34,13 +29,13 @@ export function ChatMessageList({ messages, isLoading = false }: ChatMessageList
               <Bot className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold tracking-tight mb-1">AI Financial Assistant</h2>
+              <h2 className="text-xl font-semibold tracking-tight mb-1">{t('chat.emptyTitle')}</h2>
               <p className="text-sm text-muted-foreground max-w-xs">
-                Ask anything about your finances. I can analyze transactions, summarize spending, and more.
+                {t('chat.emptySubtitle')}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
-              {SUGGESTED_PROMPTS.map((prompt) => (
+              {tr.chat.suggestedPrompts.map((prompt) => (
                 <button
                   key={prompt}
                   className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-left text-sm text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-foreground transition-all duration-150"

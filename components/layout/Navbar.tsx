@@ -5,14 +5,18 @@ import { usePathname } from 'next/navigation'
 import { StatementUpload } from '@/components/finance/StatementUpload'
 import { cn } from '@/lib/utils'
 import { TrendingUp, MessageSquare, LayoutDashboard } from 'lucide-react'
-
-const NAV_LINKS = [
-  { href: '/chat', label: 'Chat', icon: MessageSquare },
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-]
+import { useTranslation, type Locale } from '@/lib/i18n'
 
 export function Navbar() {
   const pathname = usePathname()
+  const { t, locale, setLocale } = useTranslation()
+
+  const NAV_LINKS = [
+    { href: '/chat', label: t('nav.chat'), icon: MessageSquare },
+    { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+  ]
+
+  const otherLocale: Locale = locale === 'it' ? 'en' : 'it'
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/90 backdrop-blur-lg">
@@ -48,8 +52,15 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* Upload — pushed to the right */}
-        <div className="ml-auto">
+        {/* Right side: lang switcher + upload */}
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => setLocale(otherLocale)}
+            className="rounded-lg border border-border/60 px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            aria-label={`Switch to ${otherLocale.toUpperCase()}`}
+          >
+            {otherLocale.toUpperCase()}
+          </button>
           <StatementUpload />
         </div>
       </div>

@@ -8,6 +8,7 @@ import { Select } from '@/components/ui/select'
 import { transactionsService } from '@/lib/services/transactions.service'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { CheckCircle, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n'
 
 interface ClassifiedTransaction {
   transaction_id: number
@@ -38,6 +39,7 @@ interface RecategorizationReviewProps {
 type ApplyState = 'idle' | 'loading' | 'success' | 'error'
 
 export function RecategorizationReview({ title, params }: RecategorizationReviewProps) {
+  const { t } = useTranslation()
   const [showClassified, setShowClassified] = useState(false)
   const [resolutions, setResolutions] = useState<Record<number, string>>(() => {
     const initial: Record<number, string> = {}
@@ -71,7 +73,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
       window.dispatchEvent(new Event('transactions-updated'))
     } catch (err) {
       setApplyState('error')
-      setErrorMsg(err instanceof Error ? err.message : "Errore durante l'aggiornamento")
+      setErrorMsg(err instanceof Error ? err.message : t('recategorization.updateError'))
     }
   }
 
@@ -81,7 +83,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
         <CardContent className="flex items-center gap-3 pt-6">
           <CheckCircle className="h-5 w-5 text-green-600" />
           <p className="text-sm font-medium text-green-700 dark:text-green-400">
-            {classified.length + ambiguous.length} transazioni riclassificate con successo.
+            {t('recategorization.success', { n: classified.length + ambiguous.length })}
           </p>
         </CardContent>
       </Card>
@@ -92,10 +94,10 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">
-          {title ?? 'Rivedi la classificazione'}
+          {title ?? t('recategorization.title')}
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Sto suddividendo <span className="font-semibold text-foreground">{sourceCategory}</span> in:{' '}
+          {t('recategorization.splitting')} <span className="font-semibold text-foreground">{sourceCategory}</span> {t('recategorization.into')}{' '}
           {newCategories.map((c, i) => (
             <span key={c}>
               <Badge variant="secondary" className="text-xs">{c}</Badge>
@@ -115,7 +117,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
             >
               <span className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500" />
-                {classified.length} transazioni classificate automaticamente
+                {t('recategorization.classified', { n: classified.length })}
               </span>
               {showClassified ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </button>
@@ -143,7 +145,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
           <div className="space-y-3">
             <p className="flex items-center gap-1.5 text-sm font-medium">
               <AlertCircle className="h-4 w-4 text-amber-500" />
-              {ambiguous.length} transazioni richiedono la tua scelta
+              {t('recategorization.ambiguous', { n: ambiguous.length })}
             </p>
 
             {ambiguous.map((tx) => (
@@ -168,7 +170,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
                     setResolutions((prev) => ({ ...prev, [tx.transaction_id]: e.target.value }))
                   }
                 >
-                  <option value="" disabled>Scegli categoria…</option>
+                  <option value="" disabled>{t('recategorization.selectCategory')}</option>
                   {newCategories.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
@@ -180,7 +182,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
 
         {ambiguous.length === 0 && classified.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Nessuna transazione trovata nella categoria <strong>{sourceCategory}</strong>.
+            {t('recategorization.noTransactions', { category: sourceCategory })}
           </p>
         )}
 
@@ -189,7 +191,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
           <div className="flex flex-col gap-2 pt-1">
             {!canApply && (
               <p className="text-xs text-amber-600 dark:text-amber-400">
-                Seleziona una categoria per le {unresolvedCount} transazioni rimanenti.
+                {t('recategorization.unresolvedWarning', { n: unresolvedCount })}
               </p>
             )}
             {applyState === 'error' && (
@@ -201,7 +203,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
               size="sm"
               className="self-end"
             >
-              {applyState === 'loading' ? 'Aggiornamento…' : 'Applica tutto'}
+              {applyState === 'loading' ? t('recategorization.updating') : t('recategorization.applyAll')}
             </Button>
           </div>
         )}

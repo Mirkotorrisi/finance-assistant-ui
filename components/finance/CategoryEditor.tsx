@@ -18,6 +18,7 @@ import { categoryColor } from '@/lib/chart-colors'
 import { transactionsService } from '@/lib/services/transactions.service'
 import { merchantRulesService } from '@/lib/services/merchant-rules.service'
 import type { Transaction } from '@/lib/types/transaction'
+import { useTranslation } from '@/lib/i18n'
 
 interface CategoryEditorProps {
   transaction: Transaction
@@ -27,6 +28,7 @@ interface CategoryEditorProps {
 type Step = 'select' | 'confirm'
 
 export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>('select')
   const [categories, setCategories] = useState<string[]>([])
@@ -90,7 +92,7 @@ export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) 
           background: `color-mix(in oklch, ${color} 10%, var(--background))`,
         }}
         onClick={() => setOpen(true)}
-        title="Click to edit category"
+        title={t('categoryEditor.badgeTitle')}
       >
         {transaction.category}
       </Badge>
@@ -100,15 +102,15 @@ export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) 
           {step === 'select' ? (
             <>
               <DialogHeader>
-                <DialogTitle>Edit Category</DialogTitle>
+                <DialogTitle>{t('categoryEditor.title')}</DialogTitle>
                 <DialogDescription>
-                  Change the category for &ldquo;{transaction.description}&rdquo;
+                  {t('categoryEditor.changeFor', { description: transaction.description })}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="cat-select">Existing categories</Label>
+                  <Label htmlFor="cat-select">{t('categoryEditor.existingCategories')}</Label>
                   <Select
                     id="cat-select"
                     value={selected}
@@ -126,11 +128,11 @@ export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) 
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="cat-new">Or create new category</Label>
+                  <Label htmlFor="cat-new">{t('categoryEditor.newCategory')}</Label>
                   <Input
                     id="cat-new"
                     ref={newInputRef}
-                    placeholder="e.g. Entertainment"
+                    placeholder={t('categoryEditor.newCategoryPlaceholder')}
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                   />
@@ -138,7 +140,7 @@ export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) 
 
                 {resolvedCategory && resolvedCategory !== transaction.category && (
                   <p className="text-xs text-muted-foreground">
-                    Will change to:{' '}
+                    {t('categoryEditor.willChangeTo')}{' '}
                     <span className="font-medium text-foreground">{resolvedCategory}</span>
                   </p>
                 )}
@@ -146,34 +148,34 @@ export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) 
 
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t('categoryEditor.cancel')}
                 </Button>
                 <Button
                   onClick={handleApply}
                   disabled={!resolvedCategory || resolvedCategory === transaction.category}
                 >
-                  Apply
+                  {t('categoryEditor.apply')}
                 </Button>
               </DialogFooter>
             </>
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle>Apply to all similar?</DialogTitle>
+                <DialogTitle>{t('categoryEditor.applyToAllTitle')}</DialogTitle>
                 <DialogDescription>
-                  Do you want to apply{' '}
-                  <span className="font-medium text-foreground">{resolvedCategory}</span> to{' '}
-                  <span className="font-medium text-foreground">all</span> transactions named
-                  &ldquo;{transaction.description}&rdquo;, or just this one?
+                  {t('categoryEditor.applyToAllDesc', {
+                    category: resolvedCategory,
+                    description: transaction.description,
+                  })}
                 </DialogDescription>
               </DialogHeader>
 
               <DialogFooter className="gap-2 sm:gap-0">
                 <Button variant="outline" onClick={handleSingleUpdate} disabled={saving}>
-                  Just this one
+                  {t('categoryEditor.justThisOne')}
                 </Button>
                 <Button onClick={handleBulkUpdate} disabled={saving}>
-                  {saving ? 'Saving…' : 'Apply to all'}
+                  {saving ? t('categoryEditor.saving') : t('categoryEditor.applyToAll')}
                 </Button>
               </DialogFooter>
             </>
