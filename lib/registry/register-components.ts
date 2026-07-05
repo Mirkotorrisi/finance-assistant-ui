@@ -8,6 +8,7 @@ import { MonthlyBarChart } from '@/components/finance/MonthlyBarChart'
 import { FormTransaction } from '@/components/finance/FormTransaction'
 import { FormAccount } from '@/components/finance/FormAccount'
 import { RecategorizationReview } from '@/components/finance/RecategorizationReview'
+import { OnboardingReview } from '@/components/finance/OnboardingReview'
 
 /** Register all whitelisted finance UI components. */
 export function registerComponents() {
@@ -63,5 +64,11 @@ export function registerComponents() {
     key: 'RecategorizationReview',
     component: RecategorizationReview as React.ComponentType<unknown>,
     description: 'Interactive review for splitting a category into sub-categories with human-in-the-loop classification',
+  })
+
+  componentRegistry.register({
+    key: 'OnboardingReview',
+    component: OnboardingReview as React.ComponentType<unknown>,
+    description: 'Human-in-the-loop review of onboarding preferences (focus categories, custom categories, budget) before confirming',
   })
 }

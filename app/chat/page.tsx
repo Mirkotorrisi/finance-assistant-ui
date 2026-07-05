@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import { ChatContainer } from "@/components/chat/ChatContainer"
 import { Message, TextPart } from "@/lib/types/chat"
 import { AlertCircle } from "lucide-react"
+import { getOrCreateUserId } from "@/lib/user-id"
 
 const UI_METADATA_MARKER = '__UI_METADATA__:'
 
@@ -24,6 +25,8 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [history, setHistory] = useState<string[]>([])
+  const userIdRef = useRef<string | undefined>(undefined)
+  if (!userIdRef.current) userIdRef.current = getOrCreateUserId()
 
   const handleMessageSubmit = useCallback(async (userText: string) => {
     setError(null)
@@ -41,7 +44,7 @@ export default function ChatPage() {
       const res = await fetch(`${LLM_API_BASE_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText, history }),
+        body: JSON.stringify({ message: userText, history, user_id: userIdRef.current }),
       })
 
       if (!res.ok) {

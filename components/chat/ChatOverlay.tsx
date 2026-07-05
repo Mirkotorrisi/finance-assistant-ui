@@ -7,6 +7,7 @@ import { MessageSquare, X, AlertCircle } from 'lucide-react'
 import { Message, TextPart } from '@/lib/types/chat'
 import { cn } from '@/lib/utils'
 import { useTranslation } from '@/lib/i18n'
+import { getOrCreateUserId } from '@/lib/user-id'
 
 const UI_METADATA_MARKER = '__UI_METADATA__:'
 const LLM_API_BASE_URL = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
@@ -23,6 +24,8 @@ export function ChatOverlay({ open, onClose }: ChatOverlayProps) {
   const [error, setError] = useState<Error | null>(null)
   const [history, setHistory] = useState<string[]>([])
   const panelRef = useRef<HTMLDivElement>(null)
+  const userIdRef = useRef<string | undefined>(undefined)
+  if (!userIdRef.current) userIdRef.current = getOrCreateUserId()
 
   // Close on Escape
   useEffect(() => {
@@ -54,7 +57,7 @@ export function ChatOverlay({ open, onClose }: ChatOverlayProps) {
       const res = await fetch(`${LLM_API_BASE_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText, history }),
+        body: JSON.stringify({ message: userText, history, user_id: userIdRef.current }),
       })
 
       if (!res.ok) throw new Error(`LLM service returned status ${res.status}`)

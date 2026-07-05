@@ -10,6 +10,7 @@ export type ComponentKey =
   | 'FormTransaction'
   | 'FormAccount'
   | 'RecategorizationReview'
+  | 'OnboardingReview'
 
 export interface ComponentRegistryEntry<TProps = unknown> {
   key: ComponentKey
