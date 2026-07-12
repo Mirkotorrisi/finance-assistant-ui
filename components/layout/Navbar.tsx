@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { StatementUpload } from '@/components/finance/StatementUpload'
 import { cn } from '@/lib/utils'
-import { TrendingUp, MessageSquare, LayoutDashboard } from 'lucide-react'
+import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag } from 'lucide-react'
 import { useTranslation, type Locale } from '@/lib/i18n'
 
 export function Navbar() {
@@ -14,6 +14,7 @@ export function Navbar() {
   const NAV_LINKS = [
     { href: '/chat', label: t('nav.chat'), icon: MessageSquare },
     { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { href: '/amazon', label: t('nav.amazon'), icon: ShoppingBag },
   ]
 
   const otherLocale: Locale = locale === 'it' ? 'en' : 'it'
