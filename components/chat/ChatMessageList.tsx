@@ -55,7 +55,7 @@ export function ChatMessageList({ messages, isLoading = false }: ChatMessageList
             isStreaming={isLoading && message.id === messages[messages.length - 1]?.id}
           />
         ))}
-        {isLoading && messages.length > 0 && (
+        {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
           <div className="flex gap-3">
             <div className="flex h-8 w-8 shrink-0 rounded-full items-center justify-center bg-muted border border-border text-muted-foreground">
               <Bot className="h-4 w-4" />

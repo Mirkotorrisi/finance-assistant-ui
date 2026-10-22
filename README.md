@@ -43,7 +43,7 @@ Open [http://localhost:3000](http://localhost:3000) – you will land directly o
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | ✅ | Base URL of the Finance Assistant API (browser-side). |
 | `API_BASE_URL` | ✅ | Same URL used in server-side contexts. |
-| `NEXT_PUBLIC_LLM_API_BASE_URL` | ✅ | Base URL of the LLM Finance Assistant backend. The UI calls `POST {NEXT_PUBLIC_LLM_API_BASE_URL}/chat` directly from the browser. Default: `http://localhost:8000`. |
+| `NEXT_PUBLIC_LLM_API_BASE_URL` | ✅ | Base URL of the LLM Finance Assistant backend. The UI calls `POST {NEXT_PUBLIC_LLM_API_BASE_URL}/chat/stream` (server-sent events) directly from the browser. Default: `http://localhost:8000`. |
 
 ---
 
@@ -55,7 +55,7 @@ Open [http://localhost:3000](http://localhost:3000) – you will land directly o
 User message
     │
     ▼
-POST {NEXT_PUBLIC_LLM_API_BASE_URL}/chat  (direct browser call to LLM backend)
+POST {NEXT_PUBLIC_LLM_API_BASE_URL}/chat/stream  (SSE, direct browser call to the agent gateway)
     │
     ▼
 LLM backend returns { response: { text, ui? }, action, parameters, ... }

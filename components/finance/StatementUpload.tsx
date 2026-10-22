@@ -9,8 +9,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { AlertCircle, CheckCircle, FileText, Upload } from 'lucide-react'
 import { useTranslation } from '@/lib/i18n'
+import { accountsService } from '@/lib/services/accounts.service'
+import type { Account } from '@/lib/types/account'
+import { getLastAccountId, scopeHeaders, setLastAccountId } from '@/lib/workspace'
 
 type UploadState = 'idle' | 'uploading' | 'processing' | 'success' | 'error'
 
@@ -28,9 +34,13 @@ interface UploadResult {
   transactions_added: number
   transactions_skipped: number
   message: string
+  batch_id?: number | null
+  transfers_detected?: number
+  duplicate_file?: boolean
 }
 
 const LLM_API_BASE_URL = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
+const NEW_ACCOUNT = 'new'
 
 export function StatementUpload() {
   const { t } = useTranslation()
@@ -40,6 +50,9 @@ export function StatementUpload() {
   const [result, setResult] = useState<UploadResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [jobStatus, setJobStatus] = useState<JobStatus | null>(null)
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [accountId, setAccountId] = useState<string>('')
+  const [newAccountName, setNewAccountName] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -48,6 +61,40 @@ export function StatementUpload() {
       if (pollRef.current) clearInterval(pollRef.current)
     }
   }, [])
+
+  // Load the accounts each time the dialog opens, preselecting the one used last
+  useEffect(() => {
+    if (!open) return
+    let cancelled = false
+    accountsService
+      .list()
+      .then((list) => {
+        if (cancelled) return
+        setAccounts(list)
+        const last = getLastAccountId()
+        const preferred = list.find((a) => a.id === last) ?? (list.length === 1 ? list[0] : undefined)
+        setAccountId(preferred ? String(preferred.id) : list.length === 0 ? NEW_ACCOUNT : '')
+      })
+      .catch(() => {
+        if (!cancelled) setAccountId(NEW_ACCOUNT)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [open])
+
+  async function resolveAccountId(): Promise<number | null> {
+    if (accountId === NEW_ACCOUNT) {
+      const name = newAccountName.trim()
+      if (!name) return null
+      const created = await accountsService.create({ name, account_type: 'checking' })
+      setAccounts((prev) => [...prev, created])
+      setAccountId(String(created.id))
+      setNewAccountName('')
+      return created.id
+    }
+    return accountId ? Number(accountId) : null
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0] ?? null
@@ -95,12 +142,18 @@ export function StatementUpload() {
     setError(null)
     setJobStatus(null)
 
-    const formData = new FormData()
-    formData.append('file', file)
-
     try {
+      const resolvedAccountId = await resolveAccountId()
+      if (resolvedAccountId === null) throw new Error(t('upload.noAccountSelected'))
+      setLastAccountId(resolvedAccountId)
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('account_id', String(resolvedAccountId))
+
       const res = await fetch(`${LLM_API_BASE_URL}/statements/upload`, {
         method: 'POST',
+        headers: scopeHeaders(),
         body: formData,
       })
 
@@ -171,6 +224,36 @@ export function StatementUpload() {
             {t('upload.description')}
           </p>
 
+          {/* Account: keeps banks apart so duplicates and transfers between them can be told */}
+          <div className="space-y-2">
+            <Label htmlFor="statement-account">{t('upload.account')}</Label>
+            <Select
+              id="statement-account"
+              value={accountId}
+              onChange={(e) => setAccountId(e.target.value)}
+              disabled={isProcessing}
+            >
+              <option value="" disabled>
+                {t('upload.noAccountSelected')}
+              </option>
+              {accounts.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+              <option value={NEW_ACCOUNT}>{t('upload.newAccount')}</option>
+            </Select>
+            {accountId === NEW_ACCOUNT && (
+              <Input
+                value={newAccountName}
+                onChange={(e) => setNewAccountName(e.target.value)}
+                placeholder={t('upload.newAccountName')}
+                disabled={isProcessing}
+              />
+            )}
+            <p className="text-xs text-muted-foreground">{t('upload.accountHelp')}</p>
+          </div>
+
           {/* Drop zone / file picker */}
           <button
             type="button"
@@ -229,6 +312,10 @@ export function StatementUpload() {
                 {result.transactions_skipped > 0 && (
                   <li>{t('upload.duplicatesSkipped', { n: result.transactions_skipped })}</li>
                 )}
+                {(result.transfers_detected ?? 0) > 0 && (
+                  <li>{t('upload.transfersDetected', { n: result.transfers_detected ?? 0 })}</li>
+                )}
+                {result.duplicate_file && <li>{t('upload.duplicateFile')}</li>}
               </ul>
             </div>
           )}
@@ -265,7 +352,7 @@ export function StatementUpload() {
                 <Button
                   className="flex-1"
                   onClick={handleUpload}
-                  disabled={!file || isProcessing}
+                  disabled={!file || isProcessing || !accountId || (accountId === NEW_ACCOUNT && !newAccountName.trim())}
                 >
                   {isProcessing ? t('upload.processing') : t('upload.upload')}
                 </Button>

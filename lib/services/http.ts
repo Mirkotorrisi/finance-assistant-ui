@@ -6,6 +6,8 @@
  * Errors are surfaced as plain Error instances with meaningful messages.
  */
 
+import { scopeHeaders } from '@/lib/workspace'
+
 const API_BASE_URL =
   (typeof window === 'undefined'
     ? process.env.API_BASE_URL
@@ -53,7 +55,7 @@ export async function get<T>(path: string, params?: Record<string, string | numb
   }
   const response = await fetch(url.toString(), {
     method: 'GET',
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...scopeHeaders() },
   })
   return handleResponse<T>(response)
 }
@@ -64,6 +66,7 @@ export async function post<T>(path: string, body: unknown): Promise<T> {
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      ...scopeHeaders(),
     },
     body: JSON.stringify(body),
   })
@@ -76,6 +79,7 @@ export async function put<T>(path: string, body: unknown): Promise<T> {
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      ...scopeHeaders(),
     },
     body: JSON.stringify(body),
   })
@@ -85,7 +89,7 @@ export async function put<T>(path: string, body: unknown): Promise<T> {
 export async function del<T = { message: string }>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: 'DELETE',
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...scopeHeaders() },
   })
   return handleResponse<T>(response)
 }
