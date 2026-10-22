@@ -5,16 +5,37 @@ import { usePathname } from 'next/navigation'
 import { StatementUpload } from '@/components/finance/StatementUpload'
 import { WorkspaceSwitcher } from '@/components/layout/WorkspaceSwitcher'
 import { cn } from '@/lib/utils'
-import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag, ListTree } from 'lucide-react'
+import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag, ListTree, ClipboardCheck } from 'lucide-react'
 import { useTranslation, type Locale } from '@/lib/i18n'
+import { useEffect, useState } from 'react'
+import { reviewService } from '@/lib/services/review.service'
 
 export function Navbar() {
   const pathname = usePathname()
   const { t, locale, setLocale } = useTranslation()
+  const [pending, setPending] = useState(0)
+
+  // how many transactions still wait for confirmation, kept fresh after imports, reviews and project switches
+  useEffect(() => {
+    let cancelled = false
+    const refresh = () =>
+      reviewService
+        .queue(1) // the queue counts every unconfirmed transaction, income included, like the Review page
+        .then((q) => !cancelled && setPending(q.unreviewed_transactions))
+        .catch(() => undefined)
+    void refresh()
+    const events = ['review-updated', 'transactions-updated', 'workspace-changed', 'blueprint-saved']
+    events.forEach((e) => window.addEventListener(e, refresh))
+    return () => {
+      cancelled = true
+      events.forEach((e) => window.removeEventListener(e, refresh))
+    }
+  }, [])
 
   const NAV_LINKS = [
     { href: '/chat', label: t('nav.chat'), icon: MessageSquare },
     { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { href: '/review', label: t('nav.review'), icon: ClipboardCheck, badge: pending },
     { href: '/blueprint', label: t('nav.blueprint'), icon: ListTree },
     { href: '/amazon', label: t('nav.amazon'), icon: ShoppingBag },
   ]
@@ -38,7 +59,7 @@ export function Navbar() {
 
         {/* Nav links */}
         <nav className="flex items-center gap-1">
-          {NAV_LINKS.map(({ href, label, icon: Icon }) => (
+          {NAV_LINKS.map(({ href, label, icon: Icon, badge }) => (
             <Link
               key={href}
               href={href}
@@ -51,6 +72,11 @@ export function Navbar() {
             >
               <Icon className="h-3.5 w-3.5" />
               {label}
+              {badge ? (
+                <span className="ml-0.5 rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-4 text-primary-foreground">
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              ) : null}
             </Link>
           ))}
         </nav>

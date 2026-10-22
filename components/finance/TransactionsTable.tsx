@@ -89,7 +89,7 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
                   }}
                   onClick={() => toggleCategory(cat)}
                 >
-                  {cat}
+                  {transactions.find((tx) => tx.category === cat)?.category_label ?? cat}
                 </Badge>
               )
             })}

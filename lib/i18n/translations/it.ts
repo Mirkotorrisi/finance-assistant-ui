@@ -2,6 +2,7 @@ export const it = {
   nav: {
     chat: 'Chat',
     dashboard: 'Dashboard',
+    review: 'Revisione',
     blueprint: 'Blueprint',
     amazon: 'Amazon',
   },
@@ -142,6 +143,8 @@ export const it = {
     noAccountSelected: 'Scegli o crea prima un conto',
     transfersDetected: '{{n}} giroconti tra i tuoi conti riconosciuti (esclusi dalle spese)',
     duplicateFile: 'Questo file era già stato importato: non è stato aggiunto nulla di nuovo',
+    needsReview: '{{n}} categorie sono suggerimenti da confermare',
+    goToReview: 'Rivedile',
     chunk: 'chunk',
   },
   amazonImport: {
@@ -196,6 +199,7 @@ export const it = {
     justThisOne: 'Solo questa',
     applyToAll: 'Applica a tutte',
     saving: 'Salvataggio…',
+    unconfirmed: 'Suggerita ({{source}}, {{confidence}}): non ancora confermata',
     badgeTitle: 'Clicca per modificare la categoria',
   },
   transactionSearch: {
@@ -352,5 +356,23 @@ export const it = {
     create: 'Crea progetto',
     creating: 'Creazione…',
     failed: 'Impossibile creare il progetto',
+  },
+  review: {
+    title: 'Revisione',
+    subtitle: 'Le categorie scelte in automatico sono suggerimenti. Conferma un esercente una volta e tutte le sue transazioni sono a posto, ora e nei prossimi import.',
+    coverageTitle: 'Il {{n}}% delle tue spese poggia su categorie che hai confermato',
+    coverageDetail: '{{confirmed}} confermati · {{pending}} ancora suggeriti',
+    intro: 'Esercenti da controllare: {{groups}} · transazioni: {{n}}. Prima gli importi più grandi.',
+    allDone: 'Niente da rivedere: ogni categoria è confermata.',
+    transactions: 'Transazioni: {{n}}',
+    category: 'categoria',
+    chooseCategory: 'Scegli una categoria…',
+    suggested: 'Suggerita',
+    mixed: 'Categorie diverse',
+    unmapped: '«{{name}}» non è nel blueprint',
+    remember: 'Ricorda per i prossimi import',
+    confirm: 'Conferma',
+    confirmSure: 'Conferma i {{n}} suggerimenti molto sicuri (90%+)',
+    source: { user: 'Tu', rule: 'Regola', file: 'Dal file', legacy: 'Dati esistenti', ai: 'AI', fallback: 'Ipotesi' },
   },
 }

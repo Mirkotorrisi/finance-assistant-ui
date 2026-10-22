@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { AlertCircle, CheckCircle, FileText, Upload } from 'lucide-react'
+import Link from 'next/link'
 import { useTranslation } from '@/lib/i18n'
 import { accountsService } from '@/lib/services/accounts.service'
 import type { Account } from '@/lib/types/account'
@@ -37,6 +38,7 @@ interface UploadResult {
   batch_id?: number | null
   transfers_detected?: number
   duplicate_file?: boolean
+  needs_review?: number
 }
 
 const LLM_API_BASE_URL = process.env.NEXT_PUBLIC_LLM_API_BASE_URL ?? 'http://localhost:8000'
@@ -316,6 +318,14 @@ export function StatementUpload() {
                   <li>{t('upload.transfersDetected', { n: result.transfers_detected ?? 0 })}</li>
                 )}
                 {result.duplicate_file && <li>{t('upload.duplicateFile')}</li>}
+                {(result.needs_review ?? 0) > 0 && (
+                  <li>
+                    {t('upload.needsReview', { n: result.needs_review ?? 0 })}{' '}
+                    <Link href="/review" className="font-medium underline" onClick={() => setOpen(false)}>
+                      {t('upload.goToReview')}
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
           )}

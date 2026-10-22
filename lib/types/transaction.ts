@@ -24,6 +24,15 @@ export interface Transaction {
   description: string
   currency: string
   account_id: number | null
+  /** The blueprint's label for the category (the stored value is its stable key). */
+  category_label?: string | null
+  /** Who decided the category: user, rule, file, ai, fallback or legacy. */
+  category_source?: string
+  /** Confidence of an AI-chosen category (0-1). */
+  confidence?: number | null
+  /** True once the user (or a rule they made) confirmed the category. */
+  reviewed?: boolean
+  merchant_key?: string | null
 }
 
 export interface BalanceResponse {

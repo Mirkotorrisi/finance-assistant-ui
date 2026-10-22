@@ -94,7 +94,18 @@ export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) 
         onClick={() => setOpen(true)}
         title={t('categoryEditor.badgeTitle')}
       >
-        {transaction.category}
+        {transaction.category_label ?? transaction.category}
+        {transaction.reviewed === false && (
+          <span
+            className="ml-1 opacity-70"
+            title={t('categoryEditor.unconfirmed', {
+              source: transaction.category_source ?? '',
+              confidence: transaction.confidence != null ? `${Math.round(transaction.confidence * 100)}%` : '–',
+            })}
+          >
+            ?
+          </span>
+        )}
       </Badge>
 
       <Dialog open={open} onOpenChange={setOpen}>

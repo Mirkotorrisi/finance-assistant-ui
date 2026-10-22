@@ -2,6 +2,7 @@ export const en = {
   nav: {
     chat: 'Chat',
     dashboard: 'Dashboard',
+    review: 'Review',
     blueprint: 'Blueprint',
     amazon: 'Amazon',
   },
@@ -142,6 +143,8 @@ export const en = {
     noAccountSelected: 'Choose or create an account first',
     transfersDetected: '{{n}} transfers between your accounts detected (left out of spending)',
     duplicateFile: 'This file was already imported: nothing new was added',
+    needsReview: '{{n}} categories are suggestions to confirm',
+    goToReview: 'Review them',
     chunk: 'chunk',
   },
   amazonImport: {
@@ -196,6 +199,7 @@ export const en = {
     justThisOne: 'Just this one',
     applyToAll: 'Apply to all',
     saving: 'Saving…',
+    unconfirmed: 'Suggested ({{source}}, {{confidence}}): not confirmed yet',
     badgeTitle: 'Click to edit category',
   },
   transactionSearch: {
@@ -352,5 +356,23 @@ export const en = {
     create: 'Create project',
     creating: 'Creating…',
     failed: 'Could not create the project',
+  },
+  review: {
+    title: 'Review',
+    subtitle: 'Categories chosen automatically are suggestions. Confirm a merchant once and every transaction of it is settled, now and in future imports.',
+    coverageTitle: '{{n}}% of your spending rests on categories you confirmed',
+    coverageDetail: '{{confirmed}} confirmed · {{pending}} still suggested',
+    intro: 'Merchants to check: {{groups}} · transactions: {{n}}. The biggest amounts come first.',
+    allDone: 'Nothing to review: every category is confirmed.',
+    transactions: 'Transactions: {{n}}',
+    category: 'category',
+    chooseCategory: 'Choose a category…',
+    suggested: 'Suggested',
+    mixed: 'Given different categories',
+    unmapped: '“{{name}}” is not in the blueprint',
+    remember: 'Remember for future imports',
+    confirm: 'Confirm',
+    confirmSure: 'Confirm the {{n}} very sure suggestions (90%+)',
+    source: { user: 'You', rule: 'Rule', file: 'From the file', legacy: 'Existing data', ai: 'AI', fallback: 'Guess' },
   },
 }
