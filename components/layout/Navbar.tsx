@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { StatementUpload } from '@/components/finance/StatementUpload'
+import { WorkspaceSwitcher } from '@/components/layout/WorkspaceSwitcher'
 import { cn } from '@/lib/utils'
-import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag } from 'lucide-react'
+import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag, ListTree } from 'lucide-react'
 import { useTranslation, type Locale } from '@/lib/i18n'
 
 export function Navbar() {
@@ -14,6 +15,7 @@ export function Navbar() {
   const NAV_LINKS = [
     { href: '/chat', label: t('nav.chat'), icon: MessageSquare },
     { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { href: '/blueprint', label: t('nav.blueprint'), icon: ListTree },
     { href: '/amazon', label: t('nav.amazon'), icon: ShoppingBag },
   ]
 
@@ -55,6 +57,7 @@ export function Navbar() {
 
         {/* Right side: lang switcher + upload */}
         <div className="ml-auto flex items-center gap-2">
+          <WorkspaceSwitcher />
           <button
             onClick={() => setLocale(otherLocale)}
             className="rounded-lg border border-border/60 px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"

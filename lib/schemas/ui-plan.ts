@@ -12,6 +12,7 @@ export const whitelistedComponentTypes = [
   'FormAccount',
   'RecategorizationReview',
   'OnboardingReview',
+  'BlueprintReview',
 ] as const
 
 export const whitelistedComponentTypeSchema = z.enum(whitelistedComponentTypes)

@@ -27,6 +27,16 @@ export function useChat({ warm = true }: UseChatOptions = {}) {
 
   useEffect(() => () => abortRef.current?.abort(), [])
 
+  // The agent's tools are bound to a project: switching project starts a fresh conversation with the new one
+  useEffect(() => {
+    function onWorkspaceChanged() {
+      sessionIdRef.current = crypto.randomUUID()
+      if (warm) void warmChatSession(userIdRef.current!, sessionIdRef.current)
+    }
+    window.addEventListener('workspace-changed', onWorkspaceChanged)
+    return () => window.removeEventListener('workspace-changed', onWorkspaceChanged)
+  }, [warm])
+
   const send = useCallback(async (userText: string) => {
     setError(null)
     setMessages((prev) => [

@@ -9,6 +9,7 @@ import { FormTransaction } from '@/components/finance/FormTransaction'
 import { FormAccount } from '@/components/finance/FormAccount'
 import { RecategorizationReview } from '@/components/finance/RecategorizationReview'
 import { OnboardingReview } from '@/components/finance/OnboardingReview'
+import { BlueprintReview } from '@/components/finance/BlueprintReview'
 
 /** Register all whitelisted finance UI components. */
 export function registerComponents() {
@@ -70,5 +71,11 @@ export function registerComponents() {
     key: 'OnboardingReview',
     component: OnboardingReview as React.ComponentType<unknown>,
     description: 'Human-in-the-loop review of onboarding preferences (focus categories, custom categories, budget) before confirming',
+  })
+
+  componentRegistry.register({
+    key: 'BlueprintReview',
+    component: BlueprintReview as React.ComponentType<unknown>,
+    description: 'Review a proposed project blueprint (categories, groups, dimensions) and save it or create a project from it',
   })
 }
