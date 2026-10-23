@@ -27,6 +27,11 @@ export function formatCurrency(
   return new Intl.NumberFormat(formatLocale, opts).format(value)
 }
 
+/** Currency with an explicit sign, so a gain or a loss never rests on colour alone. */
+export function formatSignedCurrency(value: number, currency = 'EUR'): string {
+  return `${value > 0 ? '+' : ''}${formatCurrency(value, currency)}`
+}
+
 /**
  * Format a number as a percentage
  */

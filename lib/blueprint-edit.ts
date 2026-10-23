@@ -9,7 +9,7 @@ export interface Cat {
   description?: string
   examples?: string[]
   aliases?: string[]
-  kind?: 'expense' | 'income'
+  kind?: 'expense' | 'income' | 'investment'
   attributes?: Record<string, unknown>
   children?: Cat[]
 }

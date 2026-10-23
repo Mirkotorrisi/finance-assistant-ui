@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { InvestmentsSummary } from "@/components/investments/InvestmentsSummary";
 import { SummaryCards } from "@/components/finance/SummaryCards";
 import { TransactionsTable } from "@/components/finance/TransactionsTable";
 import { SpendingBubble } from "@/components/finance/SpendingBubble";
@@ -75,6 +76,7 @@ export default function DashboardPage() {
       <div className="container mx-auto px-4 pt-6 pb-28 space-y-6">
         {/* Summary cards always visible */}
         <SummaryCards />
+        <InvestmentsSummary />
 
         {/* Tabbed content */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>

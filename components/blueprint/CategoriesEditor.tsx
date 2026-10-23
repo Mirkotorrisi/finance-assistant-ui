@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ArrowDown, ArrowUp, IndentDecrease, IndentIncrease, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { useTranslation } from '@/lib/i18n'
 import {
   addCategory, allKeys, deleteCategory, flatten, indent, moveWithinSiblings, outdent, renameCategory, uniqueKey, MAX_DEPTH,
@@ -60,20 +61,20 @@ function Row({
         aria-label={t('blueprintEditor.labelPlaceholder')}
         className="h-8 w-56 min-w-0"
       />
-      <span className="hidden text-xs text-muted-foreground sm:inline">{node.key}</span>
-      <label className="flex items-center gap-1 text-xs text-muted-foreground">
-        <input
-          type="checkbox"
-          checked={node.kind === 'income'}
-          onChange={(e) =>
-            onChange({
-              ...draft,
-              categories: updateKind(draft.categories ?? [], node.key, e.target.checked ? 'income' : 'expense'),
-            })
-          }
-        />
-        {t('blueprintEditor.income')}
-      </label>
+      <span className="hidden w-28 truncate text-xs text-muted-foreground sm:inline" title={node.key}>{node.key}</span>
+      <Select
+        value={node.kind ?? 'expense'}
+        onChange={(e) =>
+          onChange({ ...draft, categories: updateKind(draft.categories ?? [], node.key, e.target.value as CategoryKind) })
+        }
+        aria-label={t('blueprintEditor.kind')}
+        title={t('blueprintEditor.kindHelp')}
+        className="h-8 w-32 text-xs"
+      >
+        <option value="expense">{t('blueprintEditor.kindExpense')}</option>
+        <option value="income">{t('blueprintEditor.kindIncome')}</option>
+        <option value="investment">{t('blueprintEditor.kindInvestment')}</option>
+      </Select>
       <Button type="button" variant="ghost" size="icon" className={btn} title={t('blueprintEditor.moveUp')} onClick={() => onChange({ ...draft, categories: moveWithinSiblings(draft.categories, node.key, -1) })}>
         <ArrowUp className={icon} />
       </Button>
@@ -103,7 +104,9 @@ function Row({
   )
 }
 
-function updateKind(nodes: NonNullable<Blueprint['categories']>, key: string, kind: 'income' | 'expense'): NonNullable<Blueprint['categories']> {
+type CategoryKind = 'expense' | 'income' | 'investment'
+
+function updateKind(nodes: NonNullable<Blueprint['categories']>, key: string, kind: CategoryKind): NonNullable<Blueprint['categories']> {
   return nodes.map((n) =>
     n.key === key ? { ...n, kind } : n.children?.length ? { ...n, children: updateKind(n.children, key, kind) } : n,
   )

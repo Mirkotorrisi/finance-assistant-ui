@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { StatementUpload } from '@/components/finance/StatementUpload'
 import { WorkspaceSwitcher } from '@/components/layout/WorkspaceSwitcher'
 import { cn } from '@/lib/utils'
-import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag, ListTree, ClipboardCheck } from 'lucide-react'
+import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag, ListTree, ClipboardCheck, Briefcase } from 'lucide-react'
 import { useTranslation, type Locale } from '@/lib/i18n'
 import { useEffect, useState } from 'react'
 import { reviewService } from '@/lib/services/review.service'
@@ -36,6 +36,7 @@ export function Navbar() {
     { href: '/chat', label: t('nav.chat'), icon: MessageSquare },
     { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { href: '/review', label: t('nav.review'), icon: ClipboardCheck, badge: pending },
+    { href: '/investments', label: t('nav.investments'), icon: Briefcase },
     { href: '/blueprint', label: t('nav.blueprint'), icon: ListTree },
     { href: '/amazon', label: t('nav.amazon'), icon: ShoppingBag },
   ]
@@ -66,14 +67,14 @@ export function Navbar() {
               aria-label={label}
               title={label}
               className={cn(
-                'flex items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 lg:px-3 lg:py-1.5',
+                'flex items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 2xl:px-3 2xl:py-1.5',
                 pathname === href
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
-              <Icon className="h-4 w-4 lg:h-3.5 lg:w-3.5" />
-              <span className="hidden lg:inline">{label}</span>
+              <Icon className="h-4 w-4 2xl:h-3.5 2xl:w-3.5" />
+              <span className={pathname === href ? 'hidden sm:inline' : 'hidden 2xl:inline'}>{label}</span>
               {badge ? (
                 <span className="ml-0.5 rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-4 text-primary-foreground">
                   {badge > 99 ? '99+' : badge}

@@ -31,7 +31,7 @@ export function ChatInput({ onSubmit, isLoading = false, disabled = false }: Cha
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-end gap-3 p-4">
+    <form onSubmit={handleSubmit} className="flex items-start gap-3 p-4">
       <div className="flex-1 relative">
         <textarea
           value={input}
@@ -40,6 +40,7 @@ export function ChatInput({ onSubmit, isLoading = false, disabled = false }: Cha
           placeholder={t('chat.inputPlaceholder')}
           disabled={isLoading || disabled}
           rows={1}
+          aria-describedby="chat-input-hint"
           className="w-full resize-none rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all h-12 min-h-[48px] max-h-40 overflow-y-auto leading-relaxed"
           onInput={(e) => {
             const target = e.target as HTMLTextAreaElement
@@ -47,6 +48,9 @@ export function ChatInput({ onSubmit, isLoading = false, disabled = false }: Cha
             target.style.height = Math.min(target.scrollHeight, 160) + 'px'
           }}
         />
+        <p id="chat-input-hint" className="mt-1 hidden text-[11px] text-muted-foreground sm:block">
+          {t('chat.inputHint')}
+        </p>
       </div>
       <Button
         type="submit"
