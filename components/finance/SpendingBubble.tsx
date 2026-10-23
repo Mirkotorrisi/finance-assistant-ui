@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { financialSummaryService } from '@/lib/services/financial-summary.service'
 import { formatCurrency } from '@/lib/format'
-import { categoryColor } from '@/lib/chart-colors'
+import { SERIES_COLORS } from '@/lib/chart-colors'
 import type { SpendingDistributionParams, DistributionItem } from '@/lib/types/financial-summary'
 import { useTranslation } from '@/lib/i18n'
 
@@ -45,7 +45,7 @@ function fetchReducer(state: FetchState, action: FetchAction): FetchState {
 }
 
 function isoDate(d: Date) {
-  return d.toISOString().split('T')[0]
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 function monthsAgo(n: number) {
@@ -68,6 +68,7 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(600)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [hovered, setHovered] = useState<string | null>(null)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -169,11 +170,10 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
               <svg width={width} height={height}>
                 {packedLeaves.map((node: HierarchyCircularNode<RootDatum>) => {
                   const item = node.data as DistributionItem
-                  const color = categoryColor(item.name)
                   const r = node.r
                   const nameFontSize = Math.max(9, Math.min(14, r / 3.5))
                   const amountFontSize = nameFontSize * 0.82
-                  const showText = r > 28
+                  const showText = r > 34
 
                   return (
                     <g
@@ -182,6 +182,8 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                       style={{ cursor: onCategoryClick ? 'pointer' : 'default' }}
                       role={onCategoryClick ? 'button' : undefined}
                       tabIndex={onCategoryClick ? 0 : undefined}
+                      onMouseEnter={() => setHovered(item.name)}
+                      onMouseLeave={() => setHovered(null)}
                       aria-label={`${item.name}: ${formatCurrency(Math.abs(item.amount))}`}
                       onClick={() => onCategoryClick?.(item.name, startDate, endDate)}
                       onKeyDown={(e) => {
@@ -191,7 +193,14 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                         }
                       }}
                     >
-                      <circle r={r} fill={color} fillOpacity={0.88} />
+                      <circle
+                        r={r}
+                        fill={SERIES_COLORS[0]}
+                        stroke="var(--card)"
+                        strokeWidth={2}
+                        fillOpacity={hovered && hovered !== item.name ? 0.25 : 0.9}
+                        className="transition-[fill-opacity] duration-150"
+                      />
                       {showText && (
                         <>
                           <text
@@ -212,7 +221,7 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                             fillOpacity={0.9}
                             style={{ pointerEvents: 'none' }}
                           >
-                            {formatCurrency(Math.abs(item.amount))}
+                            {r > 46 ? formatCurrency(Math.abs(item.amount)) : ''}
                           </text>
                         </>
                       )}
@@ -230,13 +239,11 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                     <div
                       key={item.name}
                       className="flex items-center gap-2 min-w-0 rounded-md px-1 -mx-1 transition-colors hover:bg-muted/60"
+                      onMouseEnter={() => setHovered(item.name)}
+                      onMouseLeave={() => setHovered(null)}
                       style={{ cursor: onCategoryClick ? 'pointer' : 'default' }}
                       onClick={() => onCategoryClick?.(item.name, startDate, endDate)}
                     >
-                      <span
-                        className="shrink-0 inline-block w-3 h-3 rounded-full"
-                        style={{ backgroundColor: categoryColor(item.name) }}
-                      />
                       <span className="truncate text-xs text-muted-foreground" title={item.name}>
                         {item.name}
                       </span>

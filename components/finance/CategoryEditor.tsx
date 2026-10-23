@@ -85,7 +85,7 @@ export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) 
     <>
       <Badge
         variant="outline"
-        className="cursor-pointer hover:opacity-80 transition-opacity"
+        className="cursor-pointer whitespace-nowrap hover:opacity-80 transition-opacity"
         style={{
           color,
           borderColor: `color-mix(in oklch, ${color} 35%, transparent)`,

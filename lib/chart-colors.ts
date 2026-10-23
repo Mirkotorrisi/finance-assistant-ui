@@ -128,3 +128,32 @@ export function paletteColor(name: string): string {
 export function categoryColor(name: string): string {
   return CATEGORY_COLORS[name.toLowerCase().trim()] ?? paletteColor(name)
 }
+
+// Categorical series, in fixed order: the validated reference palette (light steps; the app has no dark theme switch).
+// Plain hex on purpose: SVG fill attributes do not resolve CSS variables.
+// A chart shows at most SERIES_MAX named slices; the rest folds into one neutral "other" slice.
+export const SERIES_MAX = 7
+export const SERIES_COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']
+export const OTHER_COLOR = '#9aa0ad'
+export const SERIES_INK = '#4b5263'
+
+export type Slice = {
+  name: string
+  amount: number
+  percent: number
+}
+
+export function foldSlices<T extends Slice>(items: T[], otherLabel: string, max = SERIES_MAX): Slice[] {
+  const sorted = [...items].sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))
+  if (sorted.length <= max + 1) return sorted
+  const head = sorted.slice(0, max)
+  const rest = sorted.slice(max)
+  return [
+    ...head,
+    {
+      name: otherLabel,
+      amount: rest.reduce((s, x) => s + Math.abs(x.amount), 0),
+      percent: rest.reduce((s, x) => s + Math.abs(x.percent), 0),
+    },
+  ]
+}

@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
 import { it } from './translations/it'
 import { en } from './translations/en'
+import { setFormatLocale } from '@/lib/format'
 
 export type Locale = 'it' | 'en'
 export type Translations = typeof it
@@ -33,6 +34,7 @@ const I18nContext = createContext<I18nContextValue | null>(null)
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>('it')
   const tr = translations[locale]
+  setFormatLocale(tr.summary.localeCode)
 
   function t(key: string, vars?: Record<string, string | number>): string {
     const value = getNestedValue(tr as unknown as Record<string, unknown>, key)

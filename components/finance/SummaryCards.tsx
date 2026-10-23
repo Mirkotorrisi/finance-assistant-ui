@@ -171,7 +171,7 @@ export function SummaryCards({ title }: SummaryCardsProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-5 pb-5">
-                <p className="text-2xl font-bold tracking-tight" style={card.valueStyle}>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight whitespace-nowrap tabular-nums" style={card.valueStyle}>
                   {card.value}
                 </p>
                 {card.subtitle && (

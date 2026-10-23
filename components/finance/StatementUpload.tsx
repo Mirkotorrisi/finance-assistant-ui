@@ -23,7 +23,7 @@ type UploadState = 'idle' | 'uploading' | 'processing' | 'success' | 'error'
 
 interface JobStatus {
   status: 'processing' | 'complete' | 'error'
-  step?: 'queued' | 'extracting' | 'parsing' | 'saving'
+  step?: 'queued' | 'extracting' | 'parsing' | 'categorizing' | 'saving'
   completed_chunks?: number
   total_chunks?: number
   result?: UploadResult
@@ -197,6 +197,7 @@ export function StatementUpload() {
       if (total_chunks === 0) return 20
       return 20 + Math.round((completed_chunks / total_chunks) * 65)
     }
+    if (step === 'categorizing') return 87
     if (step === 'saving') return 90
     return 0
   })()
@@ -210,9 +211,9 @@ export function StatementUpload() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-2">
+        <Button size="sm" className="gap-2" aria-label={t('upload.button')}>
           <Upload className="h-4 w-4" />
-          {t('upload.button')}
+          <span className="hidden md:inline">{t('upload.button')}</span>
         </Button>
       </DialogTrigger>
 

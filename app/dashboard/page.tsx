@@ -72,7 +72,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-4 pt-6 pb-28 space-y-6">
         {/* Summary cards always visible */}
         <SummaryCards />
 

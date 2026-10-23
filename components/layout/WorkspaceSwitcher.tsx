@@ -76,7 +76,7 @@ export function WorkspaceSwitcher() {
         value={currentId === null ? '' : String(currentId)}
         onChange={(e) => choose(e.target.value)}
         aria-label={t('workspace.label')}
-        className="h-8 w-40 text-xs"
+        className="h-8 w-24 text-xs sm:w-40"
         title={t('workspace.label')}
       >
         {workspaces.map((w) => (

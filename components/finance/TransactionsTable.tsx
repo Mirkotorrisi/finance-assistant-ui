@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -10,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
 import { categoryColor } from '@/lib/chart-colors'
 import { transactionsService } from '@/lib/services/transactions.service'
 import { formatCurrency, formatDate } from '@/lib/format'
@@ -18,6 +18,8 @@ import { CategoryEditor } from '@/components/finance/CategoryEditor'
 import { TransactionSearch } from '@/components/finance/TransactionSearch'
 import type { Transaction, TransactionFilters } from '@/lib/types/transaction'
 import { useTranslation } from '@/lib/i18n'
+
+const PAGE_SIZE = 50
 
 interface TransactionsTableProps {
   title?: string
@@ -32,6 +34,7 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [limit, setLimit] = useState(PAGE_SIZE)
 
   useEffect(() => {
     const refresh = () => setRefreshKey((k) => k + 1)
@@ -46,6 +49,7 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
   useEffect(() => {
     setLoading(true)
     setError(null)
+    setLimit(PAGE_SIZE)
     transactionsService
       .list(params)
       .then(setTransactions)
@@ -62,7 +66,8 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
     })
   }
 
-  const visibleTransactions = transactions.filter((tx) => !hiddenCategories.has(tx.category))
+  const filteredTransactions = transactions.filter((tx) => !hiddenCategories.has(tx.category))
+  const visibleTransactions = filteredTransactions.slice(0, limit)
 
   return (
     <Card>
@@ -76,21 +81,24 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
               const active = !hiddenCategories.has(cat)
               const color = categoryColor(cat)
               return (
-                <Badge
+                <button
                   key={cat}
-                  variant="outline"
-                  className="cursor-pointer select-none transition-opacity"
-                  style={active ? {
-                    color,
-                    borderColor: `color-mix(in oklch, ${color} 35%, transparent)`,
-                    background: `color-mix(in oklch, ${color} 10%, var(--background))`,
-                  } : {
-                    opacity: 0.35,
-                  }}
+                  type="button"
+                  aria-pressed={active}
                   onClick={() => toggleCategory(cat)}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors select-none ${
+                    active
+                      ? 'border-border bg-background text-foreground hover:bg-muted'
+                      : 'border-transparent bg-transparent text-muted-foreground/60 line-through hover:bg-muted'
+                  }`}
                 >
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 rounded-full"
+                    style={{ background: color, opacity: active ? 1 : 0.35 }}
+                  />
                   {transactions.find((tx) => tx.category === cat)?.category_label ?? cat}
-                </Badge>
+                </button>
               )
             })}
           </div>
@@ -120,7 +128,7 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
               <TableBody>
                 {visibleTransactions.map((tx) => (
                   <TableRow key={tx.id}>
-                    <TableCell className="whitespace-nowrap">{formatDate(tx.date)}</TableCell>
+                    <TableCell className="whitespace-nowrap tabular-nums">{formatDate(tx.date)}</TableCell>
                     <TableCell>{tx.description}</TableCell>
                     <TableCell>
                       <CategoryEditor
@@ -133,7 +141,7 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
                       />
                     </TableCell>
                     <TableCell
-                      className="text-right font-medium"
+                      className="text-right font-medium whitespace-nowrap tabular-nums"
                       style={{ color: tx.amount >= 0 ? 'oklch(0.62 0.19 162)' : 'oklch(0.64 0.25 16)' }}
                     >
                       {tx.amount >= 0 ? '+' : ''}{formatCurrency(tx.amount, tx.currency)}
@@ -145,6 +153,14 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
                 ))}
               </TableBody>
             </Table>
+            <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <span>{t('transactions.shown', { shown: visibleTransactions.length, total: filteredTransactions.length })}</span>
+              {filteredTransactions.length > limit && (
+                <Button variant="outline" size="sm" onClick={() => setLimit((l) => l + PAGE_SIZE)}>
+                  {t('transactions.showMore', { n: Math.min(PAGE_SIZE, filteredTransactions.length - limit) })}
+                </Button>
+              )}
+            </div>
           </div>
         )}
       </CardContent>

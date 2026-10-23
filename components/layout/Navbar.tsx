@@ -44,9 +44,9 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/90 backdrop-blur-lg">
-      <div className="container mx-auto flex h-16 items-center gap-4 px-4">
+      <div className="container mx-auto flex h-16 items-center gap-2 px-3 sm:gap-4 sm:px-4">
         {/* Logo */}
-        <Link href="/chat" className="flex items-center gap-2.5 shrink-0">
+        <Link href="/chat" className="hidden sm:flex items-center gap-2.5 shrink-0">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary shadow-sm">
             <TrendingUp className="h-4 w-4 text-primary-foreground" />
           </div>
@@ -55,23 +55,25 @@ export function Navbar() {
           </span>
         </Link>
 
-        <div className="h-5 w-px bg-border/70 mx-1" />
+        <div className="hidden sm:block h-5 w-px bg-border/70 mx-1" />
 
         {/* Nav links */}
-        <nav className="flex items-center gap-1">
+        <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] sm:flex-none sm:gap-1">
           {NAV_LINKS.map(({ href, label, icon: Icon, badge }) => (
             <Link
               key={href}
               href={href}
+              aria-label={label}
+              title={label}
               className={cn(
-                'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150',
+                'flex items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 lg:px-3 lg:py-1.5',
                 pathname === href
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
-              <Icon className="h-3.5 w-3.5" />
-              {label}
+              <Icon className="h-4 w-4 lg:h-3.5 lg:w-3.5" />
+              <span className="hidden lg:inline">{label}</span>
               {badge ? (
                 <span className="ml-0.5 rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-4 text-primary-foreground">
                   {badge > 99 ? '99+' : badge}
@@ -82,7 +84,7 @@ export function Navbar() {
         </nav>
 
         {/* Right side: lang switcher + upload */}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:ml-auto sm:gap-2">
           <WorkspaceSwitcher />
           <button
             onClick={() => setLocale(otherLocale)}

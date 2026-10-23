@@ -48,14 +48,15 @@ export function ChatOverlay({ open, onClose }: ChatOverlayProps) {
       <div
         ref={panelRef}
         tabIndex={-1}
+        inert={!open}
         role="complementary"
         aria-label={t('chat.overlay.ariaLabel')}
         className={cn(
           'fixed right-0 top-16 bottom-0 z-50 flex flex-col',
           'w-full sm:w-[380px]',
-          'bg-background border-l border-border/60 shadow-2xl',
+          'bg-background border-l border-border/60',
           'transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]',
-          open ? 'translate-x-0' : 'translate-x-full',
+          open ? 'translate-x-0 shadow-2xl' : 'translate-x-full shadow-none',
         )}
       >
         {/* Header */}

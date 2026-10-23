@@ -76,7 +76,7 @@ function Row({
             </p>
           </div>
           <div className="text-right">
-            <p className="font-medium">{formatCurrency(-group.total_amount, 'EUR')}</p>
+            <p className="font-medium">{formatCurrency(group.total_amount, 'EUR')}</p>
             <p className="text-xs text-muted-foreground">{t('review.transactions', { n: group.transactions })}</p>
           </div>
         </div>
@@ -183,8 +183,8 @@ export function ReviewQueue() {
             <p className="font-medium">{t('review.coverageTitle', { n: share })}</p>
             <p className="text-sm text-muted-foreground">
               {t('review.coverageDetail', {
-                confirmed: formatCurrency(-queue.coverage.reviewed_amount, 'EUR'),
-                pending: formatCurrency(-queue.coverage.unreviewed_amount, 'EUR'),
+                confirmed: formatCurrency(queue.coverage.reviewed_amount, 'EUR'),
+                pending: formatCurrency(queue.coverage.unreviewed_amount, 'EUR'),
               })}
             </p>
           </div>

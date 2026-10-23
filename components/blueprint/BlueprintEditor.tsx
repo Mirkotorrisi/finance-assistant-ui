@@ -221,9 +221,9 @@ export function BlueprintEditor() {
       </Section>
 
       {/* Save bar */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-background/95 backdrop-blur">
-        <div className="container mx-auto flex flex-wrap items-start gap-4 px-4 py-3">
-          <div className="min-w-0 flex-1 space-y-2">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-background shadow-[0_-4px_16px_-8px_rgba(0,0,0,0.12)]">
+        <div className="container mx-auto flex flex-wrap items-start gap-2 px-4 py-3 sm:gap-4">
+          <div className="min-w-0 basis-full space-y-1 sm:flex-1 sm:basis-0 sm:space-y-2">
             <p className="text-sm font-medium">
               {dirty ? t('blueprintEditor.unsaved') : t('blueprintEditor.changes')}
             </p>
@@ -235,11 +235,11 @@ export function BlueprintEditor() {
               </p>
             )}
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" disabled={!dirty || saving} onClick={() => { setDraft(saved); setNotice(null) }}>
+          <div className="flex w-full gap-2 sm:w-auto">
+            <Button className="flex-1 sm:flex-none" variant="outline" disabled={!dirty || saving} onClick={() => { setDraft(saved); setNotice(null) }}>
               {t('blueprintEditor.revert')}
             </Button>
-            <Button disabled={!dirty || saving || !!serverError || !preview} onClick={save}>
+            <Button className="flex-1 sm:flex-none" disabled={!dirty || saving || !!serverError || !preview} onClick={save}>
               {saving ? t('blueprintEditor.saving') : t('blueprintEditor.save')}
             </Button>
           </div>

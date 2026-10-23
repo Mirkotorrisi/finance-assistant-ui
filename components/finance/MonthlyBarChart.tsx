@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  BarChart,
+  ComposedChart,
   Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -13,7 +14,8 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { financialDataService } from '@/lib/services/financial-data.service'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, formatCompact } from '@/lib/format'
+import { SERIES_COLORS, SERIES_INK } from '@/lib/chart-colors'
 import type { MonthlyDataPoint } from '@/lib/types/financial-data'
 import { useTranslation } from '@/lib/i18n'
 
@@ -26,7 +28,7 @@ export function MonthlyBarChart({
   title,
   year = new Date().getFullYear(),
 }: MonthlyBarChartProps) {
-  const { t } = useTranslation()
+  const { t, tr } = useTranslation()
   const [data, setData] = useState<MonthlyDataPoint[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,6 +48,12 @@ export function MonthlyBarChart({
       .finally(() => setLoading(false))
   }, [year, refreshKey, t])
 
+  // the API labels months in English: show them in the UI language
+  const months = data.map((d, i) => ({
+    ...d,
+    label: new Date(2000, i, 1).toLocaleDateString(tr.summary.localeCode, { month: 'short' }),
+  }))
+
   return (
     <Card>
       <CardHeader>
@@ -59,17 +67,47 @@ export function MonthlyBarChart({
         ) : data.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('charts.noDataYear', { year })}</p>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis tickFormatter={(v: number) => formatCurrency(v, undefined, true)} />
-              <Tooltip formatter={(value: number | string | undefined) => formatCurrency(Number(value ?? 0))} />
-              <Legend />
-              <Bar dataKey="income" name={t('charts.income')} fill="oklch(0.62 0.19 162)" />
-              <Bar dataKey="expenses" name={t('charts.expenses')} fill="oklch(0.64 0.25 16)" />
-              <Bar dataKey="net" name={t('charts.net')} fill="oklch(0.546 0.241 264)" />
-            </BarChart>
+          <ResponsiveContainer width="100%" height={300} minWidth={0}>
+            <ComposedChart data={months} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barGap={2}>
+              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+              <YAxis
+                width={44}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                tickFormatter={(v: number) => formatCompact(v)}
+              />
+              <Tooltip
+                cursor={{ fill: 'var(--muted)', opacity: 0.5 }}
+                formatter={(value: number | string | undefined) => formatCurrency(Number(value ?? 0))}
+                contentStyle={{
+                  background: 'var(--popover)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  fontSize: 12,
+                  color: 'var(--popover-foreground)',
+                }}
+                labelStyle={{ color: 'var(--popover-foreground)', fontWeight: 600 }}
+              />
+              <Legend
+                iconType="circle"
+                iconSize={8}
+                wrapperStyle={{ fontSize: 12 }}
+                formatter={(value: string) => <span style={{ color: 'var(--muted-foreground)' }}>{value}</span>}
+              />
+              <Bar dataKey="income" name={t('charts.income')} fill={SERIES_COLORS[0]} radius={[4, 4, 0, 0]} maxBarSize={14} />
+              <Bar dataKey="expenses" name={t('charts.expenses')} fill={SERIES_COLORS[1]} radius={[4, 4, 0, 0]} maxBarSize={14} />
+              <Line
+                dataKey="net"
+                name={t('charts.net')}
+                type="linear"
+                stroke={SERIES_INK}
+                strokeWidth={2}
+                dot={{ r: 3, fill: 'var(--card)', strokeWidth: 2 }}
+                activeDot={{ r: 5 }}
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         )}
       </CardContent>
