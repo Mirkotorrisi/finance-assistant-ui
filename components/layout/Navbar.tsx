@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { StatementUpload } from '@/components/finance/StatementUpload'
 import { WorkspaceSwitcher } from '@/components/layout/WorkspaceSwitcher'
 import { cn } from '@/lib/utils'
-import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag, ListTree, ClipboardCheck, Briefcase } from 'lucide-react'
+import { TrendingUp, MessageSquare, LayoutDashboard, ShoppingBag, ListTree, ClipboardCheck, Briefcase, Landmark } from 'lucide-react'
 import { useTranslation, type Locale } from '@/lib/i18n'
 import { useEffect, useState } from 'react'
 import { reviewService } from '@/lib/services/review.service'
@@ -36,6 +36,7 @@ export function Navbar() {
     { href: '/chat', label: t('nav.chat'), icon: MessageSquare },
     { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { href: '/review', label: t('nav.review'), icon: ClipboardCheck, badge: pending },
+    { href: '/net-worth', label: t('nav.netWorth'), icon: Landmark },
     { href: '/investments', label: t('nav.investments'), icon: Briefcase },
     { href: '/blueprint', label: t('nav.blueprint'), icon: ListTree },
     { href: '/amazon', label: t('nav.amazon'), icon: ShoppingBag },
