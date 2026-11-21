@@ -10,6 +10,7 @@ import { useTranslation } from '@/lib/i18n'
 import { workspacesService } from '@/lib/services/workspaces.service'
 import type { TemplateInfo, Workspace } from '@/lib/types/blueprint'
 import { getWorkspaceId, setWorkspaceId } from '@/lib/workspace'
+import { ApiError } from '@/lib/services/http'
 
 const NEW = 'new'
 
@@ -34,7 +35,14 @@ export function WorkspaceSwitcher() {
           setWorkspaces(list)
           setCurrentId(getWorkspaceId() ?? current.id)
         })
-        .catch(() => undefined) // the API may still be starting; the switcher just stays empty
+        .catch((err: unknown) => {
+          // the stored project no longer exists (deleted elsewhere): fall back to the default one and reload,
+          // otherwise every scoped request keeps failing. Other errors (API still starting) leave the switcher empty.
+          if (err instanceof ApiError && err.status === 404 && getWorkspaceId() !== undefined) {
+            setWorkspaceId(undefined)
+            window.location.reload()
+          }
+        })
     void refresh()
     window.addEventListener('workspace-changed', refresh)
     return () => {
