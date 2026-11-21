@@ -10,6 +10,8 @@ export interface AccountUpdate {
   name?: string
   type?: string
   is_active?: boolean
+  /** the investment account whose value the trades booked on this cash account build (null = none) */
+  securities_account_id?: number | null
 }
 
 export interface Account {
@@ -19,6 +21,9 @@ export interface Account {
   currency: string
   is_active: boolean
   current_balance: number
+  /** what current_balance rests on: snapshot | derived | carried | transactions | none */
+  balance_basis?: string
+  securities_account_id?: number | null
 }
 
 export interface AccountBalanceResponse {

@@ -13,6 +13,7 @@ import { formatCompact, formatCurrency, formatSignedCurrency } from '@/lib/forma
 import { SERIES_COLORS } from '@/lib/chart-colors'
 import { useTranslation } from '@/lib/i18n'
 import type { Portfolio } from '@/lib/types/investments'
+import { MarketValueView } from './MarketValueView'
 
 const GAIN = 'oklch(0.52 0.17 162)'
 const LOSS = 'oklch(0.55 0.23 16)'
@@ -82,6 +83,9 @@ export function InvestmentsView() {
 
   return (
     <div className="space-y-6">
+      <MarketValueView />
+
+      <h2 className="text-lg font-semibold tracking-tight">{t('investments.realizedSection')}</h2>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {tiles.map((tile) => (
           <Card key={tile.label} className={tile.hero ? 'col-span-2 lg:col-span-1' : undefined}>

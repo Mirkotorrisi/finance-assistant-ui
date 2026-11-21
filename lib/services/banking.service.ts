@@ -82,6 +82,11 @@ export const bankingService = {
   suspects(): Promise<SuspectDuplicate[]> {
     return get<SuspectDuplicate[]>('/api/imports/suspects')
   },
+  /** POST /api/imports/suspects/resolve-bulk: every pair whose dates differ by at most maxDayGap days */
+  resolveSuspectsBulk(action: SuspectAction, maxDayGap = 0): Promise<{ resolved: number; remaining: number }> {
+    return post('/api/imports/suspects/resolve-bulk', { action, max_day_gap: maxDayGap })
+  },
+
   resolveSuspect(transactionId: number, action: SuspectAction): Promise<{ resolved: number; action: string }> {
     return post<{ resolved: number; action: string }>(`/api/imports/suspects/${transactionId}/resolve`, { action })
   },

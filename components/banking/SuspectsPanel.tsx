@@ -31,6 +31,21 @@ export function SuspectsPanel({ suspects, onResolved }: Props) {
 
   if (suspects.length === 0) return null
 
+  const sameDay = suspects.filter((s) => s.transaction.date === s.twin.date).length
+  const resolveSameDay = async () => {
+    setBusy(-1)
+    setError(null)
+    try {
+      await bankingService.resolveSuspectsBulk('delete_this', 0)
+      window.dispatchEvent(new Event('transactions-updated'))
+      onResolved()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('banking.suspects.error'))
+    } finally {
+      setBusy(null)
+    }
+  }
+
   const resolve = async (id: number, action: SuspectAction) => {
     setBusy(id)
     setError(null)
@@ -50,6 +65,14 @@ export function SuspectsPanel({ suspects, onResolved }: Props) {
       <CardHeader className="pb-3">
         <CardTitle className="text-base">{t('banking.suspects.title', { n: suspects.length })}</CardTitle>
         <p className="text-sm text-muted-foreground">{t('banking.suspects.subtitle')}</p>
+        {sameDay > 0 && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Button size="sm" disabled={busy !== null} onClick={resolveSameDay}>
+              {t('banking.suspects.resolveSameDay', { n: sameDay })}
+            </Button>
+            <span className="text-xs text-muted-foreground">{t('banking.suspects.resolveSameDayHint')}</span>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         {error && <p className="text-xs text-destructive">{error}</p>}

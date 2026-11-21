@@ -46,6 +46,9 @@ export function SetupCard({ status }: { status: BankingStatus }) {
                 {copied === 'redirect' ? t('banking.setup.copied') : t('banking.setup.copy')}
               </Button>
             </div>
+            {status.redirect_url.startsWith('http://') && (
+              <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">{t('banking.setup.httpsOnly')}</p>
+            )}
           </li>
           <li>
             {t('banking.setup.step2')}
