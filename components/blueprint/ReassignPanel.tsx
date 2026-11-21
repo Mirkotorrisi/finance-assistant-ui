@@ -54,9 +54,9 @@ export function ReassignPanel({ entries, blueprint, onDone }: Props) {
 
   if (moved > 0) {
     return (
-      <Card className="border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800">
+      <Card className="border-positive/25 bg-positive/10">
         <CardContent className="flex items-center justify-between gap-3 pt-6">
-          <span className="flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-400">
+          <span className="flex items-center gap-2 text-sm font-medium text-positive">
             <CheckCircle className="h-4 w-4" />
             {t('blueprintEditor.moved', { n: moved })}
           </span>

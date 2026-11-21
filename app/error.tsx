@@ -18,8 +18,8 @@ export default function Error({
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <Card className="p-6 max-w-md">
-        <h2 className="text-xl font-bold mb-4">Something went wrong!</h2>
-        <p className="text-gray-600 mb-4">
+        <h2 className="mb-3 text-lg font-semibold tracking-tight">Something went wrong</h2>
+        <p className="mb-5 text-sm text-muted-foreground">
           {error.message || 'An unexpected error occurred'}
         </p>
         <Button onClick={reset} className="w-full">

@@ -117,10 +117,10 @@ export function OnboardingReview({ title, params }: OnboardingReviewProps) {
 
   if (confirmState === 'success') {
     return (
-      <Card className="border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800">
+      <Card className="border-positive/25 bg-positive/10">
         <CardContent className="flex items-center gap-3 pt-6">
-          <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
-          <p className="text-sm font-medium text-green-700 dark:text-green-400">
+          <CheckCircle className="h-5 w-5 text-positive shrink-0" />
+          <p className="text-sm font-medium text-positive">
             {t('onboardingReview.success')}
           </p>
         </CardContent>

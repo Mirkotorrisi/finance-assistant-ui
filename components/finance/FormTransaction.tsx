@@ -114,7 +114,7 @@ export function FormTransaction({ title, onSuccess }: FormTransactionProps) {
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           {success && (
-            <p className="text-sm text-green-600">{t('formTransaction.success')}</p>
+            <p className="text-sm text-positive">{t('formTransaction.success')}</p>
           )}
           <Button type="submit" disabled={submitting} className="w-full">
             {submitting ? t('common.saving') : t('formTransaction.save')}

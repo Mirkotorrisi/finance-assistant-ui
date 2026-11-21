@@ -21,8 +21,8 @@ interface AdvisorReportProps {
 }
 
 const SEVERITY_STYLE: Record<CheckSeverity, string> = {
-  critical: 'border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400',
-  warning: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-400',
+  critical: 'border-destructive/25 bg-destructive/10 text-destructive',
+  warning: 'border-warning/30 bg-warning/10 text-warning',
   info: 'border-border bg-muted/40 text-muted-foreground',
 }
 
@@ -34,7 +34,7 @@ function SeverityIcon({ severity }: { severity: CheckSeverity }) {
 }
 
 function Tile({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'ok' | 'bad' }) {
-  const toneCls = tone === 'bad' ? 'text-red-600 dark:text-red-400' : tone === 'ok' ? 'text-green-600 dark:text-green-400' : ''
+  const toneCls = tone === 'bad' ? 'text-destructive' : tone === 'ok' ? 'text-positive' : ''
   return (
     <div className="rounded-xl border border-border bg-card p-3">
       <p className="text-xs text-muted-foreground">{label}</p>

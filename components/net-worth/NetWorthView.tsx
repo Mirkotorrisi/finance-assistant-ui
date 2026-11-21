@@ -160,9 +160,9 @@ export function NetWorthView() {
           {tiles.map((tile) => (
             <Card key={tile.label} className={tile.hero ? 'col-span-2 lg:col-span-1' : undefined}>
               <CardContent className="p-5">
-                <p className="text-xs font-medium text-muted-foreground">{tile.label}</p>
+                <p className="eyebrow">{tile.label}</p>
                 <p
-                  className="mt-2 whitespace-nowrap text-xl font-bold tracking-tight tabular-nums sm:text-2xl"
+                  className="figure mt-3 whitespace-nowrap text-[24px] leading-none sm:text-[26px]"
                   style={tile.color ? { color: tile.color } : undefined}
                 >
                   {tile.value}
@@ -173,8 +173,8 @@ export function NetWorthView() {
         </div>
 
         {gaps.length > 0 && (
-          <div className="flex gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <div className="flex gap-2 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
             <div className="space-y-1">
               <p className="font-medium">
                 {gaps.length === 1 ? t('netWorth.gapsOne') : t('netWorth.gapsTitle', { n: gaps.length })}

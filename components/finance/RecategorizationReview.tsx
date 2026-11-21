@@ -79,10 +79,10 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
 
   if (applyState === 'success') {
     return (
-      <Card className="border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800">
+      <Card className="border-positive/25 bg-positive/10">
         <CardContent className="flex items-center gap-3 pt-6">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-          <p className="text-sm font-medium text-green-700 dark:text-green-400">
+          <CheckCircle className="h-5 w-5 text-positive" />
+          <p className="text-sm font-medium text-positive">
             {t('recategorization.success', { n: classified.length + ambiguous.length })}
           </p>
         </CardContent>
@@ -116,7 +116,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
               onClick={() => setShowClassified((v) => !v)}
             >
               <span className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-positive" />
                 {t('recategorization.classified', { n: classified.length })}
               </span>
               {showClassified ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -128,7 +128,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
                   <div key={tx.transaction_id} className="flex items-center justify-between text-xs">
                     <span className="truncate max-w-[55%] text-muted-foreground">{tx.description}</span>
                     <span className="flex items-center gap-2">
-                      <span className={tx.amount < 0 ? 'text-red-500' : 'text-green-600'}>
+                      <span className={tx.amount < 0 ? 'text-destructive' : 'text-positive'}>
                         {formatCurrency(tx.amount)}
                       </span>
                       <Badge variant="outline" className="text-[10px] h-4">{tx.new_category}</Badge>
@@ -144,7 +144,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
         {ambiguous.length > 0 && (
           <div className="space-y-3">
             <p className="flex items-center gap-1.5 text-sm font-medium">
-              <AlertCircle className="h-4 w-4 text-amber-500" />
+              <AlertCircle className="h-4 w-4 text-warning" />
               {t('recategorization.ambiguous', { n: ambiguous.length })}
             </p>
 
@@ -157,7 +157,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
                   <p className="truncate text-sm font-medium">{tx.description}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatDate(tx.date)} ·{' '}
-                    <span className={tx.amount < 0 ? 'text-red-500' : 'text-green-600'}>
+                    <span className={tx.amount < 0 ? 'text-destructive' : 'text-positive'}>
                       {formatCurrency(tx.amount)}
                     </span>
                   </p>
@@ -190,7 +190,7 @@ export function RecategorizationReview({ title, params }: RecategorizationReview
         {(classified.length > 0 || ambiguous.length > 0) && (
           <div className="flex flex-col gap-2 pt-1">
             {!canApply && (
-              <p className="text-xs text-amber-600 dark:text-amber-400">
+              <p className="text-xs text-warning">
                 {t('recategorization.unresolvedWarning', { n: unresolvedCount })}
               </p>
             )}

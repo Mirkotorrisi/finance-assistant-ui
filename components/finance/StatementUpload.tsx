@@ -304,12 +304,12 @@ export function StatementUpload() {
 
           {/* Success */}
           {state === 'success' && result && (
-            <div className="rounded-lg bg-green-50 border border-green-200 p-4">
+            <div className="rounded-lg bg-positive/10 border border-positive/25 p-4">
               <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />
-                <span className="font-medium text-green-700">{t('upload.importSuccess')}</span>
+                <CheckCircle className="h-4 w-4 text-positive shrink-0" />
+                <span className="font-medium text-positive">{t('upload.importSuccess')}</span>
               </div>
-              <ul className="text-sm text-green-700 space-y-0.5 ml-6 list-disc">
+              <ul className="text-sm text-positive space-y-0.5 ml-6 list-disc">
                 <li>{t('upload.transactionsFound', { n: result.transactions_processed })}</li>
                 <li>{t('upload.transactionsAdded', { n: result.transactions_added })}</li>
                 {result.transactions_skipped > 0 && (
@@ -333,9 +333,9 @@ export function StatementUpload() {
 
           {/* Error */}
           {state === 'error' && error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 p-4 flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="rounded-lg bg-destructive/10 border border-destructive/25 p-4 flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 

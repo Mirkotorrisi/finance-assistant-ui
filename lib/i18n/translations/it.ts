@@ -9,16 +9,37 @@ export const it = {
     amazon: 'Amazon',
     advisor: 'Advisor',
     banking: 'Banche',
+    groups: {
+      overview: 'Panoramica',
+      manage: 'Gestione',
+      advice: 'Consulenza',
+    },
+  },
+  theme: {
+    toDark: 'Passa al tema scuro',
+    toLight: 'Passa al tema chiaro',
   },
   dashboard: {
     title: 'Dashboard',
     subtitle: 'Panoramica delle tue finanze',
+    period: 'Dati aggiornati a oggi',
+    accounts: '{{n}} conti attivi',
+    account: '1 conto attivo',
     tabs: {
+      overview: 'Panoramica',
       transactions: 'Transazioni',
       charts: 'Grafici',
     },
     filters: {
+      title: 'Filtri',
       categoryPlaceholder: 'es. spesa',
+      active: 'Filtri attivi',
+    },
+    kpi: {
+      vsPrev: 'vs {{month}}',
+      noPrev: 'nessun mese precedente',
+      trend: 'Ultimi 12 mesi',
+      balanceHelp: 'Somma dei saldi correnti',
     },
     chat: {
       open: "Chiedi all'AI",
@@ -106,6 +127,7 @@ export const it = {
     error: 'Impossibile creare il conto',
   },
   charts: {
+    total: 'Totale',
     monthlyOverview: 'Riepilogo mensile',
     spendingDistribution: 'Distribuzione spese',
     spendingByCategory: 'Spese per categoria',

@@ -114,7 +114,7 @@ export function ConnectionCard({ connection, accounts, onChanged, onAccountsChan
           <span className="text-xs text-muted-foreground">{connection.aspsp_country}</span>
           <Badge variant={statusVariant(connection.status)}>{t(`banking.status.${connection.status}`)}</Badge>
           {consent === 'expiring' && daysLeft !== null && (
-            <Badge variant="outline" className="gap-1 text-amber-700 dark:text-amber-400">
+            <Badge variant="outline" className="gap-1 text-warning">
               <AlertTriangle className="h-3 w-3" /> {t('banking.card.expiring', { n: daysLeft })}
             </Badge>
           )}
@@ -160,7 +160,7 @@ export function ConnectionCard({ connection, accounts, onChanged, onAccountsChan
         {report && <p className="rounded-md bg-muted/50 p-2 text-xs">{summarizeReport(report, t)}</p>}
         {error && <p className="text-xs text-destructive">{error}</p>}
         {isTradeRepublic(connection.aspsp_name) && (
-          <p className="flex items-start gap-1.5 rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-300">
+          <p className="flex items-start gap-1.5 rounded-md border border-warning/30 bg-warning/10 p-2 text-xs text-warning">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {t('banking.card.tradeRepublicNote')}
           </p>

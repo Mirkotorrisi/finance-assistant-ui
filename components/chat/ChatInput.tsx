@@ -41,7 +41,7 @@ export function ChatInput({ onSubmit, isLoading = false, disabled = false }: Cha
           disabled={isLoading || disabled}
           rows={1}
           aria-describedby="chat-input-hint"
-          className="w-full resize-none rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all h-12 min-h-[48px] max-h-40 overflow-y-auto leading-relaxed"
+          className="h-12 max-h-40 min-h-[48px] w-full resize-none overflow-y-auto rounded-xl border border-input bg-card px-4 py-3 text-sm leading-relaxed shadow-card transition-[border-color,box-shadow] placeholder:text-muted-foreground/80 hover:border-foreground/25 focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
           onInput={(e) => {
             const target = e.target as HTMLTextAreaElement
             target.style.height = 'auto'
@@ -56,7 +56,7 @@ export function ChatInput({ onSubmit, isLoading = false, disabled = false }: Cha
         type="submit"
         disabled={!input.trim() || isLoading || disabled}
         size="icon"
-        className="h-12 w-12 rounded-xl shrink-0 shadow-sm"
+        className="h-12 w-12 shrink-0 rounded-xl"
       >
         {isLoading
           ? <Loader2 className="h-4 w-4 animate-spin" />

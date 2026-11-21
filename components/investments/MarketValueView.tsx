@@ -124,11 +124,11 @@ export function MarketValueView() {
           {report && !refreshing && (
             <div className="rounded-lg border border-border/60 bg-muted/40 p-3 text-xs">
               {noKey ? (
-                <p className="text-amber-700 dark:text-amber-400">{t('portfolio.noKey')}</p>
+                <p className="text-warning">{t('portfolio.noKey')}</p>
               ) : (
                 <ul className="space-y-0.5">
                   <li>{t('portfolio.reportUpdated', { n: report.prices.updated.length, requests: report.prices.requests })}{report.prices.updated.length > 0 && `: ${report.prices.updated.join(', ')}`}</li>
-                  {report.prices.stopped && <li className="text-amber-700 dark:text-amber-400">{t('portfolio.reportStopped', { reason: report.prices.stopped })}</li>}
+                  {report.prices.stopped && <li className="text-warning">{t('portfolio.reportStopped', { reason: report.prices.stopped })}</li>}
                   {(report.prices.errors ?? []).map((e) => (
                     <li key={e.symbol} className="text-destructive">{e.symbol}: {e.error}</li>
                   ))}
@@ -195,7 +195,7 @@ export function MarketValueView() {
               )}
             </div>
             {group.source_account_id !== null && group.securities_account_id === null && (
-              <p className="text-xs text-amber-700 dark:text-amber-400">{t('portfolio.securitiesHint')}</p>
+              <p className="text-xs text-warning">{t('portfolio.securitiesHint')}</p>
             )}
           </CardHeader>
           <CardContent>
@@ -227,7 +227,7 @@ function Tile({ label, value, help, color, hero }: { label: string; value: strin
   return (
     <div className={`rounded-xl border border-border/60 p-4 ${hero ? 'col-span-2 lg:col-span-1' : ''}`}>
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-1 whitespace-nowrap text-xl font-bold tracking-tight tabular-nums" style={color ? { color } : undefined}>{value}</p>
+      <p className="figure mt-1 whitespace-nowrap text-xl leading-none" style={color ? { color } : undefined}>{value}</p>
       {help && <p className="mt-1 text-xs text-muted-foreground">{help}</p>}
     </div>
   )

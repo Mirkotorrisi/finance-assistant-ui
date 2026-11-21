@@ -9,16 +9,37 @@ export const en = {
     amazon: 'Amazon',
     advisor: 'Advisor',
     banking: 'Banks',
+    groups: {
+      overview: 'Overview',
+      manage: 'Manage',
+      advice: 'Advice',
+    },
+  },
+  theme: {
+    toDark: 'Switch to dark theme',
+    toLight: 'Switch to light theme',
   },
   dashboard: {
     title: 'Dashboard',
     subtitle: 'Overview of your financial activity',
+    period: 'Data as of today',
+    accounts: '{{n}} active accounts',
+    account: '1 active account',
     tabs: {
+      overview: 'Overview',
       transactions: 'Transactions',
       charts: 'Charts',
     },
     filters: {
+      title: 'Filters',
       categoryPlaceholder: 'e.g. groceries',
+      active: 'Filters on',
+    },
+    kpi: {
+      vsPrev: 'vs {{month}}',
+      noPrev: 'no previous month',
+      trend: 'Last 12 months',
+      balanceHelp: 'Sum of current balances',
     },
     chat: {
       open: 'Ask AI',
@@ -106,6 +127,7 @@ export const en = {
     error: 'Failed to create account',
   },
   charts: {
+    total: 'Total',
     monthlyOverview: 'Monthly Overview',
     spendingDistribution: 'Spending Distribution',
     spendingByCategory: 'Spending by Category',

@@ -86,7 +86,7 @@ export function AdvisorView() {
         <span className="flex items-center gap-1.5">
           {saveError && <span className="text-destructive">{saveError}</span>}
           {savedAt !== null && !saveError && (
-            <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+            <span className="flex items-center gap-1 text-positive">
               <Check className="h-3.5 w-3.5" />
               {t('advisor.saved')}
             </span>

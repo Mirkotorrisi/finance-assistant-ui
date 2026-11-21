@@ -46,7 +46,7 @@ export function BrokerPositions({ positions, onEdit }: { positions: ValuedPositi
                 <TableCell className="whitespace-nowrap text-right tabular-nums">{avg !== null ? money(avg, p.price_currency) : '—'}</TableCell>
                 <TableCell className="whitespace-nowrap text-right tabular-nums">
                   {p.price !== null ? (
-                    <span className={p.stale ? 'text-amber-700 dark:text-amber-400' : undefined} title={p.stale ? t('portfolio.stale') : undefined}>
+                    <span className={p.stale ? 'text-warning' : undefined} title={p.stale ? t('portfolio.stale') : undefined}>
                       {money(p.price, p.price_currency)}
                       <span className="block text-xs text-muted-foreground">{formatDate(p.price_date ?? undefined)}{p.fx ? ` · ${t('portfolio.fx')} ${p.fx}` : ''}</span>
                     </span>

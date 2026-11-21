@@ -41,7 +41,7 @@ export function ChangesPanel({ dirty, preview, serverError }: Props) {
         ))}
       </ul>
       {impact.affected_transactions > 0 && (
-        <p className="mt-2 flex items-start gap-1.5 text-amber-700 dark:text-amber-400">
+        <p className="mt-2 flex items-start gap-1.5 text-warning">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           {t('blueprintEditor.impact', { n: impact.affected_transactions })}
         </p>

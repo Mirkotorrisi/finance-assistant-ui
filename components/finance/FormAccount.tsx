@@ -100,7 +100,7 @@ export function FormAccount({ title, onSuccess }: FormAccountProps) {
             />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
-          {success && <p className="text-sm text-green-600">{t('formAccount.success')}</p>}
+          {success && <p className="text-sm text-positive">{t('formAccount.success')}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
             {submitting ? t('common.saving') : t('formAccount.save')}
           </Button>

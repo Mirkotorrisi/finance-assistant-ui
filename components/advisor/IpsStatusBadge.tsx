@@ -8,14 +8,14 @@ export function IpsStatusBadge({ status }: { status: IpsStatus }) {
   const { t } = useTranslation()
   if (status === 'approved') {
     return (
-      <Badge className="border-green-200 bg-green-50 text-green-700 hover:bg-green-50 dark:border-green-800 dark:bg-green-950/30 dark:text-green-400">
+      <Badge className="border-positive/25 bg-positive/10 text-positive">
         {t('advisor.ips.statusApproved')}
       </Badge>
     )
   }
   if (status === 'pending') {
     return (
-      <Badge className="border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-400">
+      <Badge className="border-warning/30 bg-warning/10 text-warning">
         {t('advisor.ips.statusPending')}
       </Badge>
     )

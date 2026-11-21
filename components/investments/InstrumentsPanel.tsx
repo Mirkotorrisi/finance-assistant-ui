@@ -100,10 +100,10 @@ export function InstrumentsPanel({ instruments, highlight, onChanged }: { instru
           </TableHeader>
           <TableBody>
             {instruments.map((inst) => (
-              <TableRow key={inst.id} ref={inst.id === highlight ? rowRef : undefined} className={inst.id === highlight ? 'bg-amber-500/10' : undefined}>
+              <TableRow key={inst.id} ref={inst.id === highlight ? rowRef : undefined} className={inst.id === highlight ? 'bg-warning/10' : undefined}>
                 <TableCell className="min-w-56">
                   <p className="font-medium">{inst.name}</p>
-                  <p className="text-xs text-muted-foreground">{inst.isin ?? inst.key}{inst.last_error && <span className="text-amber-700 dark:text-amber-400"> · {inst.last_error}</span>}</p>
+                  <p className="text-xs text-muted-foreground">{inst.isin ?? inst.key}{inst.last_error && <span className="text-warning"> · {inst.last_error}</span>}</p>
                 </TableCell>
                 <TableCell>
                   <Select value={inst.type} onChange={(e) => save(inst.id, { type: e.target.value as InstrumentType })} className="h-8 w-auto text-xs" aria-label={t('portfolio.instruments.type')}>

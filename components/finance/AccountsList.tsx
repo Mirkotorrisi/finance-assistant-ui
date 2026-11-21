@@ -36,7 +36,7 @@ export function AccountsList({ title, activeOnly = true }: AccountsListProps) {
         {loading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-16 bg-gray-100 rounded animate-pulse" />
+              <div key={i} className="h-16 bg-muted rounded animate-pulse" />
             ))}
           </div>
         ) : error ? (
@@ -61,7 +61,7 @@ export function AccountsList({ title, activeOnly = true }: AccountsListProps) {
                 </div>
                 <p
                   className={`font-semibold ${
-                    account.current_balance >= 0 ? 'text-green-600' : 'text-red-600'
+                    account.current_balance >= 0 ? 'text-positive' : 'text-destructive'
                   }`}
                 >
                   {formatCurrency(account.current_balance, account.currency)}

@@ -12,7 +12,7 @@ const KEY_COMMAND =
   'openssl req -x509 -newkey rsa:4096 -nodes -keyout ~/.finance-assistant/secrets/enablebanking.pem -out ~/.finance-assistant/secrets/enablebanking.crt -days 3650 -subj "/CN=finance-assistant"'
 
 function Mark({ ok }: { ok: boolean }) {
-  return ok ? <Check className="h-4 w-4 text-green-600" /> : <X className="h-4 w-4 text-destructive" />
+  return ok ? <Check className="h-4 w-4 text-positive" /> : <X className="h-4 w-4 text-destructive" />
 }
 
 export function SetupCard({ status }: { status: BankingStatus }) {
@@ -47,7 +47,7 @@ export function SetupCard({ status }: { status: BankingStatus }) {
               </Button>
             </div>
             {status.redirect_url.startsWith('http://') && (
-              <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">{t('banking.setup.httpsOnly')}</p>
+              <p className="mt-1 text-xs text-warning">{t('banking.setup.httpsOnly')}</p>
             )}
           </li>
           <li>

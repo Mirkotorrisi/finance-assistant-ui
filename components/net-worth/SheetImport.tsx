@@ -141,7 +141,7 @@ export function SheetImport({ open, onOpenChange, accounts, onImported }: Props)
         {outcome ? (
           <div className="space-y-3 text-sm">
             <p className="flex items-center gap-2 font-medium">
-              <CheckCircle className="h-4 w-4 text-emerald-600" />
+              <CheckCircle className="h-4 w-4 text-positive" />
               {t('netWorth.sheet.done', { saved: outcome.saved, gaps: outcome.gaps })}
             </p>
             {outcome.checked > 0 && outcome.mismatches.length === 0 && (

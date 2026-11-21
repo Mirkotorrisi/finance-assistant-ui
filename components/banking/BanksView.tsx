@@ -77,7 +77,7 @@ export function BanksView() {
         <div
           className={
             banner.kind === 'ok'
-              ? 'flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-950/20 dark:text-green-300'
+              ? 'flex items-center gap-2 rounded-lg border border-positive/25 bg-positive/10 p-3 text-sm text-positive'
               : 'flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive'
           }
         >

@@ -104,7 +104,7 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
     setEndDate(isoDate(new Date()))
   }
 
-  const height = Math.max(320, width * 0.65)
+  const height = Math.round(Math.min(460, Math.max(300, width * 0.42)))
 
   const packedLeaves: HierarchyCircularNode<RootDatum>[] = (() => {
     if (data.length === 0) return []
@@ -128,7 +128,7 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                   key={p.months}
                   size="sm"
                   variant={activePreset === p.months ? 'default' : 'outline'}
-                  className="h-8 px-3 text-xs rounded-lg"
+                  className="h-8 px-3 text-xs"
                   onClick={() => handlePreset(p.months)}
                 >
                   {p.label}
@@ -142,7 +142,7 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                   type="date"
                   value={startDate}
                   onChange={(e) => { setStartDate(e.target.value); setActivePreset(null) }}
-                  className="h-8 w-36 text-xs rounded-lg"
+                  className="num h-8 w-36 text-xs"
                 />
               </div>
               <div className="space-y-1">
@@ -151,7 +151,7 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                   type="date"
                   value={endDate}
                   onChange={(e) => { setEndDate(e.target.value); setActivePreset(null) }}
-                  className="h-8 w-36 text-xs rounded-lg"
+                  className="num h-8 w-36 text-xs"
                 />
               </div>
             </div>
@@ -160,7 +160,7 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
 
         <div ref={containerRef}>
           {loading ? (
-            <div className="rounded-xl bg-muted animate-pulse" style={{ height }} />
+            <div className="shimmer rounded-xl" style={{ height }} />
           ) : error ? (
             <p className="text-sm text-destructive">{error}</p>
           ) : data.length === 0 ? (
@@ -198,8 +198,8 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                         fill={SERIES_COLORS[0]}
                         stroke="var(--card)"
                         strokeWidth={2}
-                        fillOpacity={hovered && hovered !== item.name ? 0.25 : 0.9}
-                        className="transition-[fill-opacity] duration-150"
+                        fillOpacity={hovered && hovered !== item.name ? 0.25 : 0.92}
+                        className="transition-[fill-opacity,r] duration-200"
                       />
                       {showText && (
                         <>

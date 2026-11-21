@@ -15,7 +15,7 @@ import {
 } from 'recharts'
 import { financialDataService } from '@/lib/services/financial-data.service'
 import { formatCurrency, formatCompact } from '@/lib/format'
-import { SERIES_COLORS, SERIES_INK } from '@/lib/chart-colors'
+import { SERIES_COLORS } from '@/lib/chart-colors'
 import type { MonthlyDataPoint } from '@/lib/types/financial-data'
 import { useTranslation } from '@/lib/i18n'
 
@@ -61,15 +61,15 @@ export function MonthlyBarChart({
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="h-64 bg-muted rounded animate-pulse" />
+          <div className="shimmer h-64 rounded-lg" />
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
         ) : data.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('charts.noDataYear', { year })}</p>
         ) : (
-          <ResponsiveContainer width="100%" height={300} minWidth={0}>
+          <ResponsiveContainer width="100%" height={340} minWidth={0}>
             <ComposedChart data={months} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} barGap={2}>
-              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 3" />
               <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
               <YAxis
                 width={44}
@@ -85,6 +85,7 @@ export function MonthlyBarChart({
                   background: 'var(--popover)',
                   border: '1px solid var(--border)',
                   borderRadius: 8,
+                  boxShadow: 'var(--shadow-pop)',
                   fontSize: 12,
                   color: 'var(--popover-foreground)',
                 }}
@@ -96,14 +97,15 @@ export function MonthlyBarChart({
                 wrapperStyle={{ fontSize: 12 }}
                 formatter={(value: string) => <span style={{ color: 'var(--muted-foreground)' }}>{value}</span>}
               />
-              <Bar dataKey="income" name={t('charts.income')} fill={SERIES_COLORS[0]} radius={[4, 4, 0, 0]} maxBarSize={14} />
-              <Bar dataKey="expenses" name={t('charts.expenses')} fill={SERIES_COLORS[1]} radius={[4, 4, 0, 0]} maxBarSize={14} />
+              <Bar dataKey="income" name={t('charts.income')} fill={SERIES_COLORS[0]} radius={[3, 3, 0, 0]} maxBarSize={14} animationDuration={700} />
+              <Bar dataKey="expenses" name={t('charts.expenses')} fill={SERIES_COLORS[1]} radius={[3, 3, 0, 0]} maxBarSize={14} animationDuration={700} />
               <Line
                 dataKey="net"
                 name={t('charts.net')}
                 type="linear"
-                stroke={SERIES_INK}
-                strokeWidth={2}
+                stroke="var(--foreground)"
+                strokeWidth={1.75}
+                animationDuration={900}
                 dot={{ r: 3, fill: 'var(--card)', strokeWidth: 2 }}
                 activeDot={{ r: 5 }}
               />

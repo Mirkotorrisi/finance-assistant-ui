@@ -46,7 +46,7 @@ export function UnmappedPanel({ usage, draft, onChange, onMoved }: Props) {
 
   const feedback = (
     <>
-      {message && <p className="text-xs text-green-700 dark:text-green-400">{message}</p>}
+      {message && <p className="text-xs text-positive">{message}</p>}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </>
   )

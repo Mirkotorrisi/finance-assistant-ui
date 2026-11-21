@@ -71,8 +71,13 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardTitle>{title ?? t('transactions.defaultTitle')}</CardTitle>
+        {!loading && !error && (
+          <span className="num text-xs text-muted-foreground">
+            {t('transactions.shown', { shown: visibleTransactions.length, total: filteredTransactions.length })}
+          </span>
+        )}
       </CardHeader>
       <CardContent>
         {categories.length > 0 && (
@@ -86,9 +91,9 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
                   type="button"
                   aria-pressed={active}
                   onClick={() => toggleCategory(cat)}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors select-none ${
+                  className={`press inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-xs font-medium select-none ${
                     active
-                      ? 'border-border bg-background text-foreground hover:bg-muted'
+                      ? 'border-border/80 bg-card text-foreground hover:border-foreground/30'
                       : 'border-transparent bg-transparent text-muted-foreground/60 line-through hover:bg-muted'
                   }`}
                 >
@@ -105,8 +110,8 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
         )}
         {loading ? (
           <div className="space-y-2">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-10 bg-muted rounded animate-pulse" />
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="shimmer h-9 rounded-md" style={{ animationDelay: `${i * 80}ms` }} />
             ))}
           </div>
         ) : error ? (
@@ -114,7 +119,7 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
         ) : visibleTransactions.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('transactions.noData')}</p>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="-mx-5 overflow-x-auto border-t border-border/70 px-5 pt-1 sm:-mx-0 sm:px-0">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -127,9 +132,11 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
               </TableHeader>
               <TableBody>
                 {visibleTransactions.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell className="whitespace-nowrap tabular-nums">{formatDate(tx.date)}</TableCell>
-                    <TableCell>{tx.description}</TableCell>
+                  <TableRow key={tx.id} className="group">
+                    <TableCell className="num whitespace-nowrap text-muted-foreground">{formatDate(tx.date)}</TableCell>
+                    <TableCell className="max-w-[520px]">
+                      <span className="block truncate" title={tx.description}>{tx.description}</span>
+                    </TableCell>
                     <TableCell>
                       <CategoryEditor
                         transaction={tx}
@@ -141,12 +148,11 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
                       />
                     </TableCell>
                     <TableCell
-                      className="text-right font-medium whitespace-nowrap tabular-nums"
-                      style={{ color: tx.amount >= 0 ? 'oklch(0.62 0.19 162)' : 'oklch(0.64 0.25 16)' }}
+                      className={`num whitespace-nowrap text-right font-medium ${tx.amount >= 0 ? 'text-positive' : 'text-foreground'}`}
                     >
                       {tx.amount >= 0 ? '+' : ''}{formatCurrency(tx.amount, tx.currency)}
                     </TableCell>
-                    <TableCell className="pl-2">
+                    <TableCell className="pl-1 pr-2 opacity-60 transition-opacity group-hover:opacity-100">
                       <TransactionSearch description={tx.description} />
                     </TableCell>
                   </TableRow>

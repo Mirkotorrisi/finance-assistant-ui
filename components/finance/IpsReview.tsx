@@ -59,10 +59,10 @@ export function IpsReview({ title, params }: IpsReviewProps) {
 
   if (saveState === 'draft' || saveState === 'approved') {
     return (
-      <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20">
+      <Card className="border-positive/25 bg-positive/10">
         <CardContent className="flex items-center gap-3 pt-6">
-          <CheckCircle className="h-5 w-5 shrink-0 text-green-600" />
-          <p className="text-sm font-medium text-green-700 dark:text-green-400">
+          <CheckCircle className="h-5 w-5 shrink-0 text-positive" />
+          <p className="text-sm font-medium text-positive">
             {saveState === 'approved' ? t('ipsReview.successApproved') : t('ipsReview.successDraft')}
           </p>
         </CardContent>

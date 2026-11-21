@@ -29,9 +29,9 @@ function leaves(nodes: BlueprintCategory[] = [], trail: string[] = []): Leaf[] {
 
 function confidenceTone(confidence: number | null): string {
   if (confidence === null) return 'bg-muted text-muted-foreground'
-  if (confidence >= SURE) return 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'
-  if (confidence >= 0.6) return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-  return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+  if (confidence >= SURE) return 'bg-positive/10 text-positive'
+  if (confidence >= 0.6) return 'bg-warning/10 text-warning'
+  return 'bg-destructive/10 text-destructive'
 }
 
 function Row({
@@ -195,7 +195,7 @@ export function ReviewQueue() {
       </Card>
 
       {queue.groups.length === 0 ? (
-        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-950/20 dark:text-green-400">
+        <div className="flex items-center gap-2 rounded-lg border border-positive/25 bg-positive/10 p-4 text-sm text-positive">
           <CheckCircle className="h-4 w-4" />
           {t('review.allDone')}
         </div>

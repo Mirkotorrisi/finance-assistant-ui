@@ -14,9 +14,9 @@ export function ChatContainer({ messages, onSubmit, isLoading = false }: ChatCon
   return (
     <div className="flex flex-col h-full w-full max-w-3xl mx-auto">
       <div className="flex-1 overflow-hidden">
-        <ChatMessageList messages={messages} isLoading={isLoading} />
+        <ChatMessageList messages={messages} isLoading={isLoading} onPrompt={onSubmit} />
       </div>
-      <div className="border-t border-border/50 bg-background/80 backdrop-blur-sm">
+      <div className="border-t border-border/70 bg-background/80 backdrop-blur-sm">
         <ChatInput onSubmit={onSubmit} isLoading={isLoading} />
       </div>
     </div>

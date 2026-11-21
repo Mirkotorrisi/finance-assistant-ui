@@ -229,7 +229,7 @@ export function BlueprintEditor() {
             </p>
             <ChangesPanel dirty={dirty} preview={preview} serverError={serverError} />
             {notice && (
-              <p className={`flex items-center gap-1.5 text-sm ${notice.kind === 'ok' ? 'text-green-700 dark:text-green-400' : 'text-destructive'}`}>
+              <p className={`flex items-center gap-1.5 text-sm ${notice.kind === 'ok' ? 'text-positive' : 'text-destructive'}`}>
                 {notice.kind === 'ok' ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
                 {notice.text}
               </p>
