@@ -12,6 +12,9 @@ export type ComponentKey =
   | 'RecategorizationReview'
   | 'OnboardingReview'
   | 'BlueprintReview'
+  | 'ProfileReview'
+  | 'IpsReview'
+  | 'AdvisorReport'
 
 export interface ComponentRegistryEntry<TProps = unknown> {
   key: ComponentKey

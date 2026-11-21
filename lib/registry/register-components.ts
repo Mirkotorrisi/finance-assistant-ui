@@ -10,6 +10,9 @@ import { FormAccount } from '@/components/finance/FormAccount'
 import { RecategorizationReview } from '@/components/finance/RecategorizationReview'
 import { OnboardingReview } from '@/components/finance/OnboardingReview'
 import { BlueprintReview } from '@/components/finance/BlueprintReview'
+import { ProfileReview } from '@/components/finance/ProfileReview'
+import { IpsReview } from '@/components/finance/IpsReview'
+import { AdvisorReport } from '@/components/finance/AdvisorReport'
 
 /** Register all whitelisted finance UI components. */
 export function registerComponents() {
@@ -77,5 +80,23 @@ export function registerComponents() {
     key: 'BlueprintReview',
     component: BlueprintReview as React.ComponentType<unknown>,
     description: 'Review a proposed project blueprint (categories, groups, dimensions) and save it or create a project from it',
+  })
+
+  componentRegistry.register({
+    key: 'ProfileReview',
+    component: ProfileReview as React.ComponentType<unknown>,
+    description: "Read-only view of the client profile (situation, goals, risk, investment policy) with the interview's completeness",
+  })
+
+  componentRegistry.register({
+    key: 'IpsReview',
+    component: IpsReview as React.ComponentType<unknown>,
+    description: 'Review a proposed Investment Policy Statement and save it as a draft or save and approve it',
+  })
+
+  componentRegistry.register({
+    key: 'AdvisorReport',
+    component: AdvisorReport as React.ComponentType<unknown>,
+    description: "The advisor's periodic review: net worth, saving rate, emergency fund, debts, failing checks, allocation and open decisions",
   })
 }
