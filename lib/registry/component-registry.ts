@@ -15,6 +15,7 @@ export type ComponentKey =
   | 'ProfileReview'
   | 'IpsReview'
   | 'AdvisorReport'
+  | 'ConfirmAction'
 
 export interface ComponentRegistryEntry<TProps = unknown> {
   key: ComponentKey

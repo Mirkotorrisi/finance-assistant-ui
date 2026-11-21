@@ -13,6 +13,7 @@ import { BlueprintReview } from '@/components/finance/BlueprintReview'
 import { ProfileReview } from '@/components/finance/ProfileReview'
 import { IpsReview } from '@/components/finance/IpsReview'
 import { AdvisorReport } from '@/components/finance/AdvisorReport'
+import { ConfirmAction } from '@/components/finance/ConfirmAction'
 
 /** Register all whitelisted finance UI components. */
 export function registerComponents() {
@@ -98,5 +99,11 @@ export function registerComponents() {
     key: 'AdvisorReport',
     component: AdvisorReport as React.ComponentType<unknown>,
     description: "The advisor's periodic review: net worth, saving rate, emergency fund, debts, failing checks, allocation and open decisions",
+  })
+
+  componentRegistry.register({
+    key: 'ConfirmAction',
+    component: ConfirmAction as React.ComponentType<unknown>,
+    description: 'A destructive action the agent proposed (delete, undo import, bulk recategorisation): runs only when the user confirms it here',
   })
 }

@@ -16,6 +16,7 @@ export const whitelistedComponentTypes = [
   'ProfileReview',
   'IpsReview',
   'AdvisorReport',
+  'ConfirmAction',
 ] as const
 
 export const whitelistedComponentTypeSchema = z.enum(whitelistedComponentTypes)
@@ -28,6 +29,7 @@ export const serviceNameSchema = z.enum([
   'health',
   'preferences',
   'advisor',
+  'agent',
 ])
 
 export const componentActionSchema = z.object({

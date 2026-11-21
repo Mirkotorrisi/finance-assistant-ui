@@ -72,3 +72,32 @@ export async function streamChat({ message, userId, sessionId, signal, onEvent }
     }
   }
 }
+
+export interface ConfirmActionResult {
+  status: 'done' | 'cancelled'
+  tool: string
+  result?: unknown
+}
+
+/**
+ * Runs (approve) or drops a destructive action the agent proposed. The gateway executes it with the identity the
+ * agent had; an expired or already handled id is a 404.
+ */
+export async function confirmAgentAction(confirmationId: string, approve: boolean): Promise<ConfirmActionResult> {
+  const res = await fetch(`${LLM_API_BASE_URL}/chat/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ confirmation_id: confirmationId, approve }),
+  })
+  if (!res.ok) {
+    let detail = `Gateway returned status ${res.status}`
+    try {
+      const body = (await res.json()) as { detail?: unknown }
+      if (typeof body.detail === 'string') detail = body.detail
+    } catch {
+      // no JSON body
+    }
+    throw new Error(detail)
+  }
+  return (await res.json()) as ConfirmActionResult
+}
