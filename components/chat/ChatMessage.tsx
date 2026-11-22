@@ -72,7 +72,7 @@ export function ChatMessage({ message, isStreaming = false }: ChatMessageProps) 
               return (
                 <div key={index} className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm">
                   <p className="font-semibold text-destructive mb-1">{t('chat.toolError')}</p>
-                  <p className="text-destructive/80">{JSON.stringify(toolResultPart.result)}</p>
+                  <p className="text-destructive/80">{typeof toolResultPart.result === 'string' ? toolResultPart.result : JSON.stringify(toolResultPart.result)}</p>
                 </div>
               )
             }

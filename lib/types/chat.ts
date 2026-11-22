@@ -42,3 +42,30 @@ export interface Message {
   parts: MessagePart[]
   createdAt?: Date
 }
+
+// ---------------------------------------------------------------- stored history (API /api/chat-sessions)
+
+export interface ChatSessionSummary {
+  id: string
+  user_id: string
+  title: string
+  backend: string | null
+  message_count: number
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface StoredChatMessage {
+  id: number
+  session_id: string
+  role: 'user' | 'assistant'
+  content: string
+  components: unknown[]
+  tools: string[]
+  error: string | null
+  created_at: string | null
+}
+
+export interface ChatSessionDetail extends ChatSessionSummary {
+  messages: StoredChatMessage[]
+}

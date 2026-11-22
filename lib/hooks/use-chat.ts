@@ -2,42 +2,98 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { streamChat, warmChatSession, type AgentEvent } from '@/lib/chat-stream'
+import { storedToMessages } from '@/lib/chat-history'
+import { chatHistoryService } from '@/lib/services/chat-history.service'
+import { ApiError } from '@/lib/services/http'
 import { getOrCreateUserId } from '@/lib/user-id'
 import type { Message, MessagePart, TextPart, ToolCallPart, UiMetadataPart } from '@/lib/types/chat'
 
 interface UseChatOptions {
   /** Pre-start the agent for this session (e.g. when the chat is opened). */
   warm?: boolean
+  /** Open this stored conversation instead of starting a new one. */
+  sessionId?: string
 }
 
-/** Streaming chat state shared by the chat page and the overlay. */
-export function useChat({ warm = true }: UseChatOptions = {}) {
+/** Fired on `window` when a turn has been recorded, so the history list can refresh. */
+export const CHAT_HISTORY_UPDATED = 'chat-history-updated'
+
+/** Streaming chat state shared by the chat page and the overlay. Conversations are persisted by the gateway. */
+export function useChat({ warm = true, sessionId: initialSessionId }: UseChatOptions = {}) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [historyLoading, setHistoryLoading] = useState(Boolean(initialSessionId))
   const [error, setError] = useState<Error | null>(null)
+  const [sessionId, setSessionId] = useState<string>(() => initialSessionId ?? crypto.randomUUID())
   const userIdRef = useRef<string | undefined>(undefined)
-  const sessionIdRef = useRef<string | undefined>(undefined)
+  const sessionIdRef = useRef<string>(sessionId)
   const abortRef = useRef<AbortController | null>(null)
   if (!userIdRef.current) userIdRef.current = getOrCreateUserId()
-  if (!sessionIdRef.current) sessionIdRef.current = crypto.randomUUID()
+  sessionIdRef.current = sessionId
 
   useEffect(() => {
-    if (warm) void warmChatSession(userIdRef.current!, sessionIdRef.current!)
-  }, [warm])
+    if (warm) void warmChatSession(userIdRef.current!, sessionId)
+  }, [warm, sessionId])
 
   useEffect(() => () => abortRef.current?.abort(), [])
 
+  // A stored conversation: show its messages (an unknown id is simply an empty, new one with that id)
+  const load = useCallback((id: string) => {
+    let cancelled = false
+    setHistoryLoading(true)
+    chatHistoryService
+      .get(id)
+      .then((detail) => {
+        if (!cancelled && sessionIdRef.current === id) setMessages(storedToMessages(detail.messages))
+      })
+      .catch((err) => {
+        if (cancelled || sessionIdRef.current !== id) return
+        if (!(err instanceof ApiError && err.status === 404)) setError(err instanceof Error ? err : new Error('Failed to load the conversation'))
+      })
+      .finally(() => {
+        if (!cancelled && sessionIdRef.current === id) setHistoryLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (initialSessionId) return load(initialSessionId)
+  }, [initialSessionId, load])
+
+  const newSession = useCallback(() => {
+    abortRef.current?.abort()
+    setIsLoading(false)
+    setError(null)
+    setMessages([])
+    setHistoryLoading(false)
+    setSessionId(crypto.randomUUID())
+  }, [])
+
+  /** Show a stored conversation and continue it (the gateway replays its transcript to the agent). */
+  const openSession = useCallback(
+    (id: string) => {
+      if (id === sessionIdRef.current) return
+      abortRef.current?.abort()
+      setIsLoading(false)
+      setError(null)
+      setMessages([])
+      sessionIdRef.current = id
+      setSessionId(id)
+      load(id)
+    },
+    [load],
+  )
+
   // The agent's tools are bound to a project: switching project starts a fresh conversation with the new one
   useEffect(() => {
-    function onWorkspaceChanged() {
-      sessionIdRef.current = crypto.randomUUID()
-      if (warm) void warmChatSession(userIdRef.current!, sessionIdRef.current)
-    }
-    window.addEventListener('workspace-changed', onWorkspaceChanged)
-    return () => window.removeEventListener('workspace-changed', onWorkspaceChanged)
-  }, [warm])
+    window.addEventListener('workspace-changed', newSession)
+    return () => window.removeEventListener('workspace-changed', newSession)
+  }, [newSession])
 
   const send = useCallback(async (userText: string) => {
+    const currentSession = sessionIdRef.current
     setError(null)
     setMessages((prev) => [
       ...prev,
@@ -108,7 +164,7 @@ export function useChat({ warm = true }: UseChatOptions = {}) {
       await streamChat({
         message: userText,
         userId: userIdRef.current!,
-        sessionId: sessionIdRef.current!,
+        sessionId: currentSession,
         signal: controller.signal,
         onEvent,
       })
@@ -120,8 +176,10 @@ export function useChat({ warm = true }: UseChatOptions = {}) {
       setError(err instanceof Error ? err : new Error('Failed to send message'))
     } finally {
       if (abortRef.current === controller) setIsLoading(false)
+      // the gateway has recorded the turn by now (or was unreachable): let the history list refresh
+      window.dispatchEvent(new CustomEvent(CHAT_HISTORY_UPDATED, { detail: { sessionId: currentSession } }))
     }
   }, [])
 
-  return { messages, isLoading, error, send }
+  return { messages, isLoading, historyLoading, error, send, sessionId, newSession, openSession }
 }
