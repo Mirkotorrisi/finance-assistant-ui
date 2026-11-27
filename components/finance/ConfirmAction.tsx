@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react'
 import { confirmAgentAction } from '@/lib/chat-stream'
 import { useTranslation } from '@/lib/i18n'
+import { argRows } from '@/lib/confirm-args'
 
 /**
  * A destructive action the agent proposed but cannot run: deleting, undoing an import, sweeping recategorisations.
@@ -36,13 +37,6 @@ const REFRESH_EVENTS: Record<string, string[]> = {
   resolve_suspect_duplicates_bulk: ['transactions-updated'],
 }
 
-function formatArg(value: unknown): string {
-  if (value == null) return '—'
-  if (Array.isArray(value)) return value.length > 6 ? `${value.slice(0, 6).join(', ')} … (${value.length})` : value.join(', ')
-  if (typeof value === 'object') return JSON.stringify(value)
-  return String(value)
-}
-
 export function ConfirmAction({ title, params }: ConfirmActionProps) {
   const { t, tr } = useTranslation()
   const [state, setState] = useState<State>('idle')
@@ -52,7 +46,10 @@ export function ConfirmAction({ title, params }: ConfirmActionProps) {
 
   const toolLabels = tr.confirmAction.tools as Record<string, string>
   const label = toolLabels[params.tool] ?? params.tool
-  const entries = Object.entries(params.args ?? {})
+  const rows = argRows(params.args, {
+    items: (n) => t('confirmAction.items', { n }),
+    movements: (n) => t('confirmAction.movements', { n }),
+  })
 
   async function act(approve: boolean) {
     setState('loading')
@@ -108,13 +105,26 @@ export function ConfirmAction({ title, params }: ConfirmActionProps) {
           <Badge variant="secondary">{label}</Badge>
           <span className="font-mono text-[11px] text-muted-foreground">{params.tool}</span>
         </div>
-        {entries.length > 0 && (
+        {rows.length > 0 && (
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-            {entries.map(([key, value]) => (
-              <div key={key} className="contents">
-                <dt className="font-mono text-xs text-muted-foreground">{key}</dt>
-                <dd className="truncate" title={formatArg(value)}>
-                  {formatArg(value)}
+            {rows.map((row) => (
+              <div key={row.key} className="contents">
+                <dt className="font-mono text-xs text-muted-foreground">{row.key}</dt>
+                <dd className="min-w-0">
+                  {row.items ? (
+                    <details className="group">
+                      <summary className="cursor-pointer select-none truncate marker:text-muted-foreground" title={row.summary}>
+                        {row.summary}
+                      </summary>
+                      <ul className="mt-1 max-h-48 space-y-0.5 overflow-y-auto rounded-md border border-border/60 bg-muted/40 p-2 font-mono text-[11px] text-muted-foreground">
+                        {row.items.map((line, i) => (
+                          <li key={i} className="truncate" title={line}>{line}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : (
+                    <span className="block truncate" title={row.summary}>{row.summary}</span>
+                  )}
                 </dd>
               </div>
             ))}
