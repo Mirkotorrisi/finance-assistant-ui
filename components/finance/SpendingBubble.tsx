@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { financialSummaryService } from '@/lib/services/financial-summary.service'
 import { formatCurrency } from '@/lib/format'
-import { SERIES_COLORS } from '@/lib/chart-colors'
+import { distinctColors } from '@/lib/chart-colors'
 import type { SpendingDistributionParams, DistributionItem } from '@/lib/types/financial-summary'
 import { useTranslation } from '@/lib/i18n'
 
@@ -53,6 +53,15 @@ function monthsAgo(n: number) {
   d.setMonth(d.getMonth() - n)
   d.setDate(1)
   return isoDate(d)
+}
+
+/** Where the tooltip of a hovered bubble sits: above the circle, kept inside the chart width. */
+function tooltipPosition(node: { x: number; y: number; r: number }, width: number) {
+  const margin = 90
+  return {
+    left: Math.min(Math.max(node.x, margin), Math.max(margin, width - margin)),
+    top: Math.max(node.y - node.r - 8, 0),
+  }
 }
 
 export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbleProps) {
@@ -114,6 +123,11 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
     return packedRoot.leaves()
   })()
 
+  const colors = distinctColors(data.map((d) => d.name))
+  const colorOf = (name: string) => colors.get(name) ?? 'var(--muted-foreground)'
+  const hoveredNode = hovered ? packedLeaves.find((n) => (n.data as DistributionItem).name === hovered) : undefined
+  const hoveredItem = hoveredNode?.data as DistributionItem | undefined
+
   return (
     <Card>
       <CardHeader>
@@ -167,69 +181,80 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
             <p className="text-sm text-muted-foreground">{t('charts.noPeriodData')}</p>
           ) : (
             <>
-              <svg width={width} height={height}>
-                {packedLeaves.map((node: HierarchyCircularNode<RootDatum>) => {
-                  const item = node.data as DistributionItem
-                  const r = node.r
-                  const nameFontSize = Math.max(9, Math.min(14, r / 3.5))
-                  const amountFontSize = nameFontSize * 0.82
-                  const showText = r > 34
+              <div className="relative" onMouseLeave={() => setHovered(null)}>
+                <svg width={width} height={height} className="block">
+                  {packedLeaves.map((node: HierarchyCircularNode<RootDatum>) => {
+                    const item = node.data as DistributionItem
+                    const r = node.r
+                    const color = colorOf(item.name)
+                    const nameFontSize = Math.max(9, Math.min(14, r / 3.5))
+                    const amountFontSize = nameFontSize * 0.82
+                    const showText = r > 34
+                    const isHovered = hovered === item.name
+                    const dimmed = hovered !== null && !isHovered
 
-                  return (
-                    <g
-                      key={item.name}
-                      transform={`translate(${node.x},${node.y})`}
-                      style={{ cursor: onCategoryClick ? 'pointer' : 'default' }}
-                      role={onCategoryClick ? 'button' : undefined}
-                      tabIndex={onCategoryClick ? 0 : undefined}
-                      onMouseEnter={() => setHovered(item.name)}
-                      onMouseLeave={() => setHovered(null)}
-                      aria-label={`${item.name}: ${formatCurrency(Math.abs(item.amount))}`}
-                      onClick={() => onCategoryClick?.(item.name, startDate, endDate)}
-                      onKeyDown={(e) => {
-                        if (onCategoryClick && (e.key === 'Enter' || e.key === ' ')) {
-                          e.preventDefault()
-                          onCategoryClick(item.name, startDate, endDate)
-                        }
-                      }}
-                    >
-                      <circle
-                        r={r}
-                        fill={SERIES_COLORS[0]}
-                        stroke="var(--card)"
-                        strokeWidth={2}
-                        fillOpacity={hovered && hovered !== item.name ? 0.25 : 0.92}
-                        className="transition-[fill-opacity,r] duration-200"
-                      />
-                      {showText && (
-                        <>
-                          <text
-                            textAnchor="middle"
-                            dy="-0.25em"
-                            fontSize={nameFontSize}
-                            fontWeight="700"
-                            fill="white"
-                            style={{ pointerEvents: 'none' }}
+                    return (
+                      <g
+                        key={item.name}
+                        transform={`translate(${node.x},${node.y})`}
+                        style={{ cursor: onCategoryClick ? 'pointer' : 'default' }}
+                        role={onCategoryClick ? 'button' : undefined}
+                        tabIndex={onCategoryClick ? 0 : undefined}
+                        onMouseEnter={() => setHovered(item.name)}
+                        onFocus={() => setHovered(item.name)}
+                        onBlur={() => setHovered(null)}
+                        aria-label={`${item.name}: ${formatCurrency(Math.abs(item.amount))}`}
+                        onClick={() => onCategoryClick?.(item.name, startDate, endDate)}
+                        onKeyDown={(e) => {
+                          if (onCategoryClick && (e.key === 'Enter' || e.key === ' ')) {
+                            e.preventDefault()
+                            onCategoryClick(item.name, startDate, endDate)
+                          }
+                        }}
+                      >
+                        <circle
+                          r={r}
+                          fill={color}
+                          stroke={isHovered ? 'var(--foreground)' : 'var(--card)'}
+                          strokeWidth={isHovered ? 2.5 : 2}
+                          fillOpacity={dimmed ? 0.25 : 0.92}
+                          className="transition-[fill-opacity,stroke] duration-200"
+                        />
+                        {showText && (
+                          <g
+                            opacity={dimmed ? 0.35 : 1}
+                            className="transition-opacity duration-200"
+                            style={{ pointerEvents: 'none', paintOrder: 'stroke', stroke: 'rgba(0,0,0,0.22)', strokeWidth: 2 }}
                           >
-                            {item.name.length > 12 ? item.name.slice(0, 11) + '…' : item.name}
-                          </text>
-                          <text
-                            textAnchor="middle"
-                            dy={nameFontSize + 2}
-                            fontSize={amountFontSize}
-                            fill="white"
-                            fillOpacity={0.9}
-                            style={{ pointerEvents: 'none' }}
-                          >
-                            {r > 46 ? formatCurrency(Math.abs(item.amount)) : ''}
-                          </text>
-                        </>
-                      )}
-                      <title>{`${item.name}: ${formatCurrency(Math.abs(item.amount))} (${Math.abs(item.percent).toFixed(1)}%)`}</title>
-                    </g>
-                  )
-                })}
-              </svg>
+                            <text textAnchor="middle" dy="-0.25em" fontSize={nameFontSize} fontWeight="700" fill="white">
+                              {item.name.length > 12 ? item.name.slice(0, 11) + '…' : item.name}
+                            </text>
+                            <text textAnchor="middle" dy={nameFontSize + 2} fontSize={amountFontSize} fill="white" fillOpacity={0.9}>
+                              {r > 46 ? formatCurrency(Math.abs(item.amount)) : ''}
+                            </text>
+                          </g>
+                        )}
+                      </g>
+                    )
+                  })}
+                </svg>
+
+                {hoveredNode && hoveredItem && (
+                  <div
+                    role="tooltip"
+                    className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-pop"
+                    style={tooltipPosition(hoveredNode, width)}
+                  >
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ background: colorOf(hoveredItem.name) }} />
+                      <span className="whitespace-nowrap">{hoveredItem.name}</span>
+                    </div>
+                    <div className="num mt-0.5 whitespace-nowrap text-muted-foreground">
+                      {formatCurrency(Math.abs(hoveredItem.amount))} · {Math.abs(hoveredItem.percent).toFixed(1)}% · {t('charts.txCount', { n: hoveredItem.count })}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Legend */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 pt-2 border-t border-border/40">
@@ -238,12 +263,13 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                   .map((item) => (
                     <div
                       key={item.name}
-                      className="flex items-center gap-2 min-w-0 rounded-md px-1 -mx-1 transition-colors hover:bg-muted/60"
+                      className={`flex items-center gap-2 min-w-0 rounded-md px-1 -mx-1 transition-colors hover:bg-muted/60 ${hovered === item.name ? 'bg-muted/60' : ''}`}
                       onMouseEnter={() => setHovered(item.name)}
                       onMouseLeave={() => setHovered(null)}
                       style={{ cursor: onCategoryClick ? 'pointer' : 'default' }}
                       onClick={() => onCategoryClick?.(item.name, startDate, endDate)}
                     >
+                      <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ background: colorOf(item.name) }} />
                       <span className="truncate text-xs text-muted-foreground" title={item.name}>
                         {item.name}
                       </span>

@@ -1,14 +1,20 @@
 export const CHART_PALETTE = [
   'oklch(0.546 0.241 264)',  // chart-1 — blue (primary)
-  'oklch(0.62 0.19 162)',    // chart-2 — green
-  'oklch(0.75 0.19 70)',     // chart-3 — amber
-  'oklch(0.62 0.27 303)',    // chart-4 — purple
-  'oklch(0.64 0.25 16)',     // chart-5 — red
-  'oklch(0.60 0.22 200)',    // teal
-  'oklch(0.58 0.23 340)',    // pink
-  'oklch(0.65 0.18 120)',    // lime
-  'oklch(0.55 0.24 280)',    // violet
   'oklch(0.68 0.20 40)',     // orange
+  'oklch(0.62 0.19 162)',    // chart-2 — green
+  'oklch(0.62 0.27 303)',    // chart-4 — purple
+  'oklch(0.75 0.19 70)',     // chart-3 — amber
+  'oklch(0.60 0.22 200)',    // teal
+  'oklch(0.64 0.25 16)',     // chart-5 — red
+  'oklch(0.55 0.24 280)',    // violet
+  'oklch(0.65 0.18 120)',    // lime
+  'oklch(0.58 0.23 340)',    // pink
+  'oklch(0.50 0.12 240)',    // steel blue
+  'oklch(0.70 0.15 95)',     // mustard
+  'oklch(0.52 0.15 150)',    // forest
+  'oklch(0.60 0.16 25)',     // terracotta
+  'oklch(0.72 0.12 320)',    // lilac
+  'oklch(0.46 0.10 190)',    // deep teal
 ]
 
 // Semantic colors for known finance categories.
@@ -116,17 +122,55 @@ const CATEGORY_COLORS: Record<string, string> = {
   misc:            'oklch(0.52 0.04 264)',
 }
 
-export function paletteColor(name: string): string {
-  let hash = 0
+/** FNV-1a 32-bit: a cheap hash whose low bits are well mixed (the old shift-add hash sent most names to the same slot). */
+export function hashIndex(name: string, buckets = CHART_PALETTE.length): number {
+  let hash = 0x811c9dc5
   for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+    hash ^= name.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193) >>> 0
   }
-  return CHART_PALETTE[Math.abs(hash) % CHART_PALETTE.length]
+  return hash % buckets
+}
+
+export function paletteColor(name: string): string {
+  return CHART_PALETTE[hashIndex(name)]
+}
+
+function semanticColor(name: string): string | undefined {
+  return CATEGORY_COLORS[name.toLowerCase().trim()]
 }
 
 /** Semantic color for a finance category; falls back to hash-based palette. */
 export function categoryColor(name: string): string {
-  return CATEGORY_COLORS[name.toLowerCase().trim()] ?? paletteColor(name)
+  return semanticColor(name) ?? paletteColor(name)
+}
+
+/**
+ * One color per name, no two names on the same palette color while the palette lasts.
+ * Each name starts from its own `categoryColor` (so the result agrees with it whenever there
+ * is no clash) and, on a clash, takes the next free palette color. Independent of the input
+ * order (names are sorted first), so the same set always gets the same colors.
+ */
+export function distinctColors(names: Iterable<string>): Map<string, string> {
+  const result = new Map<string, string>()
+  const used = new Set<string>()
+  const sorted = [...new Set(names)].sort()
+  for (const name of sorted) {            // semantic colors first: they never move
+    const color = semanticColor(name)
+    if (color) { result.set(name, color); used.add(color) }
+  }
+  for (const name of sorted) {
+    if (result.has(name)) continue
+    const start = hashIndex(name)
+    let color = CHART_PALETTE[start]
+    for (let step = 0; step < CHART_PALETTE.length; step++) {
+      const candidate = CHART_PALETTE[(start + step) % CHART_PALETTE.length]
+      if (!used.has(candidate)) { color = candidate; break }
+    }
+    result.set(name, color)
+    used.add(color)
+  }
+  return result
 }
 
 // Categorical series, in fixed order: the validated reference palette (light steps; the app has no dark theme switch).

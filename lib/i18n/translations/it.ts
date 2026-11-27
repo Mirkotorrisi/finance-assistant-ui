@@ -116,8 +116,16 @@ export const it = {
     headers: {
       date: 'Data',
       description: 'Descrizione',
+      account: 'Conto',
       category: 'Categoria',
       amount: 'Importo',
+    },
+    filters: {
+      accounts: 'Conti',
+      categories: 'Categorie',
+      all: 'Tutte',
+      none: 'Nessuna',
+      noAccount: 'Senza conto',
     },
   },
   accounts: {
@@ -160,6 +168,7 @@ export const it = {
     monthlyError: 'Impossibile caricare i dati finanziari',
     spendingError: 'Impossibile caricare i dati di spesa',
     bubbleError: 'Impossibile caricare i dati',
+    txCount: '{{n}} transazioni',
   },
   upload: {
     button: 'Carica estratto conto',
@@ -928,6 +937,8 @@ export const it = {
     cancelled: 'Annullato: {{action}}.',
     error: "Non sono riuscito a eseguire l'azione.",
     retryHint: 'Se la proposta è scaduta, chiedila di nuovo in chat.',
+    items: '{{n}} elementi',
+    movements: '{{n}} movimenti',
     tools: {
       delete_transaction: 'Elimina movimento',
       delete_account: 'Disattiva conto',

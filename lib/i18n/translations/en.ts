@@ -116,8 +116,16 @@ export const en = {
     headers: {
       date: 'Date',
       description: 'Description',
+      account: 'Account',
       category: 'Category',
       amount: 'Amount',
+    },
+    filters: {
+      accounts: 'Accounts',
+      categories: 'Categories',
+      all: 'All',
+      none: 'None',
+      noAccount: 'No account',
     },
   },
   accounts: {
@@ -160,6 +168,7 @@ export const en = {
     monthlyError: 'Failed to load financial data',
     spendingError: 'Failed to load spending data',
     bubbleError: 'Failed to load data',
+    txCount: '{{n}} transactions',
   },
   upload: {
     button: 'Upload Statement',
@@ -928,6 +937,8 @@ export const en = {
     cancelled: 'Cancelled: {{action}}.',
     error: 'The action could not be run.',
     retryHint: 'If the proposal expired, ask for it again in the chat.',
+    items: '{{n}} items',
+    movements: '{{n}} transactions',
     tools: {
       delete_transaction: 'Delete transaction',
       delete_account: 'Deactivate account',

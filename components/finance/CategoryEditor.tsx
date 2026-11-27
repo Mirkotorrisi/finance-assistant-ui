@@ -23,11 +23,13 @@ import { useTranslation } from '@/lib/i18n'
 interface CategoryEditorProps {
   transaction: Transaction
   onUpdated: (updatedTx: Transaction) => void
+  /** Badge color; the table passes the color it gives the category elsewhere (chips). */
+  color?: string
 }
 
 type Step = 'select' | 'confirm'
 
-export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) {
+export function CategoryEditor({ transaction, onUpdated, color: colorProp }: CategoryEditorProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>('select')
@@ -79,7 +81,8 @@ export function CategoryEditor({ transaction, onUpdated }: CategoryEditorProps) 
     }
   }
 
-  const color = categoryColor(transaction.category)
+  // by label, like the bubble chart and the table chips, so one category has one color everywhere
+  const color = colorProp ?? categoryColor(transaction.category_label ?? transaction.category)
 
   return (
     <>
