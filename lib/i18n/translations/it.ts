@@ -120,6 +120,7 @@ export const it = {
       category: 'Categoria',
       amount: 'Importo',
     },
+    totalsTitle: 'Totale filtrato',
     filters: {
       accounts: 'Conti',
       categories: 'Categorie',
@@ -168,6 +169,7 @@ export const it = {
     monthlyError: 'Impossibile caricare i dati finanziari',
     spendingError: 'Impossibile caricare i dati di spesa',
     bubbleError: 'Impossibile caricare i dati',
+    periodTotal: 'Uscite nel periodo',
     txCount: '{{n}} transazioni',
   },
   upload: {

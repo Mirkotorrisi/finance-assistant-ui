@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { financialSummaryService } from '@/lib/services/financial-summary.service'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, formatWholeCurrency } from '@/lib/format'
+import { isoDate, periodStart } from '@/lib/periods'
 import { distinctColors } from '@/lib/chart-colors'
 import type { SpendingDistributionParams, DistributionItem } from '@/lib/types/financial-summary'
 import { useTranslation } from '@/lib/i18n'
@@ -30,29 +31,18 @@ interface RootDatum {
   amount?: number
 }
 
-type FetchState = { loading: boolean; error: string | null; data: DistributionItem[] }
+type FetchState = { loading: boolean; error: string | null; data: DistributionItem[]; total: number }
 type FetchAction =
   | { type: 'START' }
-  | { type: 'SUCCESS'; data: DistributionItem[] }
+  | { type: 'SUCCESS'; data: DistributionItem[]; total: number }
   | { type: 'ERROR'; error: string }
 
 function fetchReducer(state: FetchState, action: FetchAction): FetchState {
   switch (action.type) {
-    case 'START':  return { loading: true, error: null, data: state.data }
-    case 'SUCCESS': return { loading: false, error: null, data: action.data }
-    case 'ERROR':  return { loading: false, error: action.error, data: [] }
+    case 'START':  return { ...state, loading: true, error: null }
+    case 'SUCCESS': return { loading: false, error: null, data: action.data, total: action.total }
+    case 'ERROR':  return { loading: false, error: action.error, data: [], total: 0 }
   }
-}
-
-function isoDate(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-function monthsAgo(n: number) {
-  const d = new Date()
-  d.setMonth(d.getMonth() - n)
-  d.setDate(1)
-  return isoDate(d)
 }
 
 /** Where the tooltip of a hovered bubble sits: above the circle, kept inside the chart width. */
@@ -66,13 +56,14 @@ function tooltipPosition(node: { x: number; y: number; r: number }, width: numbe
 
 export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbleProps) {
   const { t } = useTranslation()
-  const [startDate, setStartDate] = useState(monthsAgo(6))
+  const [startDate, setStartDate] = useState(periodStart(1))
   const [endDate, setEndDate] = useState(isoDate(new Date()))
-  const [activePreset, setActivePreset] = useState<number | null>(6)
-  const [{ loading, error, data }, dispatch] = useReducer(fetchReducer, {
+  const [activePreset, setActivePreset] = useState<number | null>(1)
+  const [{ loading, error, data, total }, dispatch] = useReducer(fetchReducer, {
     loading: true,
     error: null,
     data: [],
+    total: 0,
   })
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(600)
@@ -103,28 +94,30 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
     dispatch({ type: 'START' })
     financialSummaryService
       .getSpendingDistribution(resolvedParams)
-      .then((res) => dispatch({ type: 'SUCCESS', data: res.distribution }))
+      .then((res) => dispatch({ type: 'SUCCESS', data: res.distribution, total: res.total_amount }))
       .catch((err) => dispatch({ type: 'ERROR', error: err instanceof Error ? err.message : t('charts.bubbleError') }))
   }, [startDate, endDate, params, refreshKey, t])
 
   function handlePreset(months: number) {
     setActivePreset(months)
-    setStartDate(monthsAgo(months))
+    setStartDate(periodStart(months))
     setEndDate(isoDate(new Date()))
   }
 
-  const height = Math.round(Math.min(460, Math.max(300, width * 0.42)))
+  // tall enough that most bubbles can carry their amount: a squarer canvas packs bigger circles
+  const height = Math.round(Math.min(720, Math.max(380, width * 0.68)))
 
   const packedLeaves: HierarchyCircularNode<RootDatum>[] = (() => {
     if (data.length === 0) return []
     const root = hierarchy<RootDatum>({ children: data })
       .sum((d: RootDatum) => Math.abs(d.amount ?? 0))
-    const packedRoot = pack<RootDatum>().size([width, height]).padding(6)(root)
+    const packedRoot = pack<RootDatum>().size([width, height]).padding(4)(root)
     return packedRoot.leaves()
   })()
 
   const colors = distinctColors(data.map((d) => d.name))
   const colorOf = (name: string) => colors.get(name) ?? 'var(--muted-foreground)'
+  const txCount = data.reduce((s, d) => s + (d.count ?? 0), 0)
   const hoveredNode = hovered ? packedLeaves.find((n) => (n.data as DistributionItem).name === hovered) : undefined
   const hoveredItem = hoveredNode?.data as DistributionItem | undefined
 
@@ -172,6 +165,14 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
           </div>
         )}
 
+        {!loading && !error && (
+          <p className="flex flex-wrap items-baseline gap-x-2 text-sm">
+            <span className="text-muted-foreground">{t('charts.periodTotal')}</span>
+            <strong className="num text-base font-semibold">{formatCurrency(total)}</strong>
+            <span className="num text-xs text-muted-foreground">· {t('charts.txCount', { n: txCount })}</span>
+          </p>
+        )}
+
         <div ref={containerRef}>
           {loading ? (
             <div className="shimmer rounded-xl" style={{ height }} />
@@ -187,9 +188,14 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                     const item = node.data as DistributionItem
                     const r = node.r
                     const color = colorOf(item.name)
-                    const nameFontSize = Math.max(9, Math.min(14, r / 3.5))
-                    const amountFontSize = nameFontSize * 0.82
-                    const showText = r > 34
+                    const nameFontSize = Math.max(8, Math.min(14, r / 3.2))
+                    const amountFontSize = Math.max(8, nameFontSize * 0.85)
+                    const showText = r > 18
+                    const showAmount = r > 24
+                    // the amount in cents from r≈44 up; whole euros below, so small bubbles still carry a figure
+                    const amountText = r > 44 ? formatCurrency(Math.abs(item.amount)) : formatWholeCurrency(Math.abs(item.amount))
+                    const maxChars = Math.max(4, Math.floor((r * 2 - 6) / (nameFontSize * 0.58)))
+                    const nameText = item.name.length > maxChars ? item.name.slice(0, Math.max(3, maxChars - 1)) + '…' : item.name
                     const isHovered = hovered === item.name
                     const dimmed = hovered !== null && !isHovered
 
@@ -226,12 +232,14 @@ export function SpendingBubble({ title, params, onCategoryClick }: SpendingBubbl
                             className="transition-opacity duration-200"
                             style={{ pointerEvents: 'none', paintOrder: 'stroke', stroke: 'rgba(0,0,0,0.22)', strokeWidth: 2 }}
                           >
-                            <text textAnchor="middle" dy="-0.25em" fontSize={nameFontSize} fontWeight="700" fill="white">
-                              {item.name.length > 12 ? item.name.slice(0, 11) + '…' : item.name}
+                            <text textAnchor="middle" dy={showAmount ? '-0.2em' : '0.35em'} fontSize={nameFontSize} fontWeight="700" fill="white">
+                              {nameText}
                             </text>
-                            <text textAnchor="middle" dy={nameFontSize + 2} fontSize={amountFontSize} fill="white" fillOpacity={0.9}>
-                              {r > 46 ? formatCurrency(Math.abs(item.amount)) : ''}
-                            </text>
+                            {showAmount && (
+                              <text textAnchor="middle" dy={nameFontSize + 1} fontSize={amountFontSize} fill="white" fillOpacity={0.92}>
+                                {amountText}
+                              </text>
+                            )}
                           </g>
                         )}
                       </g>

@@ -14,7 +14,7 @@ import {
 import { distinctColors } from '@/lib/chart-colors'
 import { transactionsService } from '@/lib/services/transactions.service'
 import { accountsService } from '@/lib/services/accounts.service'
-import { formatCurrency, formatDate } from '@/lib/format'
+import { formatCurrency, formatDate, formatSignedCurrency } from '@/lib/format'
 import {
   accountOptions,
   toggleIn,
@@ -147,6 +147,15 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
   const colors = useMemo(() => distinctColors(categories.map((c) => categoryLabels.get(c) ?? c)), [categories, categoryLabels])
 
   const filteredTransactions = applyChipFilters(transactions, hiddenCategories, hiddenAccounts)
+  const totals = useMemo(() => {
+    let expenses = 0
+    let income = 0
+    for (const tx of filteredTransactions) {
+      if (tx.amount < 0) expenses += tx.amount
+      else income += tx.amount
+    }
+    return { expenses, income, net: expenses + income }
+  }, [filteredTransactions])
   const visibleTransactions = filteredTransactions.slice(0, limit)
   const allCategoriesShown = hiddenCategories.size === 0
   const noCategoryShown = categories.length > 0 && categories.every((c) => hiddenCategories.has(c))
@@ -206,6 +215,24 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
                 </Chip>
               ))}
             </div>
+          </div>
+        )}
+        {!loading && !error && (
+          <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-border/70 bg-muted/30 px-4 py-2.5">
+            <span className="eyebrow">{t('transactions.totalsTitle')}</span>
+            <span className="flex items-baseline gap-1.5">
+              <span className="text-xs text-muted-foreground">{t('charts.expenses')}</span>
+              <strong className="num text-sm font-semibold">{formatCurrency(totals.expenses)}</strong>
+            </span>
+            <span className="flex items-baseline gap-1.5">
+              <span className="text-xs text-muted-foreground">{t('charts.income')}</span>
+              <strong className="num text-sm font-semibold text-positive">{formatSignedCurrency(totals.income)}</strong>
+            </span>
+            <span className="flex items-baseline gap-1.5">
+              <span className="text-xs text-muted-foreground">{t('charts.net')}</span>
+              <strong className={cn('num text-sm font-semibold', totals.net >= 0 ? 'text-positive' : 'text-foreground')}>{formatSignedCurrency(totals.net)}</strong>
+            </span>
+            <span className="num ml-auto text-xs text-muted-foreground">{t('charts.txCount', { n: filteredTransactions.length })}</span>
           </div>
         )}
         {loading ? (

@@ -27,6 +27,11 @@ export function formatCurrency(
   return new Intl.NumberFormat(formatLocale, opts).format(value)
 }
 
+/** Currency without cents, for tight spots (small bubbles). */
+export function formatWholeCurrency(value: number, currency = 'EUR'): string {
+  return new Intl.NumberFormat(formatLocale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(value)
+}
+
 /** Currency with an explicit sign, so a gain or a loss never rests on colour alone. */
 export function formatSignedCurrency(value: number, currency = 'EUR'): string {
   return `${value > 0 ? '+' : ''}${formatCurrency(value, currency)}`

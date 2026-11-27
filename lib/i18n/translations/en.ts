@@ -120,6 +120,7 @@ export const en = {
       category: 'Category',
       amount: 'Amount',
     },
+    totalsTitle: 'Filtered total',
     filters: {
       accounts: 'Accounts',
       categories: 'Categories',
@@ -168,6 +169,7 @@ export const en = {
     monthlyError: 'Failed to load financial data',
     spendingError: 'Failed to load spending data',
     bubbleError: 'Failed to load data',
+    periodTotal: 'Spending in the period',
     txCount: '{{n}} transactions',
   },
   upload: {
