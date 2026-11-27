@@ -121,6 +121,7 @@ export const en = {
       amount: 'Amount',
     },
     totalsTitle: 'Filtered total',
+    sortBy: 'Sort by {{column}}',
     filters: {
       accounts: 'Accounts',
       categories: 'Categories',

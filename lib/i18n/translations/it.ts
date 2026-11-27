@@ -121,6 +121,7 @@ export const it = {
       amount: 'Importo',
     },
     totalsTitle: 'Totale filtrato',
+    sortBy: 'Ordina per {{column}}',
     filters: {
       accounts: 'Conti',
       categories: 'Categorie',

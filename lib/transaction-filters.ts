@@ -65,3 +65,47 @@ export function visibleTransactions<T extends Pick<Transaction, 'category' | 'ac
     (tx) => !hiddenCategories.has(tx.category) && !hiddenAccounts.has(accountKey(tx)),
   )
 }
+
+export type SortKey = 'date' | 'description' | 'account' | 'category' | 'amount'
+export type SortDir = 'asc' | 'desc'
+export interface SortState { key: SortKey; dir: SortDir }
+
+/** Newest first, like the API. */
+export const DEFAULT_SORT: SortState = { key: 'date', dir: 'desc' }
+
+/** The direction a column starts with: dates newest first, amounts biggest expenses first, text A→Z. */
+export function defaultDir(key: SortKey): SortDir {
+  return key === 'date' ? 'desc' : 'asc'
+}
+
+/** Clicking a header: same column flips the direction, another column starts with its default. */
+export function nextSort(current: SortState, key: SortKey): SortState {
+  if (current.key === key) return { key, dir: current.dir === 'asc' ? 'desc' : 'asc' }
+  return { key, dir: defaultDir(key) }
+}
+
+type Sortable = Pick<Transaction, 'id' | 'date' | 'description' | 'category' | 'category_label' | 'amount' | 'account_id'>
+
+/**
+ * A sorted copy. Ties fall back to date desc then id desc, so the order is stable across renders.
+ * `accountName` resolves the account column; the category sorts by the label the user sees.
+ */
+export function sortTransactions<T extends Sortable>(
+  transactions: T[],
+  sort: SortState,
+  accountName: (tx: T) => string,
+): T[] {
+  const sign = sort.dir === 'asc' ? 1 : -1
+  const text = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' })
+  const byKey = (a: T, b: T): number => {
+    switch (sort.key) {
+      case 'date': return a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+      case 'amount': return a.amount - b.amount
+      case 'description': return text(a.description, b.description)
+      case 'account': return text(accountName(a), accountName(b))
+      case 'category': return text(a.category_label ?? a.category, b.category_label ?? b.category)
+    }
+  }
+  const tieBreak = (a: T, b: T) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id)
+  return [...transactions].sort((a, b) => sign * byKey(a, b) || tieBreak(a, b))
+}

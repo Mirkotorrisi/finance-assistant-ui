@@ -16,11 +16,17 @@ import { transactionsService } from '@/lib/services/transactions.service'
 import { accountsService } from '@/lib/services/accounts.service'
 import { formatCurrency, formatDate, formatSignedCurrency } from '@/lib/format'
 import {
+  DEFAULT_SORT,
   accountOptions,
+  nextSort,
+  sortTransactions,
   toggleIn,
   visibleTransactions as applyChipFilters,
   type AccountKey,
+  type SortKey,
+  type SortState,
 } from '@/lib/transaction-filters'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { CategoryEditor } from '@/components/finance/CategoryEditor'
 import { TransactionSearch } from '@/components/finance/TransactionSearch'
 import type { Transaction, TransactionFilters } from '@/lib/types/transaction'
@@ -88,6 +94,41 @@ function Chip({
   )
 }
 
+function SortableHead({
+  column,
+  label,
+  sort,
+  onSort,
+  className,
+}: {
+  column: SortKey
+  label: string
+  sort: SortState
+  onSort: (key: SortKey) => void
+  className?: string
+}) {
+  const { t } = useTranslation()
+  const active = sort.key === column
+  const Icon = !active ? ArrowUpDown : sort.dir === 'asc' ? ArrowUp : ArrowDown
+  return (
+    <TableHead className={className} aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+      <button
+        type="button"
+        onClick={() => onSort(column)}
+        title={t('transactions.sortBy', { column: label })}
+        className={cn(
+          'group/sort inline-flex items-center gap-1 rounded-sm -mx-1 px-1 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          className?.includes('text-right') && 'flex-row-reverse',
+          active && 'text-foreground',
+        )}
+      >
+        {label}
+        <Icon className={cn('h-3.5 w-3.5', active ? 'opacity-100' : 'opacity-0 group-hover/sort:opacity-60')} aria-hidden="true" />
+      </button>
+    </TableHead>
+  )
+}
+
 export function TransactionsTable({ title, params }: TransactionsTableProps) {
   const { t } = useTranslation()
   const [{ loading, error, transactions, limit }, dispatch] = useReducer(listReducer, {
@@ -100,6 +141,7 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
   const [accountNames, setAccountNames] = useState<Map<number, string>>(new Map())
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set())
   const [hiddenAccounts, setHiddenAccounts] = useState<Set<AccountKey>>(new Set())
+  const [sort, setSort] = useState<SortState>(DEFAULT_SORT)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
@@ -156,11 +198,16 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
     }
     return { expenses, income, net: expenses + income }
   }, [filteredTransactions])
-  const visibleTransactions = filteredTransactions.slice(0, limit)
-  const allCategoriesShown = hiddenCategories.size === 0
-  const noCategoryShown = categories.length > 0 && categories.every((c) => hiddenCategories.has(c))
   const accountName = (tx: Transaction) =>
     tx.account_id === null ? noAccountLabel : accountNames.get(tx.account_id) ?? `#${tx.account_id}`
+  const sortedTransactions = useMemo(
+    () => sortTransactions(filteredTransactions, sort, accountName),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- accountName is derived from accountNames/noAccountLabel
+    [filteredTransactions, sort, accountNames, noAccountLabel],
+  )
+  const visibleTransactions = sortedTransactions.slice(0, limit)
+  const allCategoriesShown = hiddenCategories.size === 0
+  const noCategoryShown = categories.length > 0 && categories.every((c) => hiddenCategories.has(c))
 
   return (
     <Card>
@@ -250,11 +297,11 @@ export function TransactionsTable({ title, params }: TransactionsTableProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('transactions.headers.date')}</TableHead>
-                  <TableHead>{t('transactions.headers.description')}</TableHead>
-                  <TableHead>{t('transactions.headers.account')}</TableHead>
-                  <TableHead>{t('transactions.headers.category')}</TableHead>
-                  <TableHead className="text-right">{t('transactions.headers.amount')}</TableHead>
+                  <SortableHead column="date" label={t('transactions.headers.date')} sort={sort} onSort={(k) => setSort((s) => nextSort(s, k))} />
+                  <SortableHead column="description" label={t('transactions.headers.description')} sort={sort} onSort={(k) => setSort((s) => nextSort(s, k))} />
+                  <SortableHead column="account" label={t('transactions.headers.account')} sort={sort} onSort={(k) => setSort((s) => nextSort(s, k))} />
+                  <SortableHead column="category" label={t('transactions.headers.category')} sort={sort} onSort={(k) => setSort((s) => nextSort(s, k))} />
+                  <SortableHead column="amount" label={t('transactions.headers.amount')} sort={sort} onSort={(k) => setSort((s) => nextSort(s, k))} className="text-right" />
                   <TableHead className="w-0" />
                 </TableRow>
               </TableHeader>
